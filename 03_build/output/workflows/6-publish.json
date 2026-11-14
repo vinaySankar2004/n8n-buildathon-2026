@@ -95,7 +95,9 @@
         "binaryData": true,
         "binaryPropertyName": "data",
         "options": {
-          "channelIds": [],
+          "channelIds": [
+            "C0CHNAKERA9"
+          ],
           "fileName": "={{ $('Input').first().json.story.topic }}.mp4",
           "initialComment": "=For review: {{ $('Input').first().json.spec.headline }}"
         }
@@ -122,7 +124,7 @@
         "channelId": {
           "__rl": true,
           "mode": "id",
-          "value": ""
+          "value": "C0CHNAKERA9"
         },
         "message": "={{ (() => { const r = $('Input').first().json; const s = r.story; return `*${r.spec.headline}*\\n${r.spec.script}\\n\\nFrom ${s.dataset}: ${s.this_week} ${s.unit} in the week to ${s.week_ending}, against an average of ${s.avg_prev_8_weeks} over the 8 weeks before.\\nVideo: ${r.video_url}`; })() }}",
         "approvalOptions": {
@@ -231,7 +233,9 @@
         "binaryData": true,
         "binaryPropertyName": "data",
         "options": {
-          "channelIds": [],
+          "channelIds": [
+            "C0CHVG02PJM"
+          ],
           "fileName": "={{ $('Input').first().json.story.topic }}.mp4",
           "initialComment": "={{ $('Input').first().json.spec.headline }}\n\n{{ $('Input').first().json.blurb }}\n\nSource: {{ $('Input').first().json.story.source_note }}"
         }
@@ -257,7 +261,7 @@
         "channelId": {
           "__rl": true,
           "mode": "id",
-          "value": ""
+          "value": "C0CHVG02PJM"
         },
         "text": "=Newsletter draft: {{ $('Input').first().json.blurb }}",
         "otherOptions": {}
@@ -283,7 +287,7 @@
         "channelId": {
           "__rl": true,
           "mode": "id",
-          "value": ""
+          "value": "C0CHNAKERA9"
         },
         "text": "=Not published: {{ $('Input').first().json.spec.headline }}",
         "otherOptions": {}
@@ -322,7 +326,7 @@
         "channelId": {
           "__rl": true,
           "mode": "id",
-          "value": ""
+          "value": "C0CHNAKERA9"
         },
         "text": "=Could not publish. {{ $json.reason }}",
         "otherOptions": {}
