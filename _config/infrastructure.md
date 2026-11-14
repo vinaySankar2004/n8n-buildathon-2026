@@ -22,7 +22,7 @@ It returns `{ "video_url", "duration_s", "render_seconds" }`. When n8n downloads
 
 ## Syncing from n8n
 
-`npm run sync` reads `N8N_API_KEY` from a `.env` at the repository root. Only the person who syncs needs one; create it in n8n under Settings, n8n API.
+`npm run sync` reads `N8N_API_KEY` from a `.env` at the repository root. Only the person who syncs needs one; create it in n8n under Settings, n8n API. The trial blocks API keys for now (see F3 in `memory/failures.md`).
 
 ## Secrets
 
