@@ -13,6 +13,10 @@ Everything runs on Vinayak's Mac behind one public address, so the n8n API is fu
 | Slack | Workspace n8n-buildathon, app "Newsroom" made from `03_build/output/host/slack-app-manifest.yml` | Bot token in `.env` as `SLACK_BOT_TOKEN`; channel IDs in `pipeline/build.mjs` | Free plan |
 | n8n Cloud | `vsa91.app.n8n.cloud`, project LOOP newsroom | Team invited | Trial blocks the API (F3). Kept as a fallback. |
 
+## Running the host laptop
+
+`npm run host` starts whatever is not running: the render service, n8n, the router and the tunnel, each detached so it outlives the terminal or agent that started it, plus keep-awake so the Mac does not idle-sleep. `npm run host -- status` shows what is up, including n8n through the tunnel, and `npm run host -- stop` stops all of it. Logs are in `03_build/output/host/logs/`. It reads `N8N_START` and `TUNNEL_URL` from the host's `.env`. After a restart, a lid close or a network change, run `npm run host` again.
+
 ## Building workflows as code
 
 The source is `03_build/output/pipeline/` (see its README). `npm run pipeline` generates one JSON file per step in `03_build/output/workflows/`: `0-orchestrator`, `1-collect`, `2-score`, `3-write`, `4-voice`, `5-render`, `6-publish`. Never hand-edit those files.
