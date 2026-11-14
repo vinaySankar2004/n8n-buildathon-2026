@@ -1,0 +1,209 @@
+{
+  "name": "3 Write",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f5fad181-f4a0-5144-a7e3-49a2d7ca3b3a",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "step-write",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        200
+      ],
+      "id": "002635d4-3e5c-5c43-a8c1-e938ae2f484f",
+      "name": "Test webhook",
+      "webhookId": "4509cdda-1a2b-59a8-a5fc-9bc744c631a4"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input for a run through the test webhook (npm run invoke). An empty body uses this sample.\nconst body = $input.first().json.body;\nif (body && typeof body === \"object\" && Object.keys(body).length) return [{ json: body }];\nreturn [{ json: {\n  \"ok\": true,\n  \"story\": {\n    \"week_start\": \"2026-11-07\",\n    \"week_ending\": \"2026-11-13\",\n    \"dataset\": \"3-1-1 service requests\",\n    \"source_note\": \"City of Vancouver open data, 3-1-1 service requests\",\n    \"source_url\": \"https://opendata.vancouver.ca/explore/dataset/3-1-1-service-requests/\",\n    \"unit\": \"reports\",\n    \"type\": \"Street Surface Water Flooding Case\",\n    \"topic\": \"Street Surface Water Flooding\",\n    \"direction\": \"up\",\n    \"chart_kind\": \"by_area\",\n    \"this_week\": 218,\n    \"avg_prev_8_weeks\": 29.3,\n    \"ratio\": 7.4,\n    \"pct_change\": 644,\n    \"by_area\": [\n      {\n        \"area\": \"Mount Pleasant\",\n        \"count\": 33\n      },\n      {\n        \"area\": \"Downtown\",\n        \"count\": 24\n      },\n      {\n        \"area\": \"Grandview-Woodland\",\n        \"count\": 20\n      },\n      {\n        \"area\": \"Fairview\",\n        \"count\": 16\n      },\n      {\n        \"area\": \"Kensington-Cedar Cottage\",\n        \"count\": 14\n      },\n      {\n        \"area\": \"Hastings-Sunrise\",\n        \"count\": 11\n      }\n    ],\n    \"unknown_area\": 4,\n    \"weekly\": [\n      {\n        \"week_ending\": \"2026-09-18\",\n        \"count\": 18\n      },\n      {\n        \"week_ending\": \"2026-09-25\",\n        \"count\": 13\n      },\n      {\n        \"week_ending\": \"2026-10-02\",\n        \"count\": 31\n      },\n      {\n        \"week_ending\": \"2026-10-09\",\n        \"count\": 13\n      },\n      {\n        \"week_ending\": \"2026-10-16\",\n        \"count\": 15\n      },\n      {\n        \"week_ending\": \"2026-10-23\",\n        \"count\": 6\n      },\n      {\n        \"week_ending\": \"2026-10-30\",\n        \"count\": 45\n      },\n      {\n        \"week_ending\": \"2026-11-06\",\n        \"count\": 93\n      },\n      {\n        \"week_ending\": \"2026-11-13\",\n        \"count\": 218\n      }\n    ]\n  },\n  \"test_tamper\": false\n} }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        200
+      ],
+      "id": "b0d8c1da-ad81-51f8-aa3f-38ea66677a83",
+      "name": "Sample story"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        440,
+        100
+      ],
+      "id": "42d4db1b-f5e1-5750-a0f4-4efe658c8627",
+      "name": "Input"
+    },
+    {
+      "parameters": {
+        "options": {
+          "timeout": 60000
+        },
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'claude-sonnet-5-5', max_tokens: 800, system: \"You write short local news videos for a Vancouver outlet. You get one story as JSON, worked out from City of Vancouver open data.\\n\\nRules:\\n- Use only numbers that appear in the story JSON, written in digits exactly as they appear there. Never round, add, subtract or work out a new number. Write \\\"8 weeks\\\", not \\\"eight weeks\\\".\\n- If direction is \\\"up\\\", the story is a rise; if \\\"down\\\", a drop. Say which plainly.\\n- Name neighbourhoods from by_area. Never mention an address, street or person.\\n- Say where the data comes from, using source_note.\\n- Plain, calm, specific. No hype, no exclamation marks, no guessing at causes. If the cause is unknown, say the city data does not say why.\\n\\nReturn only a JSON object, no other text, with these five string keys:\\n- headline: at most 8 words\\n- script: 45 to 55 words, 3 or 4 sentences, read aloud in about 20 seconds\\n- callout_label: one line under the big number, such as \\\"218 reports this week against an average of 29.3\\\"\\n- chart_title: what the bars show. If chart_kind is \\\"by_area\\\", this week by neighbourhood, such as \\\"Flooding reports by neighbourhood, last 7 days\\\". If \\\"weekly\\\", the count for each of the last 6 weeks, such as \\\"Flooding reports per week\\\"\\n- blurb: 2 sentences for the newsletter\\n\", messages: [{ role: 'user', content: 'Story JSON:\\n' + JSON.stringify($('Input').first().json.story, null, 2) }] }) }}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        100
+      ],
+      "id": "b2811427-79e6-5249-a65e-ebc4d880a75d",
+      "name": "Write script",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "anthropicApi": {
+          "name": "Anthropic"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// \"Build spec and check numbers\": parses the model's JSON, builds the chart from the story itself,\n// and stops the run if any number in the text is not in the story (must-work row 9).\nconst input = $(\"Input\").first().json;\nconst story = input.story;\nconst res = $input.first().json;\nconst raw = String(res.content?.find((c) => c.type === \"text\")?.text ?? res.text ?? \"\");\nlet w;\ntry {\n  w = JSON.parse(raw.replace(/^[\\s\\S]*?(\\{[\\s\\S]*\\})[\\s\\S]*$/, \"$1\"));\n} catch {\n  return [{ json: { ok: false, step: \"Write\", reason: \"The model did not return JSON.\", raw } }];\n}\nfor (const k of [\"headline\", \"script\", \"callout_label\", \"chart_title\", \"blurb\"]) {\n  if (typeof w[k] !== \"string\" || !w[k].trim()) return [{ json: { ok: false, step: \"Write\", reason: `The model left out ${k}.`, raw } }];\n}\n\n// Test switch for the guard: the orchestrator's \"Run options\" can change one number on purpose.\nif (input.test_tamper) {\n  const n = String(story.this_week);\n  w.script = w.script.includes(n) ? w.script.replace(n, String(story.this_week + 1)) : w.script.replace(/\\d+/, (m) => String(Number(m) + 1));\n}\n\nconst numbers = (text) => (String(text).match(/\\d[\\d,]*(?:\\.\\d+)?/g) || []).map((m) => Number(m.replace(/,/g, \"\")));\nconst allowed = new Set([7, 8, 9]); // the window lengths: 7 days, 8 weeks, 9 weeks\nfor (const n of numbers(JSON.stringify(story))) { allowed.add(n); allowed.add(Math.abs(n)); }\n\nconst callout = {\n  value: story.direction === \"up\" ? `${story.ratio}×` : `${Math.abs(story.pct_change)}%`,\n  label: w.callout_label,\n};\nconst checked = { headline: w.headline, script: w.script, callout_value: callout.value, callout_label: w.callout_label, chart_title: w.chart_title, blurb: w.blurb };\nconst unknown = [];\nfor (const [field, text] of Object.entries(checked)) {\n  for (const n of numbers(text)) if (!allowed.has(n)) unknown.push(`${n} in ${field}`);\n}\nconst words = w.script.trim().split(/\\s+/).length;\n\nconst spec = {\n  headline: w.headline,\n  script: w.script,\n  callout,\n  chart: {\n    kind: \"bar\",\n    title: w.chart_title,\n    data: story.chart_kind === \"weekly\"\n      ? story.weekly.slice(-6).map((w) => ({ label: new Date(w.week_ending + \"T12:00:00Z\").toLocaleDateString(\"en-CA\", { month: \"short\", day: \"numeric\", timeZone: \"UTC\" }), value: w.count }))\n      : story.by_area.slice(0, 6).map((a) => ({ label: a.area, value: a.count })),\n    source_note: story.source_note,\n  },\n  duration_s: 20,\n};\nif (unknown.length) {\n  return [{ json: { ok: false, step: \"Write\", reason: `Blocked: ${unknown.join(\", \")} is not in the story.`, spec } }];\n}\nif (words < 30 || words > 70) {\n  return [{ json: { ok: false, step: \"Write\", reason: `Blocked: the script is ${words} words; it needs 30 to 70.`, spec } }];\n}\nreturn [{ json: { ...input, ok: true, spec, blurb: w.blurb, script_words: words } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        0
+      ],
+      "id": "dab988c5-dafa-5ecc-a713-86752f60c606",
+      "name": "Build spec and check numbers"
+    },
+    {
+      "parameters": {
+        "jsCode": "// \"Failed\": every error in Write ends here, so the orchestrator sends a short note instead of crashing.\nconst j = $input.first().json;\nconst reason = j.reason || `Write failed: ${j.error?.message || j.message || \"unknown error\"}`;\nreturn [{ json: { ok: false, step: \"Write\", reason } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        240
+      ],
+      "id": "8b4ff75a-a782-5457-aa01-62d7193cffd6",
+      "name": "Failed"
+    },
+    {
+      "parameters": {
+        "content": "## 3 Write\nClaude (Anthropic API, credential \"Anthropic\") turns the story into a headline, a script of about 50 words, a chart title and a newsletter blurb.\n\n**Build spec and check numbers** builds the chart from the story itself and stops the run if any number in the text is not in the story (the guard).\n\nIts test webhook takes a `story` run; an empty body uses **Sample story**.",
+        "height": 320,
+        "width": 460,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -380
+      ],
+      "id": "84ea391d-dd0e-5e41-a2ca-bbcf19dc80dc",
+      "name": "About Write"
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sample story": {
+      "main": [
+        [
+          {
+            "node": "Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input": {
+      "main": [
+        [
+          {
+            "node": "Write script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write script": {
+      "main": [
+        [
+          {
+            "node": "Build spec and check numbers",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test webhook": {
+      "main": [
+        [
+          {
+            "node": "Sample story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

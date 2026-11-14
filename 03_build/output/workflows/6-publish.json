@@ -1,0 +1,530 @@
+{
+  "name": "6 Publish",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "9eaacd8a-4306-5f52-a7a0-cbe11c8b16ad",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "step-publish",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        200
+      ],
+      "id": "d52dc103-3507-5aa6-a55a-1deb86266466",
+      "name": "Test webhook",
+      "webhookId": "75758517-073c-501b-a252-667f2cbbad55"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input for a run through the test webhook (npm run invoke). An empty body uses this sample.\nconst body = $input.first().json.body;\nif (body && typeof body === \"object\" && Object.keys(body).length) return [{ json: body }];\nreturn [{ json: {\n  \"ok\": true,\n  \"story\": {\n    \"week_start\": \"2026-11-07\",\n    \"week_ending\": \"2026-11-13\",\n    \"dataset\": \"3-1-1 service requests\",\n    \"source_note\": \"City of Vancouver open data, 3-1-1 service requests\",\n    \"source_url\": \"https://opendata.vancouver.ca/explore/dataset/3-1-1-service-requests/\",\n    \"unit\": \"reports\",\n    \"type\": \"Street Surface Water Flooding Case\",\n    \"topic\": \"Street Surface Water Flooding\",\n    \"direction\": \"up\",\n    \"chart_kind\": \"by_area\",\n    \"this_week\": 218,\n    \"avg_prev_8_weeks\": 29.3,\n    \"ratio\": 7.4,\n    \"pct_change\": 644,\n    \"by_area\": [\n      {\n        \"area\": \"Mount Pleasant\",\n        \"count\": 33\n      },\n      {\n        \"area\": \"Downtown\",\n        \"count\": 24\n      },\n      {\n        \"area\": \"Grandview-Woodland\",\n        \"count\": 20\n      },\n      {\n        \"area\": \"Fairview\",\n        \"count\": 16\n      },\n      {\n        \"area\": \"Kensington-Cedar Cottage\",\n        \"count\": 14\n      },\n      {\n        \"area\": \"Hastings-Sunrise\",\n        \"count\": 11\n      }\n    ],\n    \"unknown_area\": 4,\n    \"weekly\": [\n      {\n        \"week_ending\": \"2026-09-18\",\n        \"count\": 18\n      },\n      {\n        \"week_ending\": \"2026-09-25\",\n        \"count\": 13\n      },\n      {\n        \"week_ending\": \"2026-10-02\",\n        \"count\": 31\n      },\n      {\n        \"week_ending\": \"2026-10-09\",\n        \"count\": 13\n      },\n      {\n        \"week_ending\": \"2026-10-16\",\n        \"count\": 15\n      },\n      {\n        \"week_ending\": \"2026-10-23\",\n        \"count\": 6\n      },\n      {\n        \"week_ending\": \"2026-10-30\",\n        \"count\": 45\n      },\n      {\n        \"week_ending\": \"2026-11-06\",\n        \"count\": 93\n      },\n      {\n        \"week_ending\": \"2026-11-13\",\n        \"count\": 218\n      }\n    ]\n  },\n  \"spec\": {\n    \"headline\": \"Flooding reports up more than seven times\",\n    \"script\": \"Vancouver logged 218 street flooding reports in the week to November 13. The usual level over the 8 weeks before was 29.3 a week. Mount Pleasant had the most, with 33, then Downtown with 24. The city data does not say why. Source: City of Vancouver open data.\",\n    \"callout\": {\n      \"value\": \"7.4×\",\n      \"label\": \"218 reports this week against an average of 29.3\"\n    },\n    \"chart\": {\n      \"kind\": \"bar\",\n      \"title\": \"Flooding reports by neighbourhood, last 7 days\",\n      \"data\": [\n        {\n          \"label\": \"Mount Pleasant\",\n          \"value\": 33\n        },\n        {\n          \"label\": \"Downtown\",\n          \"value\": 24\n        },\n        {\n          \"label\": \"Grandview-Woodland\",\n          \"value\": 20\n        },\n        {\n          \"label\": \"Fairview\",\n          \"value\": 16\n        },\n        {\n          \"label\": \"Kensington-Cedar Cottage\",\n          \"value\": 14\n        },\n        {\n          \"label\": \"Hastings-Sunrise\",\n          \"value\": 11\n        }\n      ],\n      \"source_note\": \"City of Vancouver open data, 3-1-1 service requests\"\n    },\n    \"duration_s\": 20\n  },\n  \"blurb\": \"Street flooding reports to 3-1-1 reached 218 this week, against a usual 29.3. Mount Pleasant and Downtown had the most.\",\n  \"video_url\": \"replace with a video_url from 5 Render\"\n} }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        200
+      ],
+      "id": "e04ca852-272d-5561-a1a2-d27073c8c412",
+      "name": "Sample run"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        440,
+        100
+      ],
+      "id": "69021f61-bdeb-5913-a806-fb5f22138ff4",
+      "name": "Input"
+    },
+    {
+      "parameters": {
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        },
+        "url": "={{ $('Input').first().json.video_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "ngrok-skip-browser-warning",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        100
+      ],
+      "id": "c84f6757-25aa-5c24-a885-e3b6376144d5",
+      "name": "Download video",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "options": {
+          "channelIds": [],
+          "fileName": "={{ $('Input').first().json.story.topic }}.mp4",
+          "initialComment": "=For review: {{ $('Input').first().json.spec.headline }}"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        880,
+        100
+      ],
+      "id": "44d93fbd-72a9-5680-a7ac-06f4e9680395",
+      "name": "Send video to editor",
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "slackApi": {
+          "name": "Slack"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list"
+        },
+        "message": "={{ (() => { const r = $('Input').first().json; const s = r.story; return `*${r.spec.headline}*\\n${r.spec.script}\\n\\nFrom ${s.dataset}: ${s.this_week} ${s.unit} in the week to ${s.week_ending}, against an average of ${s.avg_prev_8_weeks} over the 8 weeks before.\\nVideo: ${r.video_url}`; })() }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "Approve",
+            "disapproveLabel": "Reject"
+          }
+        },
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 3,
+              "resumeUnit": "hours"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1100,
+        0
+      ],
+      "id": "d3d03a06-7a37-5148-a2ea-e8f417a5df7d",
+      "name": "Ask editor",
+      "webhookId": "f9dec743-9398-5cd1-a88c-c8640fb5f4dd",
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "slackApi": {
+          "name": "Slack"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c3d228f6-7c75-5e3d-a134-cfe6a67afad0",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1320,
+        0
+      ],
+      "id": "ca059e26-473f-5def-aad1-76fd5591cc18",
+      "name": "Approved?"
+    },
+    {
+      "parameters": {
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        },
+        "url": "={{ $('Input').first().json.video_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "ngrok-skip-browser-warning",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        -100
+      ],
+      "id": "ec278b94-b9ed-554f-ad32-251ba288d836",
+      "name": "Download for outlet",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "options": {
+          "channelIds": [],
+          "fileName": "={{ $('Input').first().json.story.topic }}.mp4",
+          "initialComment": "={{ $('Input').first().json.spec.headline }}\n\n{{ $('Input').first().json.blurb }}\n\nSource: {{ $('Input').first().json.story.source_note }}"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1760,
+        -100
+      ],
+      "id": "6939a7ec-b415-58da-a45b-7cf573acc65c",
+      "name": "Post to outlet",
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "slackApi": {
+          "name": "Slack"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list"
+        },
+        "text": "=Newsletter draft: {{ $('Input').first().json.blurb }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1980,
+        -100
+      ],
+      "id": "8ec76f61-1292-5462-a4be-02bc2d2b87d6",
+      "name": "Newsletter draft",
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "slackApi": {
+          "name": "Slack"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list"
+        },
+        "text": "=Not published: {{ $('Input').first().json.spec.headline }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1540,
+        140
+      ],
+      "id": "64cf66be-767b-52d1-a079-f75a51b90755",
+      "name": "Tell editor it was rejected",
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "slackApi": {
+          "name": "Slack"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// \"Failed\": every error in Publish ends here, so the orchestrator sends a short note instead of crashing.\nconst j = $input.first().json;\nconst reason = j.reason || `Publish failed: ${j.error?.message || j.message || \"unknown error\"}`;\nreturn [{ json: { ok: false, step: \"Publish\", reason } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        300
+      ],
+      "id": "7c2e54cd-74ee-5dc9-a80c-df61a029f600",
+      "name": "Failed"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list"
+        },
+        "text": "=Could not publish. {{ $json.reason }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1320,
+        300
+      ],
+      "id": "fb3ebc95-1d8d-5731-aac8-e23b793d1ec0",
+      "name": "Tell editor it failed",
+      "credentials": {
+        "slackApi": {
+          "name": "Slack"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## 6 Publish\nSends the editor the video in Slack with Approve and Reject, and waits up to 3 hours. Approve posts it to the outlet channel and drafts the newsletter blurb. Reject sends a short note.\n\nCredential: Slack. Pick the editor channel in **Send video to editor**, **Ask editor** and **Tell editor it was rejected**, **Tell editor it failed**, and the outlet channel in **Post to outlet** and **Newsletter draft**.\n\nIts test webhook needs a run with a real `video_url`, such as 5 Render's output.",
+        "height": 340,
+        "width": 460,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -400
+      ],
+      "id": "981324de-4ba0-5f96-a822-cd459694c9a8",
+      "name": "About Publish"
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sample run": {
+      "main": [
+        [
+          {
+            "node": "Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input": {
+      "main": [
+        [
+          {
+            "node": "Download video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download video": {
+      "main": [
+        [
+          {
+            "node": "Send video to editor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send video to editor": {
+      "main": [
+        [
+          {
+            "node": "Ask editor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask editor": {
+      "main": [
+        [
+          {
+            "node": "Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approved?": {
+      "main": [
+        [
+          {
+            "node": "Download for outlet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tell editor it was rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download for outlet": {
+      "main": [
+        [
+          {
+            "node": "Post to outlet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to outlet": {
+      "main": [
+        [
+          {
+            "node": "Newsletter draft",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Failed": {
+      "main": [
+        [
+          {
+            "node": "Tell editor it failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test webhook": {
+      "main": [
+        [
+          {
+            "node": "Sample run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

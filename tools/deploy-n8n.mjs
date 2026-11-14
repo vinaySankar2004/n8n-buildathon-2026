@@ -29,7 +29,10 @@ const SETTINGS = [
 ];
 
 const only = process.argv[2];
-const files = readdirSync(WORKFLOW_DIR).filter((f) => f.endsWith(".json") && (!only || f.includes(only))).sort();
+// The orchestrator goes last, so the workflows it calls already exist.
+const files = readdirSync(WORKFLOW_DIR)
+  .filter((f) => f.endsWith(".json") && (!only || f.includes(only)))
+  .sort((a, b) => a.includes("orchestrator") - b.includes("orchestrator") || a.localeCompare(b));
 if (!files.length) {
   console.error(only ? `No workflow file matches "${only}".` : "No workflow files to deploy.");
   process.exit(1);
@@ -39,6 +42,14 @@ const existing = new Map((await listAll("/workflows")).map((w) => [w.name, w]));
 
 for (const file of files) {
   const wf = JSON.parse(readFileSync(path.join(WORKFLOW_DIR, file), "utf8"));
+  // An Execute Workflow node names the workflow it calls; point it at that workflow's id in this n8n.
+  for (const n of wf.nodes) {
+    const ref = n.type === "n8n-nodes-base.executeWorkflow" ? n.parameters?.workflowId : null;
+    if (!ref?.cachedResultName) continue;
+    const target = existing.get(ref.cachedResultName);
+    if (target) Object.assign(ref, { __rl: true, mode: "list", value: target.id });
+    else console.warn(`"${wf.name}": no workflow named "${ref.cachedResultName}" yet for node "${n.name}"; deploy it first.`);
+  }
   const settings = Object.fromEntries(Object.entries(wf.settings || {}).filter(([k]) => SETTINGS.includes(k)));
   const body = { name: wf.name, nodes: wf.nodes, connections: wf.connections, settings: { executionOrder: "v1", ...settings } };
   const found = existing.get(wf.name);
@@ -49,6 +60,7 @@ for (const file of files) {
   } else {
     saved = await api("POST", "/workflows", body);
   }
+  existing.set(saved.name, saved);
   const hooks = wf.nodes.filter((n) => n.type === "n8n-nodes-base.webhook" && !n.disabled);
   if (hooks.length) await api("POST", `/workflows/${saved.id}/activate`);
   const step = stepOf(wf.name);

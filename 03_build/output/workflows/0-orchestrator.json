@@ -1,0 +1,646 @@
+{
+  "name": "0 Orchestrator",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        200
+      ],
+      "id": "e67e327e-f99b-54d6-a97d-658ca6b1bc55",
+      "name": "Test run"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "02707ad2-913c-5013-adfb-10b396cd130d",
+      "name": "Every morning",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Every source the newsroom watches. Any Vancouver open data dataset with a date,\n// a category and a neighbourhood field works: add one object here.\n// filter is optional ODSQL, added to every query with \"and\".\nreturn [\n  {\n    id: \"311\",\n    portal: \"https://opendata.vancouver.ca\",\n    dataset: \"3-1-1-service-requests\",\n    label: \"3-1-1 service requests\",\n    source_note: \"City of Vancouver open data, 3-1-1 service requests\",\n    source_url: \"https://opendata.vancouver.ca/explore/dataset/3-1-1-service-requests/\",\n    unit: \"reports\",\n    date_field: \"service_request_open_timestamp\",\n    category_field: \"service_request_type\",\n    area_field: \"local_area\",\n    date_only: false,\n    max_age_hours: 48,\n    filter: \"\",\n  },\n  {\n    id: \"permits\",\n    portal: \"https://opendata.vancouver.ca\",\n    dataset: \"issued-building-permits\",\n    label: \"issued building permits\",\n    source_note: \"City of Vancouver open data, issued building permits\",\n    source_url: \"https://opendata.vancouver.ca/explore/dataset/issued-building-permits/\",\n    unit: \"permits\",\n    date_field: \"issuedate\",\n    category_field: \"typeofwork\",\n    area_field: \"geolocalarea\",\n    date_only: true,\n    max_age_hours: 120,\n    filter: \"\",\n  },\n  {\n    id: \"licences\",\n    portal: \"https://opendata.vancouver.ca\",\n    dataset: \"business-licences\",\n    label: \"business licences\",\n    source_note: \"City of Vancouver open data, business licences\",\n    source_url: \"https://opendata.vancouver.ca/explore/dataset/business-licences/\",\n    unit: \"licences\",\n    date_field: \"issueddate\",\n    category_field: \"businesstype\",\n    area_field: \"localarea\",\n    date_only: false,\n    max_age_hours: 120,\n    filter: \"\",\n  },\n].map((json) => ({ json }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        100
+      ],
+      "id": "e5f1a02d-99ef-5685-a4a8-e7543ad810c4",
+      "name": "Vancouver sources"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": "1 Collect"
+        },
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        440,
+        100
+      ],
+      "id": "fdf0582e-78d5-5cdc-ac62-4c27a7b8936f",
+      "name": "1 Collect",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": "2 Score"
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        660,
+        100
+      ],
+      "id": "6b20c5b6-5d9d-5a6e-aa74-ad31d4e56008",
+      "name": "2 Score",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9e0de3e8-94c9-5c70-a82f-1bace6db49c3",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        100
+      ],
+      "id": "60e80ed1-37da-58d7-ac59-9d4ccbe589b6",
+      "name": "Story found?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// \"Run options\": set test_tamper to true to change one number in the script and watch the guard stop the run.\nreturn [{ json: { ...$input.first().json, test_tamper: false } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ],
+      "id": "bbd254e0-7254-56ce-ac7a-50c4e297c5c0",
+      "name": "Run options"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": "3 Write"
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1320,
+        0
+      ],
+      "id": "79acf383-998c-5656-a1aa-52c4a5db9b64",
+      "name": "3 Write",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5cd60869-f82d-547d-ac07-e03a95861bfb",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1540,
+        0
+      ],
+      "id": "00142a11-dec2-53ba-a42b-1b8ec61cfa6a",
+      "name": "Numbers check out?"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": "4 Voice"
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1760,
+        0
+      ],
+      "id": "5a9f44d1-150a-517b-aa45-b1125689062b",
+      "name": "4 Voice",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f7eeec1b-a267-57a9-a461-19f8ad765698",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1980,
+        0
+      ],
+      "id": "1f67fe8c-6b87-58bd-ada3-ea789d21b448",
+      "name": "Voice ok?"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": "5 Render"
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2200,
+        0
+      ],
+      "id": "6813eeac-4cee-5de1-a3d7-b9879aace1c0",
+      "name": "5 Render",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8554adcb-905a-5f9e-a150-c1215499cc0d",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2420,
+        0
+      ],
+      "id": "a0171f94-75ab-5146-a2ee-33f4f60483ca",
+      "name": "Video ok?"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": "6 Publish"
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2640,
+        0
+      ],
+      "id": "be20c791-12a3-5775-a3fb-5319154eaaa1",
+      "name": "6 Publish",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// \"Why it stopped\": one line for the editor (must-work row 10).\nconst j = $input.first().json;\nconst reason = j.reason || j.error?.message || j.message || \"A step failed without saying why.\";\nreturn [{ json: { text: `No story today. ${reason}` } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        400
+      ],
+      "id": "a33320e9-5392-5b2f-a557-d10291c44a8c",
+      "name": "Why it stopped"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list"
+        },
+        "text": "={{ $json.text }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1980,
+        400
+      ],
+      "id": "68310735-6fed-51ae-a4a0-e44171aff387",
+      "name": "No story today",
+      "credentials": {
+        "slackApi": {
+          "name": "Slack"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## 0 Orchestrator\n**Vancouver sources** lists the datasets to watch. **1 Collect** runs once per source, **2 Score** picks the week's strongest change, then Write, Voice, Render and Publish.\n\nIf any step says `ok: false`, or errors, **No story today** tells the editor why in Slack.\n\n**Every morning** stays off while building.\n\nTo test the guard, set `test_tamper` to true in **Run options**.",
+        "height": 360,
+        "width": 460,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -460
+      ],
+      "id": "76ee79d5-5238-5631-a803-aa9230626f44",
+      "name": "About the newsroom"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "step-orchestrator",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        400
+      ],
+      "id": "06bb795a-5450-56b8-ac65-b45df9dfccab",
+      "name": "Test webhook",
+      "webhookId": "f39fdf0a-b1df-5cee-abc2-8d2d588a03ef"
+    }
+  ],
+  "connections": {
+    "Test run": {
+      "main": [
+        [
+          {
+            "node": "Vancouver sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every morning": {
+      "main": [
+        [
+          {
+            "node": "Vancouver sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vancouver sources": {
+      "main": [
+        [
+          {
+            "node": "1 Collect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1 Collect": {
+      "main": [
+        [
+          {
+            "node": "2 Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2 Score": {
+      "main": [
+        [
+          {
+            "node": "Story found?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Why it stopped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Story found?": {
+      "main": [
+        [
+          {
+            "node": "Run options",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Why it stopped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run options": {
+      "main": [
+        [
+          {
+            "node": "3 Write",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3 Write": {
+      "main": [
+        [
+          {
+            "node": "Numbers check out?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Why it stopped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Numbers check out?": {
+      "main": [
+        [
+          {
+            "node": "4 Voice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Why it stopped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4 Voice": {
+      "main": [
+        [
+          {
+            "node": "Voice ok?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Why it stopped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voice ok?": {
+      "main": [
+        [
+          {
+            "node": "5 Render",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Why it stopped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5 Render": {
+      "main": [
+        [
+          {
+            "node": "Video ok?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Why it stopped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video ok?": {
+      "main": [
+        [
+          {
+            "node": "6 Publish",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Why it stopped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6 Publish": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Why it stopped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Why it stopped": {
+      "main": [
+        [
+          {
+            "node": "No story today",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test webhook": {
+      "main": [
+        [
+          {
+            "node": "Vancouver sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

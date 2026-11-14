@@ -1,0 +1,205 @@
+{
+  "name": "4 Voice",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "910f8327-96f1-5755-a4a2-8e9b1993d36e",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "step-voice",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        200
+      ],
+      "id": "e0d193e8-b28f-5862-a780-3d4df63b3813",
+      "name": "Test webhook",
+      "webhookId": "da28a3a7-40f8-558f-a5a8-4bde1e21a981"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input for a run through the test webhook (npm run invoke). An empty body uses this sample.\nconst body = $input.first().json.body;\nif (body && typeof body === \"object\" && Object.keys(body).length) return [{ json: body }];\nreturn [{ json: {\n  \"ok\": true,\n  \"story\": {\n    \"week_start\": \"2026-11-07\",\n    \"week_ending\": \"2026-11-13\",\n    \"dataset\": \"3-1-1 service requests\",\n    \"source_note\": \"City of Vancouver open data, 3-1-1 service requests\",\n    \"source_url\": \"https://opendata.vancouver.ca/explore/dataset/3-1-1-service-requests/\",\n    \"unit\": \"reports\",\n    \"type\": \"Street Surface Water Flooding Case\",\n    \"topic\": \"Street Surface Water Flooding\",\n    \"direction\": \"up\",\n    \"chart_kind\": \"by_area\",\n    \"this_week\": 218,\n    \"avg_prev_8_weeks\": 29.3,\n    \"ratio\": 7.4,\n    \"pct_change\": 644,\n    \"by_area\": [\n      {\n        \"area\": \"Mount Pleasant\",\n        \"count\": 33\n      },\n      {\n        \"area\": \"Downtown\",\n        \"count\": 24\n      },\n      {\n        \"area\": \"Grandview-Woodland\",\n        \"count\": 20\n      },\n      {\n        \"area\": \"Fairview\",\n        \"count\": 16\n      },\n      {\n        \"area\": \"Kensington-Cedar Cottage\",\n        \"count\": 14\n      },\n      {\n        \"area\": \"Hastings-Sunrise\",\n        \"count\": 11\n      }\n    ],\n    \"unknown_area\": 4,\n    \"weekly\": [\n      {\n        \"week_ending\": \"2026-09-18\",\n        \"count\": 18\n      },\n      {\n        \"week_ending\": \"2026-09-25\",\n        \"count\": 13\n      },\n      {\n        \"week_ending\": \"2026-10-02\",\n        \"count\": 31\n      },\n      {\n        \"week_ending\": \"2026-10-09\",\n        \"count\": 13\n      },\n      {\n        \"week_ending\": \"2026-10-16\",\n        \"count\": 15\n      },\n      {\n        \"week_ending\": \"2026-10-23\",\n        \"count\": 6\n      },\n      {\n        \"week_ending\": \"2026-10-30\",\n        \"count\": 45\n      },\n      {\n        \"week_ending\": \"2026-11-06\",\n        \"count\": 93\n      },\n      {\n        \"week_ending\": \"2026-11-13\",\n        \"count\": 218\n      }\n    ]\n  },\n  \"spec\": {\n    \"headline\": \"Flooding reports up more than seven times\",\n    \"script\": \"Vancouver logged 218 street flooding reports in the week to November 13. The usual level over the 8 weeks before was 29.3 a week. Mount Pleasant had the most, with 33, then Downtown with 24. The city data does not say why. Source: City of Vancouver open data.\",\n    \"callout\": {\n      \"value\": \"7.4×\",\n      \"label\": \"218 reports this week against an average of 29.3\"\n    },\n    \"chart\": {\n      \"kind\": \"bar\",\n      \"title\": \"Flooding reports by neighbourhood, last 7 days\",\n      \"data\": [\n        {\n          \"label\": \"Mount Pleasant\",\n          \"value\": 33\n        },\n        {\n          \"label\": \"Downtown\",\n          \"value\": 24\n        },\n        {\n          \"label\": \"Grandview-Woodland\",\n          \"value\": 20\n        },\n        {\n          \"label\": \"Fairview\",\n          \"value\": 16\n        },\n        {\n          \"label\": \"Kensington-Cedar Cottage\",\n          \"value\": 14\n        },\n        {\n          \"label\": \"Hastings-Sunrise\",\n          \"value\": 11\n        }\n      ],\n      \"source_note\": \"City of Vancouver open data, 3-1-1 service requests\"\n    },\n    \"duration_s\": 20\n  },\n  \"blurb\": \"Street flooding reports to 3-1-1 reached 218 this week, against a usual 29.3. Mount Pleasant and Downtown had the most.\"\n} }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        200
+      ],
+      "id": "5fbfa35d-f24e-5cb7-a7b4-112692497671",
+      "name": "Sample spec"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        440,
+        100
+      ],
+      "id": "e42fe8b3-3d65-5054-a593-bdea937f7c0b",
+      "name": "Input"
+    },
+    {
+      "parameters": {
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        },
+        "method": "POST",
+        "url": "=https://api.elevenlabs.io/v1/text-to-speech/JBFqnCBsd6RMkjVDRZzb?output_format=mp3_44100_128",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ text: $json.spec.script, model_id: 'eleven_multilingual_v2' }) }}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        100
+      ],
+      "id": "bbe62159-bd48-5f6b-a100-7c396dcb7867",
+      "name": "Speak script",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "ElevenLabs"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// \"Package audio\": the MP3 as base64 for the render service, and a length check (must-work row 4).\n// ElevenLabs returns 128 kbit/s MP3, so bytes * 8 / 128000 is the length in seconds.\nconst input = $(\"Input\").first().json;\nconst buf = await this.helpers.getBinaryDataBuffer(0, \"data\");\nconst seconds = Math.round(((buf.length * 8) / 128000) * 10) / 10;\nif (seconds > 22) {\n  return [{ json: { ok: false, step: \"Voice\", reason: `The narration is ${seconds} seconds; it must be under 22.` } }];\n}\nreturn [{ json: { ...input, ok: true, audio_base64: buf.toString(\"base64\"), audio_seconds: seconds } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        0
+      ],
+      "id": "a26a68e8-fc3a-5c82-afdc-ecd24e01aa7a",
+      "name": "Package audio"
+    },
+    {
+      "parameters": {
+        "jsCode": "// \"Failed\": every error in Voice ends here, so the orchestrator sends a short note instead of crashing.\nconst j = $input.first().json;\nconst reason = j.reason || `Voice failed: ${j.error?.message || j.message || \"unknown error\"}`;\nreturn [{ json: { ok: false, step: \"Voice\", reason } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        240
+      ],
+      "id": "f47152d5-f5da-50e9-ada1-76e46906882c",
+      "name": "Failed"
+    },
+    {
+      "parameters": {
+        "content": "## 4 Voice\nElevenLabs reads the script. **Package audio** turns the MP3 into base64 for the render service and stops the run if it is 22 seconds or longer.\n\nCredential: Header Auth named \"ElevenLabs\", header `xi-api-key`.\n\nAn empty test body uses **Sample spec**.",
+        "height": 280,
+        "width": 460,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -340
+      ],
+      "id": "8fbb9dcb-069e-51ca-aade-786c1c4837e6",
+      "name": "About Voice"
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sample spec": {
+      "main": [
+        [
+          {
+            "node": "Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input": {
+      "main": [
+        [
+          {
+            "node": "Speak script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Speak script": {
+      "main": [
+        [
+          {
+            "node": "Package audio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test webhook": {
+      "main": [
+        [
+          {
+            "node": "Sample spec",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

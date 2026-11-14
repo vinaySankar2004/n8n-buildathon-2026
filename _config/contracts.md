@@ -2,15 +2,38 @@
 
 The JSON each workflow hands to the next. Agree a change here before building on it, so four people can build in parallel.
 
-`collected` (Collect to Score), draft of 2026-11-14:
+`source` (Orchestrator to Collect), one per dataset in "Vancouver sources". Draft of 2026-11-14:
+
+```json
+{
+  "id": "311",
+  "portal": "https://opendata.vancouver.ca",
+  "dataset": "3-1-1-service-requests",
+  "label": "3-1-1 service requests",
+  "source_note": "City of Vancouver open data, 3-1-1 service requests",
+  "source_url": "https://opendata.vancouver.ca/explore/dataset/3-1-1-service-requests/",
+  "unit": "reports",
+  "date_field": "service_request_open_timestamp",
+  "category_field": "service_request_type",
+  "area_field": "local_area",
+  "date_only": false,
+  "max_age_hours": 48,
+  "filter": ""
+}
+```
+
+`collected` (Collect to Score), one per source:
 
 ```json
 {
   "ok": true,
+  "source_id": "311",
   "dataset": "3-1-1 service requests",
-  "source": "City of Vancouver open data, 3-1-1 service requests",
+  "source_note": "City of Vancouver open data, 3-1-1 service requests",
   "source_url": "https://opendata.vancouver.ca/explore/dataset/3-1-1-service-requests/",
+  "unit": "reports",
   "newest_record": "2026-11-14T04:51:59+00:00",
+  "week_start": "2026-11-07",
   "week_ending": "2026-11-13",
   "weeks": ["2026-09-18", "...", "2026-11-13"],
   "types": [
@@ -25,24 +48,37 @@ The JSON each workflow hands to the next. Agree a change here before building on
 ```
 
 - `weeks` and each `weekly` hold 9 entries, oldest first. The last one is this week.
-- Weeks are 7 days ending on `week_ending`, the Vancouver date of the newest record.
-- `by_area` covers this week only, sorted by count. Requests with no neighbourhood are counted in `unknown_area` and left out of `by_area`.
-- On failure Collect returns `{ "ok": false, "dataset": "...", "reason": "..." }` and nothing else. Score passes that on so Publish can send the "no story today" note.
+- Weeks are 7 days ending on `week_ending`, the Vancouver date of the newest record up to now.
+- `by_area` covers this week only, sorted by count. Records with no neighbourhood are counted in `unknown_area`.
+- On failure: `{ "ok": false, "step": "Collect", "source": "...", "reason": "..." }`.
 
-`story` (Score to Write):
+Score gets every `collected` and returns `{ "ok": true, "story": …, "runners_up": […], "sources_checked": "...", "sources_failed": […] }`, or `{ "ok": false, "step": "Score", "reason": "..." }` when nothing passes the bar.
+
+`story`:
 
 ```json
 {
-  "week_ending": "2026-11-14",
+  "week_start": "2026-11-07",
+  "week_ending": "2026-11-13",
   "dataset": "3-1-1 service requests",
+  "source_note": "City of Vancouver open data, 3-1-1 service requests",
+  "source_url": "https://opendata.vancouver.ca/explore/dataset/3-1-1-service-requests/",
+  "unit": "reports",
   "type": "Street Surface Water Flooding Case",
-  "this_week": 215,
-  "avg_prev_8_weeks": 29.6,
-  "ratio": 7.3,
+  "topic": "Street Surface Water Flooding",
+  "direction": "up",
+  "this_week": 218,
+  "avg_prev_8_weeks": 29.3,
+  "ratio": 7.4,
+  "pct_change": 644,
+  "chart_kind": "by_area",
   "by_area": [{ "area": "Mount Pleasant", "count": 33 }],
-  "weekly": [{ "week_ending": "2026-11-07", "count": 31 }]
+  "unknown_area": 4,
+  "weekly": [{ "week_ending": "2026-11-13", "count": 218 }]
 }
 ```
+
+`chart_kind` is `by_area` for a rise with at least 3 neighbourhoods, otherwise `weekly` (the last 6 weeks).
 
 `spec` (Write to Voice and Render):
 
@@ -61,4 +97,12 @@ The JSON each workflow hands to the next. Agree a change here before building on
 }
 ```
 
-Render service: `POST /render` with `{ "spec": …, "audio_url": … }` returns `{ "video_url": … }`.
+`run`: from Write on, each step returns what it got plus its own part, with `ok` saying whether to go on, or `{ "ok": false, "step": "...", "reason": "..." }`.
+
+| After | Adds |
+| --- | --- |
+| Write | `spec`, `blurb`, `script_words` |
+| Voice | `audio_base64`, `audio_seconds` |
+| Render | `video_url`, `video_seconds`, `render_seconds` (and drops `audio_base64`) |
+
+Render service: `POST /render` with `{ "spec": …, "audio_base64": … }` or `{ "spec": …, "audio_url": … }` returns `{ "video_url", "duration_s", "render_seconds" }`.

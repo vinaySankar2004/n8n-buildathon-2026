@@ -11,6 +11,8 @@
     "update": "node tools/stay-current.mjs",
     "deploy": "node tools/deploy-n8n.mjs",
     "invoke": "node tools/invoke-n8n.mjs",
-    "router": "node 03_build/output/host/router.mjs"
+    "router": "node 03_build/output/host/router.mjs",
+    "pipeline": "node 03_build/output/pipeline/build.mjs",
+    "test:pipeline": "node 03_build/output/pipeline/test.mjs"
   }
 }

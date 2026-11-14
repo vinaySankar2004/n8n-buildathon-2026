@@ -1,0 +1,200 @@
+{
+  "name": "5 Render",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1214115f-26f2-56c1-a10e-cb2a306be74d",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "step-render",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        200
+      ],
+      "id": "649ed993-0210-5f21-a0d4-5107eec45efe",
+      "name": "Test webhook",
+      "webhookId": "ca4d8f8d-b37a-51fd-a70a-677c259a31ec"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input for a run through the test webhook (npm run invoke). An empty body uses this sample.\nconst body = $input.first().json.body;\nif (body && typeof body === \"object\" && Object.keys(body).length) return [{ json: body }];\nreturn [{ json: {\n  \"ok\": true,\n  \"story\": {\n    \"week_start\": \"2026-11-07\",\n    \"week_ending\": \"2026-11-13\",\n    \"dataset\": \"3-1-1 service requests\",\n    \"source_note\": \"City of Vancouver open data, 3-1-1 service requests\",\n    \"source_url\": \"https://opendata.vancouver.ca/explore/dataset/3-1-1-service-requests/\",\n    \"unit\": \"reports\",\n    \"type\": \"Street Surface Water Flooding Case\",\n    \"topic\": \"Street Surface Water Flooding\",\n    \"direction\": \"up\",\n    \"chart_kind\": \"by_area\",\n    \"this_week\": 218,\n    \"avg_prev_8_weeks\": 29.3,\n    \"ratio\": 7.4,\n    \"pct_change\": 644,\n    \"by_area\": [\n      {\n        \"area\": \"Mount Pleasant\",\n        \"count\": 33\n      },\n      {\n        \"area\": \"Downtown\",\n        \"count\": 24\n      },\n      {\n        \"area\": \"Grandview-Woodland\",\n        \"count\": 20\n      },\n      {\n        \"area\": \"Fairview\",\n        \"count\": 16\n      },\n      {\n        \"area\": \"Kensington-Cedar Cottage\",\n        \"count\": 14\n      },\n      {\n        \"area\": \"Hastings-Sunrise\",\n        \"count\": 11\n      }\n    ],\n    \"unknown_area\": 4,\n    \"weekly\": [\n      {\n        \"week_ending\": \"2026-09-18\",\n        \"count\": 18\n      },\n      {\n        \"week_ending\": \"2026-09-25\",\n        \"count\": 13\n      },\n      {\n        \"week_ending\": \"2026-10-02\",\n        \"count\": 31\n      },\n      {\n        \"week_ending\": \"2026-10-09\",\n        \"count\": 13\n      },\n      {\n        \"week_ending\": \"2026-10-16\",\n        \"count\": 15\n      },\n      {\n        \"week_ending\": \"2026-10-23\",\n        \"count\": 6\n      },\n      {\n        \"week_ending\": \"2026-10-30\",\n        \"count\": 45\n      },\n      {\n        \"week_ending\": \"2026-11-06\",\n        \"count\": 93\n      },\n      {\n        \"week_ending\": \"2026-11-13\",\n        \"count\": 218\n      }\n    ]\n  },\n  \"spec\": {\n    \"headline\": \"Flooding reports up more than seven times\",\n    \"script\": \"Vancouver logged 218 street flooding reports in the week to November 13. The usual level over the 8 weeks before was 29.3 a week. Mount Pleasant had the most, with 33, then Downtown with 24. The city data does not say why. Source: City of Vancouver open data.\",\n    \"callout\": {\n      \"value\": \"7.4×\",\n      \"label\": \"218 reports this week against an average of 29.3\"\n    },\n    \"chart\": {\n      \"kind\": \"bar\",\n      \"title\": \"Flooding reports by neighbourhood, last 7 days\",\n      \"data\": [\n        {\n          \"label\": \"Mount Pleasant\",\n          \"value\": 33\n        },\n        {\n          \"label\": \"Downtown\",\n          \"value\": 24\n        },\n        {\n          \"label\": \"Grandview-Woodland\",\n          \"value\": 20\n        },\n        {\n          \"label\": \"Fairview\",\n          \"value\": 16\n        },\n        {\n          \"label\": \"Kensington-Cedar Cottage\",\n          \"value\": 14\n        },\n        {\n          \"label\": \"Hastings-Sunrise\",\n          \"value\": 11\n        }\n      ],\n      \"source_note\": \"City of Vancouver open data, 3-1-1 service requests\"\n    },\n    \"duration_s\": 20\n  },\n  \"blurb\": \"Street flooding reports to 3-1-1 reached 218 this week, against a usual 29.3. Mount Pleasant and Downtown had the most.\"\n} }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        200
+      ],
+      "id": "6ced4ff1-3070-5788-a5c9-d2412b4a0a14",
+      "name": "Sample spec"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        440,
+        100
+      ],
+      "id": "de87c30d-a43a-5347-a633-82c8fba81bee",
+      "name": "Input"
+    },
+    {
+      "parameters": {
+        "options": {
+          "timeout": 120000
+        },
+        "method": "POST",
+        "url": "http://127.0.0.1:8787/render",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ spec: $json.spec, audio_base64: $json.audio_base64 }) }}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        100
+      ],
+      "id": "2d1ba427-d56f-502e-ab04-6fe2038dff10",
+      "name": "Render video",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "Render token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// \"Package video\": keep the run, drop the audio, add the video link.\nconst input = $(\"Input\").first().json;\nconst r = $input.first().json;\nif (!r.video_url) return [{ json: { ok: false, step: \"Render\", reason: `The render service answered without a video_url: ${JSON.stringify(r).slice(0, 200)}` } }];\nconst { audio_base64, ...rest } = input;\nreturn [{ json: { ...rest, ok: true, video_url: r.video_url, video_seconds: r.duration_s, render_seconds: r.render_seconds } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        0
+      ],
+      "id": "f0b18791-6e0f-58ad-a467-75dff83e904f",
+      "name": "Package video"
+    },
+    {
+      "parameters": {
+        "jsCode": "// \"Failed\": every error in Render ends here, so the orchestrator sends a short note instead of crashing.\nconst j = $input.first().json;\nconst reason = j.reason || `Render failed: ${j.error?.message || j.message || \"unknown error\"}`;\nreturn [{ json: { ok: false, step: \"Render\", reason } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        240
+      ],
+      "id": "caa8a616-4613-50d6-ab44-f4ef9b743e38",
+      "name": "Failed"
+    },
+    {
+      "parameters": {
+        "content": "## 5 Render\nSends the spec and narration to the Remotion service beside n8n on Vinayak's Mac and gets back a public MP4 link.\n\nCredential: Header Auth named \"Render token\", header `x-render-token`. \n\nAn empty test body uses **Sample spec** with no audio: a silent 20 second video.",
+        "height": 280,
+        "width": 460,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -340
+      ],
+      "id": "6c2b7331-5cad-5e8d-a37e-61e6ed8c02b4",
+      "name": "About Render"
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sample spec": {
+      "main": [
+        [
+          {
+            "node": "Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input": {
+      "main": [
+        [
+          {
+            "node": "Render video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render video": {
+      "main": [
+        [
+          {
+            "node": "Package video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test webhook": {
+      "main": [
+        [
+          {
+            "node": "Sample spec",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

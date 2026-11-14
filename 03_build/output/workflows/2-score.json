@@ -1,0 +1,116 @@
+{
+  "name": "2 Score",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "70090eec-145a-5f88-ae45-a142f2a7bf21",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "step-score",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        200
+      ],
+      "id": "1d1d9bb6-72bd-5fbf-ad1c-c3e4362f4495",
+      "name": "Test webhook",
+      "webhookId": "caf9131d-e4c7-55ad-a784-75cebfcfd4c2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// \"Webhook input\": the test webhook's body is an array of Collect outputs (or { collected: [...] }).\nconst body = $input.first().json.body;\nconst list = Array.isArray(body) ? body : Array.isArray(body?.collected) ? body.collected : [];\nif (!list.length) return [{ json: { ok: false, reason: \"Send an array of Collect outputs.\" } }];\nreturn list.map((json) => ({ json }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        120,
+        200
+      ],
+      "id": "48089697-a8d4-5a3c-a579-a5cb715ff141",
+      "name": "Webhook input"
+    },
+    {
+      "parameters": {
+        "jsCode": "// \"Rank changes\": every category in every source, this week against the 8 weeks before.\n// A story needs at least MIN_COUNT this week and MIN_RATIO times the usual level, or a drop to\n// 1 / MIN_RATIO of a usual level of at least MIN_COUNT. A drop to zero is left out: it usually\n// means a program or season ended (election inquiries after an election), not news.\nconst MIN_COUNT = 20;\nconst MIN_RATIO = 2;\nconst round1 = (x) => Math.round(x * 10) / 10;\nconst topic = (t) => t.replace(/\\s*-\\s*311$/i, \"\").replace(/\\s+(Request\\s+)?Case$/i, \"\").trim();\n\nconst collected = $input.all().map((i) => i.json);\nconst ok = collected.filter((c) => c.ok);\nconst failed = collected.filter((c) => !c.ok).map((c) => c.reason).filter(Boolean);\nif (!ok.length) return [{ json: { ok: false, step: \"Score\", reason: failed.join(\" \") || \"No source answered.\" } }];\n\nconst candidates = [];\nfor (const c of ok) {\n  for (const t of c.types) {\n    const counts = t.weekly.map((w) => w.count);\n    const thisWeek = counts[8];\n    const avg = round1(counts.slice(0, 8).reduce((a, b) => a + b, 0) / 8);\n    if (avg === 0) continue; // nothing to compare against\n    const up = thisWeek >= MIN_COUNT && thisWeek >= MIN_RATIO * avg;\n    const down = avg >= MIN_COUNT && thisWeek > 0 && thisWeek <= avg / MIN_RATIO;\n    candidates.push({\n      c, t, thisWeek, avg, up, down,\n      ratio: round1(thisWeek / avg),\n      pct_change: Math.round(((thisWeek - avg) / avg) * 100),\n      strength: up ? thisWeek / avg : avg / Math.max(thisWeek, 1),\n    });\n  }\n}\nconst passing = candidates.filter((x) => x.up || x.down).sort((a, b) => b.strength - a.strength);\nconst checked = ok.map((c) => c.dataset).join(\", \");\nif (!passing.length) {\n  return [{ json: { ok: false, step: \"Score\", reason: `No change passed the bar (at least ${MIN_COUNT} and ${MIN_RATIO} times the usual level) in ${checked}.${failed.length ? \" \" + failed.join(\" \") : \"\"}` } }];\n}\n\nconst top = passing[0];\nconst story = {\n  week_start: top.c.week_start,\n  week_ending: top.c.week_ending,\n  dataset: top.c.dataset,\n  source_note: top.c.source_note,\n  source_url: top.c.source_url,\n  unit: top.c.unit,\n  type: top.t.type,\n  topic: topic(top.t.type),\n  direction: top.up ? \"up\" : \"down\",\n  this_week: top.thisWeek,\n  avg_prev_8_weeks: top.avg,\n  ratio: top.ratio,\n  pct_change: top.pct_change,\n  // What the bars show: neighbourhoods this week, or the weekly trend when there are too few areas.\n  chart_kind: top.up && top.t.by_area.length >= 3 ? \"by_area\" : \"weekly\",\n  by_area: top.t.by_area.slice(0, 10),\n  unknown_area: top.t.unknown_area,\n  weekly: top.t.weekly,\n};\nreturn [{ json: {\n  ok: true,\n  story,\n  runners_up: passing.slice(1, 6).map((x) => ({ dataset: x.c.dataset, type: x.t.type, direction: x.up ? \"up\" : \"down\", this_week: x.thisWeek, avg_prev_8_weeks: x.avg, ratio: x.ratio })),\n  sources_checked: checked,\n  sources_failed: failed,\n} }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        360,
+        0
+      ],
+      "id": "4f8f672b-7eb0-539b-a585-100a561d3eb5",
+      "name": "Rank changes"
+    },
+    {
+      "parameters": {
+        "content": "## 2 Score\nGets every source Collect returned. Compares each category's count this week with its average over the 8 weeks before, keeps changes of at least 20 and twice (or half) the usual level, and returns the strongest as `story`.\n\nNothing passing the bar gives `ok: false`, which becomes the \"no story today\" note.\n\nIts test webhook takes an array of Collect outputs.",
+        "height": 280,
+        "width": 460,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -360
+      ],
+      "id": "74f9f8af-9dba-5dba-af03-2f667bb40aee",
+      "name": "About Score"
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Rank changes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook input": {
+      "main": [
+        [
+          {
+            "node": "Rank changes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test webhook": {
+      "main": [
+        [
+          {
+            "node": "Webhook input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

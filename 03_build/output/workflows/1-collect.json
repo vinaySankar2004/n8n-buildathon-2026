@@ -2,95 +2,110 @@
   "name": "1 Collect",
   "nodes": [
     {
-      "id": "4bbf9182-8794-4a3d-aac6-bcba72bc3baa",
-      "name": "When called by orchestrator",
+      "parameters": {
+        "inputSource": "passthrough"
+      },
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
         0,
         0
       ],
-      "parameters": {
-        "inputSource": "passthrough"
-      }
+      "id": "2606b23d-fa51-5086-af40-4c440974ac9a",
+      "name": "When Executed by Another Workflow"
     },
     {
-      "id": "bf81fdd0-7b97-4cdf-a12b-bd8f4e96b493",
-      "name": "Test run",
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "step-collect",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
       "position": [
         0,
         200
       ],
-      "parameters": {}
+      "id": "c5ed0667-cd19-5f18-a4b1-ba4f2e0c3a18",
+      "name": "Test webhook",
+      "webhookId": "5256bfb3-cb36-54b1-aeba-a97be2c1c271"
     },
     {
-      "id": "e2c69ca4-e5e6-4d8e-a856-2659c63d4b8e",
-      "name": "Newest record",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 2000,
-      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "// \"Source config\": the source to collect. Called by the orchestrator, it gets one source object.\n// On a test run it falls back to 3-1-1.\nconst raw = $input.first()?.json ?? {};\nconst given = raw.headers && raw.body ? raw.body : raw; // the test webhook wraps its input in body\nconst s = given.dataset ? given : {\n  id: \"311\",\n  portal: \"https://opendata.vancouver.ca\",\n  dataset: \"3-1-1-service-requests\",\n  label: \"3-1-1 service requests\",\n  source_note: \"City of Vancouver open data, 3-1-1 service requests\",\n  source_url: \"https://opendata.vancouver.ca/explore/dataset/3-1-1-service-requests/\",\n  unit: \"reports\",\n  date_field: \"service_request_open_timestamp\",\n  category_field: \"service_request_type\",\n  area_field: \"local_area\",\n  date_only: false,\n  max_age_hours: 48,\n  filter: \"\",\n};\nconst extra = s.filter ? ` and (${s.filter})` : \"\";\nreturn [{ json: {\n  ...s,\n  // Date-only fields are stored at UTC midnight; grouping them in Vancouver time would shift every day back by one.\n  timezone: s.date_only ? \"UTC\" : \"America/Vancouver\",\n  base_url: `${s.portal}/api/explore/v2.1/catalog/datasets/${s.dataset}`,\n  newest_select: `max(${s.date_field}) as newest`,\n  // Some datasets hold future-dated records, so the newest record is the newest up to now.\n  newest_where: `${s.date_field} <= now()${extra}`,\n} }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
-        240,
+        220,
         100
       ],
+      "id": "ee19e6dc-241e-53e0-a434-67862a7ae4df",
+      "name": "Source config"
+    },
+    {
       "parameters": {
-        "url": "https://opendata.vancouver.ca/api/explore/v2.1/catalog/datasets/3-1-1-service-requests/records",
+        "options": {
+          "timeout": 30000
+        },
+        "url": "={{ $json.base_url }}/records",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
             {
               "name": "select",
-              "value": "max(service_request_open_timestamp) as newest"
+              "value": "={{ $json.newest_select }}"
+            },
+            {
+              "name": "where",
+              "value": "={{ $json.newest_where }}"
             },
             {
               "name": "limit",
               "value": "1"
             }
           ]
-        },
-        "options": {
-          "timeout": 30000
         }
-      }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        100
+      ],
+      "id": "e73b9d76-b13e-5e71-ae8d-1a2b545506a7",
+      "name": "Newest record",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput"
     },
     {
-      "id": "3fbcf232-c15d-4723-9063-121f6ca16cb2",
-      "name": "Set window",
+      "parameters": {
+        "jsCode": "// \"Set window\": 9 weeks of 7 days ending on the Vancouver date of the newest record.\nconst s = $(\"Source config\").first().json;\nconst newest = $input.first().json.results?.[0]?.newest;\nif (!newest) return [{ json: { ok: false, source: s.label, reason: `${s.label}: the city API returned no newest record.` } }];\nconst day = s.date_only\n  ? String(newest).slice(0, 10)\n  : new Date(newest).toLocaleDateString(\"en-CA\", { timeZone: \"America/Vancouver\" });\nconst addDays = (iso, n) => { const d = new Date(iso + \"T12:00:00Z\"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };\nconst ageHours = (Date.now() - new Date(newest).getTime()) / 36e5;\nif (ageHours > s.max_age_hours) {\n  return [{ json: { ok: false, source: s.label, reason: `${s.label}: the newest record is ${Math.round(ageHours)} hours old.` } }];\n}\nconst start = addDays(day, -62);\nconst weekStart = addDays(day, -6);\nconst end = addDays(day, 1);\nconst extra = s.filter ? ` and (${s.filter})` : \"\";\nconst between = (a) => `${s.date_field} >= date'${a}' and ${s.date_field} < date'${end}'${extra}`;\nreturn [{ json: {\n  ok: true,\n  newest_record: newest,\n  week_ending: day,\n  week_start: weekStart,\n  daily: {\n    select: `${s.category_field}, count(*) as n`,\n    where: between(start),\n    group_by: `${s.category_field}, date_format(${s.date_field}, 'yyyy-MM-dd') as day`,\n  },\n  area: {\n    select: `${s.category_field}, ${s.area_field}, count(*) as n`,\n    where: between(weekStart),\n    group_by: `${s.category_field}, ${s.area_field}`,\n  },\n} }];\n"
+      },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        480,
+        660,
         0
       ],
-      "parameters": {
-        "jsCode": "// n8n Code node \"Set window\". Input: the newest-record query. Output: one item with the 9-week window.\nconst newest = $input.first().json.results?.[0]?.newest;\nif (!newest) return [{ json: { ok: false, reason: \"The city API returned no newest record.\" } }];\nconst vanDate = (d) => new Date(d).toLocaleDateString(\"en-CA\", { timeZone: \"America/Vancouver\" });\nconst addDays = (iso, n) => { const d = new Date(iso + \"T12:00:00Z\"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };\nconst week_ending = vanDate(newest);\nconst ageHours = (Date.now() - new Date(newest).getTime()) / 36e5;\nif (ageHours > 48) return [{ json: { ok: false, reason: `The newest 3-1-1 record is ${Math.round(ageHours)} hours old.` } }];\nreturn [{ json: {\n  ok: true,\n  newest_record: newest,\n  week_ending,\n  window_start: addDays(week_ending, -62),   // 9 weeks of 7 days, inclusive\n  window_end_exclusive: addDays(week_ending, 1),\n  this_week_start: addDays(week_ending, -6),\n} }];\n"
-      }
+      "id": "c20c0617-fd13-523a-a331-6f8f3d7a8d7d",
+      "name": "Set window"
     },
     {
-      "id": "90c1ed59-ae13-4c25-96fc-7fbfc96c7a97",
-      "name": "Data fresh?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        700,
-        0
-      ],
       "parameters": {
         "conditions": {
           "options": {
             "caseSensitive": true,
             "leftValue": "",
-            "typeValidation": "strict",
+            "typeValidation": "loose",
             "version": 2
           },
           "conditions": [
             {
-              "id": "0862696c-7197-4929-9e95-f042ceeab967",
+              "id": "1f98a77f-cab0-5c5d-ad1e-4bc6adfc191f",
               "leftValue": "={{ $json.ok }}",
               "rightValue": "",
               "operator": {
@@ -103,164 +118,155 @@
           "combinator": "and"
         },
         "options": {}
-      }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        0
+      ],
+      "id": "64a0d5f9-747e-5899-a0ab-98af0c8c120f",
+      "name": "Data fresh?"
     },
     {
-      "id": "f7298670-fc72-4062-a4b6-12cb63b14244",
-      "name": "Daily counts by type",
+      "parameters": {
+        "options": {
+          "timeout": 30000
+        },
+        "url": "={{ $('Source config').first().json.base_url }}/exports/json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "={{ $json.daily.select }}"
+            },
+            {
+              "name": "where",
+              "value": "={{ $json.daily.where }}"
+            },
+            {
+              "name": "group_by",
+              "value": "={{ $json.daily.group_by }}"
+            },
+            {
+              "name": "timezone",
+              "value": "={{ $('Source config').first().json.timezone }}"
+            }
+          ]
+        }
+      },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 2000,
-      "onError": "continueErrorOutput",
       "position": [
-        940,
+        1100,
         -100
       ],
+      "id": "15d95700-819f-502e-a641-b85ae2627b7a",
+      "name": "Daily counts by category",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput"
+    },
+    {
       "parameters": {
-        "url": "https://opendata.vancouver.ca/api/explore/v2.1/catalog/datasets/3-1-1-service-requests/exports/json",
+        "options": {
+          "timeout": 30000
+        },
+        "url": "={{ $('Source config').first().json.base_url }}/exports/json",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
             {
               "name": "select",
-              "value": "service_request_type, count(*) as n"
+              "value": "={{ $('Set window').first().json.area.select }}"
             },
             {
               "name": "where",
-              "value": "=service_request_open_timestamp >= date'{{ $json.window_start }}' and service_request_open_timestamp < date'{{ $json.window_end_exclusive }}'"
+              "value": "={{ $('Set window').first().json.area.where }}"
             },
             {
               "name": "group_by",
-              "value": "service_request_type, date_format(service_request_open_timestamp, 'yyyy-MM-dd') as day"
+              "value": "={{ $('Set window').first().json.area.group_by }}"
             },
             {
               "name": "timezone",
-              "value": "America/Vancouver"
+              "value": "={{ $('Source config').first().json.timezone }}"
             }
           ]
-        },
-        "options": {
-          "timeout": 30000
         }
-      }
-    },
-    {
-      "id": "ee7ccf76-5c0d-4f7c-b7bf-370630e66b62",
-      "name": "This week by area",
+      },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "executeOnce": true,
+      "position": [
+        1320,
+        -200
+      ],
+      "id": "19b82d2a-0b67-51b7-a0ab-2bd404e1eb0f",
+      "name": "This week by area",
       "retryOnFail": true,
       "maxTries": 3,
       "waitBetweenTries": 2000,
       "onError": "continueErrorOutput",
-      "position": [
-        1180,
-        -200
-      ],
-      "parameters": {
-        "url": "https://opendata.vancouver.ca/api/explore/v2.1/catalog/datasets/3-1-1-service-requests/exports/json",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "select",
-              "value": "service_request_type, local_area, count(*) as n"
-            },
-            {
-              "name": "where",
-              "value": "=service_request_open_timestamp >= date'{{ $('Set window').first().json.this_week_start }}' and service_request_open_timestamp < date'{{ $('Set window').first().json.window_end_exclusive }}'"
-            },
-            {
-              "name": "group_by",
-              "value": "service_request_type, local_area"
-            },
-            {
-              "name": "timezone",
-              "value": "America/Vancouver"
-            }
-          ]
-        },
-        "options": {
-          "timeout": 30000
-        }
-      }
+      "executeOnce": true
     },
     {
-      "id": "d58d19cd-c6b3-4d49-800f-44c3d0388dab",
-      "name": "Build collected",
+      "parameters": {
+        "jsCode": "// \"Build collected\": days into weeks, plus this week's neighbourhood counts. See `collected` in _config/contracts.md.\nconst s = $(\"Source config\").first().json;\nconst w = $(\"Set window\").first().json;\nconst daily = $(\"Daily counts by category\").all().map((i) => i.json);\nconst areas = $(\"This week by area\").all().map((i) => i.json);\nconst addDays = (iso, n) => { const d = new Date(iso + \"T12:00:00Z\"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };\nconst daysBetween = (a, b) => Math.round((new Date(b + \"T12:00:00Z\") - new Date(a + \"T12:00:00Z\")) / 864e5);\nconst weeks = Array.from({ length: 9 }, (_, k) => addDays(w.week_ending, -7 * (8 - k)));\n\nconst types = new Map();\nconst entry = (t) => {\n  if (!types.has(t)) types.set(t, { type: t, weekly: weeks.map((we) => ({ week_ending: we, count: 0 })), by_area: [], unknown_area: 0 });\n  return types.get(t);\n};\nfor (const r of daily) {\n  const t = r[s.category_field];\n  if (!t || !r.day) continue;\n  const k = 8 - Math.floor(daysBetween(r.day, w.week_ending) / 7);\n  if (k >= 0 && k <= 8) entry(t).weekly[k].count += r.n;\n}\nfor (const r of areas) {\n  const t = r[s.category_field];\n  if (!t) continue;\n  const e = entry(t);\n  if (r[s.area_field]) e.by_area.push({ area: r[s.area_field], count: r.n });\n  else e.unknown_area += r.n;\n}\nfor (const e of types.values()) e.by_area.sort((a, b) => b.count - a.count);\nif (!types.size) return [{ json: { ok: false, source: s.label, reason: `${s.label}: no rows in the last 9 weeks.` } }];\n\nreturn [{ json: {\n  ok: true,\n  source_id: s.id,\n  dataset: s.label,\n  source_note: s.source_note,\n  source_url: s.source_url,\n  unit: s.unit,\n  newest_record: w.newest_record,\n  week_start: w.week_start,\n  week_ending: w.week_ending,\n  weeks,\n  types: [...types.values()],\n} }];\n"
+      },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1420,
+        1540,
         -200
       ],
-      "parameters": {
-        "jsCode": "// n8n Code node \"Build collected\". Reads the window and both queries by node name.\nconst w = $(\"Set window\").first().json;\nconst daily = $(\"Daily counts by type\").all().map((i) => i.json);\nconst areas = $(\"This week by area\").all().map((i) => i.json);\nconst addDays = (iso, n) => { const d = new Date(iso + \"T12:00:00Z\"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };\nconst daysBetween = (a, b) => Math.round((new Date(b + \"T12:00:00Z\") - new Date(a + \"T12:00:00Z\")) / 864e5);\nconst weeks = Array.from({ length: 9 }, (_, k) => addDays(w.week_ending, -7 * (8 - k)));\n\nconst types = new Map();\nconst entry = (t) => {\n  if (!types.has(t)) types.set(t, { type: t, weekly: weeks.map((we) => ({ week_ending: we, count: 0 })), by_area: [], unknown_area: 0 });\n  return types.get(t);\n};\nfor (const r of daily) {\n  if (!r.service_request_type || !r.day) continue;\n  const k = 8 - Math.floor(daysBetween(r.day, w.week_ending) / 7);\n  if (k < 0 || k > 8) continue;\n  entry(r.service_request_type).weekly[k].count += r.n;\n}\nfor (const r of areas) {\n  if (!r.service_request_type) continue;\n  const e = entry(r.service_request_type);\n  if (r.local_area) e.by_area.push({ area: r.local_area, count: r.n });\n  else e.unknown_area += r.n;\n}\nfor (const e of types.values()) e.by_area.sort((a, b) => b.count - a.count);\nif (!types.size) return [{ json: { ok: false, reason: \"The city API returned no 3-1-1 rows for the window.\" } }];\n\nreturn [{ json: {\n  ok: true,\n  dataset: \"3-1-1 service requests\",\n  source: \"City of Vancouver open data, 3-1-1 service requests\",\n  source_url: \"https://opendata.vancouver.ca/explore/dataset/3-1-1-service-requests/\",\n  newest_record: w.newest_record,\n  week_ending: w.week_ending,\n  weeks,\n  types: [...types.values()],\n} }];\n"
-      }
+      "id": "a5b6cc8b-5bfe-5a52-ae70-c7dd19ebd9f2",
+      "name": "Build collected"
     },
     {
-      "id": "d9eec867-3e90-4da9-aed1-9cdb5e76b983",
-      "name": "No data today",
+      "parameters": {
+        "jsCode": "// \"Failed\": every error in Collect ends here, so the orchestrator sends a short note instead of crashing.\nconst j = $input.first().json;\nconst reason = j.reason || `Collect failed: ${j.error?.message || j.message || \"unknown error\"}`;\nreturn [{ json: { ok: false, step: \"Collect\", source: $(\"Source config\").first()?.json?.label, reason } }];\n"
+      },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1180,
+        1320,
         200
       ],
-      "parameters": {
-        "jsCode": "// n8n Code node \"No data today\". Reached when the city API fails or the window check says no.\nconst j = $input.first().json;\nconst reason = j.reason || `The City of Vancouver API did not answer: ${j.error?.message || j.message || \"unknown error\"}`;\nreturn [{ json: { ok: false, dataset: \"3-1-1 service requests\", reason } }];\n"
-      }
+      "id": "870c3760-6290-54c0-affc-755ba8a119ed",
+      "name": "Failed"
     },
     {
-      "id": "afc0f313-f899-4747-8889-50d0afebb826",
-      "name": "About Collect",
+      "parameters": {
+        "content": "## 1 Collect\nPulls 9 weeks of one City of Vancouver dataset, grouped by category, day and neighbourhood. Public, no key, never addresses.\n\nThe orchestrator calls it once per source in **Vancouver sources**. Its test webhook takes a source object; an empty body uses 3-1-1.\n\nAny failure or stale data ends at **Failed** with `ok: false` and a reason.",
+        "height": 300,
+        "width": 460,
+        "color": 5
+      },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
         -40,
-        -440
+        -460
       ],
-      "parameters": {
-        "content": "## 1 Collect\nPulls 9 weeks of City of Vancouver 3-1-1 service requests (public, no key).\n\n1. **Newest record** finds when the city last refreshed (once a day, about 05:00 UTC).\n2. **Set window** makes 9 weeks of 7 days ending on that day, Vancouver time. Stops if the data is over 48 hours old.\n3. **Daily counts by type** and **This week by area** are two grouped queries, no addresses.\n4. **Build collected** hands Score the `collected` JSON in `_config/contracts.md`.\n\nAny failure goes to **No data today**, so the run ends in a quiet note, not an error.",
-        "height": 360,
-        "width": 460,
-        "color": 5
-      }
-    },
-    {
-      "id": "c2ccbe6e-8a13-47a3-b71b-8a6cffbdcfd1",
-      "name": "Test webhook",
-      "webhookId": "8d86fc18-03ae-433e-9876-88983447307c",
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
-      "position": [
-        0,
-        400
-      ],
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "step-collect",
-        "responseMode": "lastNode",
-        "options": {}
-      }
+      "id": "2e82fadb-0a6d-5ab8-a056-50a5b0b9999c",
+      "name": "About Collect"
     }
   ],
   "connections": {
-    "When called by orchestrator": {
+    "When Executed by Another Workflow": {
       "main": [
         [
           {
-            "node": "Newest record",
+            "node": "Source config",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Test run": {
+    "Source config": {
       "main": [
         [
           {
@@ -282,7 +288,7 @@
         ],
         [
           {
-            "node": "No data today",
+            "node": "Failed",
             "type": "main",
             "index": 0
           }
@@ -304,21 +310,21 @@
       "main": [
         [
           {
-            "node": "Daily counts by type",
+            "node": "Daily counts by category",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "No data today",
+            "node": "Failed",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Daily counts by type": {
+    "Daily counts by category": {
       "main": [
         [
           {
@@ -329,7 +335,7 @@
         ],
         [
           {
-            "node": "No data today",
+            "node": "Failed",
             "type": "main",
             "index": 0
           }
@@ -347,7 +353,7 @@
         ],
         [
           {
-            "node": "No data today",
+            "node": "Failed",
             "type": "main",
             "index": 0
           }
@@ -358,7 +364,7 @@
       "main": [
         [
           {
-            "node": "Newest record",
+            "node": "Source config",
             "type": "main",
             "index": 0
           }
@@ -368,5 +374,6 @@
   },
   "settings": {
     "executionOrder": "v1"
-  }
+  },
+  "pinData": {}
 }
