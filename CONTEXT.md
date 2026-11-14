@@ -34,7 +34,7 @@ Read only the current stage, its declared inputs, and the configuration it names
 | 02_storyboard | The storyboard has a line starting "Approved" | Sat 14:00 |
 | 03_build | The golden path passes three logged runs in a row | Rough run Sat 18:00, freeze Sun 11:00 |
 | 04_demo | The video is under 3:00 and uploaded | Sun 13:30 |
-| 05_submit | Devpost is submitted and this repository is public | Sun 14:30 |
+| 05_submit | Devpost is submitted | Sun 14:30 |
 
 Submissions close Sunday 15:00. Nobody pushes to this repository or edits Devpost after that.
 
