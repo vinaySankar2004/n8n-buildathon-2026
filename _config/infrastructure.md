@@ -15,11 +15,11 @@ Everything runs on Vinayak's Mac behind one public address, so the n8n API is fu
 
 ## Building workflows as code
 
-Workflows live as JSON in `03_build/output/workflows/`, one file per step: `0-orchestrator`, `1-collect`, `2-score`, `3-write`, `4-voice`, `5-render`, `6-publish`.
+The source is `03_build/output/pipeline/` (see its README). `npm run pipeline` generates one JSON file per step in `03_build/output/workflows/`: `0-orchestrator`, `1-collect`, `2-score`, `3-write`, `4-voice`, `5-render`, `6-publish`. Never hand-edit those files.
 
 - `npm run deploy` creates or updates each workflow in n8n by name and activates it. It refuses to run from a clone that is behind GitHub. `npm run deploy -- score` deploys one.
 - `npm run invoke -- score [input.json]` runs one step through its test webhook and prints what it returned.
-- `npm run sync` pulls workflows and run history back into the repository.
+- `npm run sync` rebuilds the test log from n8n's run history. `npm run sync -- --workflows` also pulls the deployed JSON back, only to compare it with the generated files.
 
 Each step workflow has two triggers: "When Executed by Another Workflow", which the orchestrator calls, and a Webhook at `step-<step>` (POST, respond when the last node finishes) for `invoke`. Schedules stay off while building.
 

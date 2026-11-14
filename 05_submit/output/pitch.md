@@ -20,7 +20,7 @@ An editor at a local outlet or a neighbourhood newsletter, or a city communicati
 
 ## What does it do?
 
-1. Collect: pulls nine weeks of 3-1-1 requests from the city's open data API.
+1. Collect: pulls nine weeks of 3-1-1 requests, building permits and business licences from the city's open data API.
 2. Score: compares this week with the eight before and picks the biggest real change.
 3. Write: an AI agent drafts a headline, a short script and a chart spec from those numbers only.
 4. Guard: checks every number in the script against the data and stops the run on a mismatch.
@@ -46,7 +46,7 @@ n8n runs every step: the schedule, the API calls, the scoring code, the AI agent
 
 ## Next step
 
-Run it daily for one neighbourhood newsletter for a month and count how many drafts the editor approves. Then add building permits and business licences, more languages for the voice, and other cities whose portals use the same open data API.
+Run it daily for one neighbourhood newsletter for a month and count how many drafts the editor approves. Then add more Vancouver datasets, more languages for the voice, and other cities whose portals use the same open data API.
 
 ## Track fit
 

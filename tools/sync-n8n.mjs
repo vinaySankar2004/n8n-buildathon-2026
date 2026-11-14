@@ -1,13 +1,15 @@
 #!/usr/bin/env node
-// Pulls workflows and recent runs from n8n back into the repository, so nobody exports by hand.
-// Writes 03_build/output/workflows/<n>-<step>.json and regenerates 03_build/output/test-log.md.
-// Usage: npm run sync
+// Rebuilds 03_build/output/test-log.md from n8n's run history. The workflow JSON is generated from
+// 03_build/output/pipeline/, so the deployed copies are pulled back only on request, to compare.
+// Usage: npm run sync                 test log only
+//        npm run sync -- --workflows  also write the deployed JSON into 03_build/output/workflows/
 import { writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { api, listAll, requireKey, root, WORKFLOW_DIR, STEPS, stepOf } from "./n8n-api.mjs";
 
 requireKey();
 
+const pullWorkflows = process.argv.includes("--workflows");
 const numberOf = (name, step) => name.match(/^\s*(\d)/)?.[1] ?? String(STEPS.indexOf(step));
 
 mkdirSync(WORKFLOW_DIR, { recursive: true });
@@ -21,9 +23,11 @@ for (const summary of await listAll("/workflows")) {
   const wf = await api("GET", `/workflows/${summary.id}`);
   const file = `${numberOf(wf.name, step)}-${step}.json`;
   const clean = { name: wf.name, nodes: wf.nodes, connections: wf.connections, settings: wf.settings || {} };
-  writeFileSync(path.join(WORKFLOW_DIR, file), JSON.stringify(clean, null, 2) + "\n");
+  if (pullWorkflows) {
+    writeFileSync(path.join(WORKFLOW_DIR, file), JSON.stringify(clean, null, 2) + "\n");
+    console.log(`Saved "${wf.name}" as workflows/${file}`);
+  }
   kept.push({ id: wf.id, name: wf.name, file });
-  console.log(`Saved "${wf.name}" as workflows/${file}`);
 }
 
 const rows = [];

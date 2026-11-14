@@ -187,7 +187,7 @@ footer { margin-top: 28px; font-size: 13px; color: var(--muted); display: flex; 
 <script>
 const NODES = {
   src_van: { x: 20, y: 140, w: 200, h: 64, t: "Vancouver open data", u: "311, permits, licences", keys: [],
-    does: "Public city data, refreshed once a day. The first version uses 3-1-1 service requests; building permits and business licences come next.",
+    does: "Public city data, refreshed once a day: 3-1-1 service requests, issued building permits and business licences. Each dataset is a short config, so more can be added.",
     takes: "A query from Collect", gives: "Rows of requests with type, neighbourhood and time", where: "City of Vancouver servers, no key needed", beat: "B1, B3" },
   src_sc: { x: 20, y: 250, w: 200, h: 64, t: "Statistics Canada", u: "context numbers, later", keys: [],
     does: "Optional context such as population, to turn counts into rates. Not in the first version.",
@@ -196,12 +196,12 @@ const NODES = {
     does: "One workflow that runs on a schedule and calls the six step workflows in order. Each person owns one step workflow, so nobody edits the same canvas.",
     takes: "A schedule, or a manual run for the demo", gives: "One finished run", where: "n8n on the host laptop", beat: "B3, B8" },
   collect: { x: 265, y: 140, w: 130, h: 64, t: "1 Collect", u: "HTTP Request", keys: ["collect"],
-    does: "Pulls the last nine weeks of 3-1-1 requests from the city API, counted by type and by week.",
+    does: "Pulls the last nine weeks of each dataset from the city API, counted by category, day and neighbourhood.",
     takes: "Nothing but the schedule", gives: "Weekly counts per request type", where: "n8n on the host laptop", beat: "B3" },
   score: { x: 425, y: 140, w: 130, h: 64, t: "2 Score", u: "Code node", keys: ["score"],
     does: "Compares this week with the eight before, ranks the biggest real jumps and picks the top story with its neighbourhood breakdown. For 7 to 13 November the top story was flooding reports at 7.4 times normal.",
     takes: "Weekly counts", gives: "The story contract", where: "n8n on the host laptop", beat: "B4" },
-  write: { x: 585, y: 140, w: 130, h: 64, t: "3 Write", u: "AI Agent", keys: ["write"],
+  write: { x: 585, y: 140, w: 130, h: 64, t: "3 Write", u: "Claude, then a number check", keys: ["write"],
     does: "Turns the story into a headline, a script of about 50 words and a chart spec. It may only use numbers that are in the story.",
     takes: "The story contract", gives: "The spec contract", where: "n8n on the host laptop, with an LLM", beat: "B5" },
   voice: { x: 745, y: 140, w: 130, h: 64, t: "4 Voice", u: "HTTP to ElevenLabs", keys: ["voice"],
@@ -211,7 +211,7 @@ const NODES = {
     does: "Sends the spec and the audio to the render service on the same laptop and gets a public video link back.",
     takes: "Spec and audio", gives: "A link to a vertical MP4", where: "n8n calling the render service on the same laptop", beat: "B5, B6" },
   publish: { x: 585, y: 280, w: 130, h: 64, t: "6 Publish", u: "Slack, send and wait", keys: ["approve", "publish"],
-    does: "Posts the video to the editor in Slack with approve and reject, then waits. Approval publishes to the outlet page and drafts a newsletter blurb.",
+    does: "Posts the video to the editor in Slack with approve and reject, then waits. Approval posts the video and a newsletter blurb to the outlet channel.",
     takes: "The video link and headline", gives: "A published story", where: "n8n on the host laptop", beat: "B7" },
   eleven: { x: 940, y: 140, w: 240, h: 64, t: "ElevenLabs", u: "text to speech", keys: ["voice"],
     does: "Reads the script aloud. The key lives only in n8n credentials, never in a doc.",
@@ -225,9 +225,9 @@ const NODES = {
   slack: { x: 585, y: 440, w: 130, h: 64, t: "Editor", u: "approves in Slack", keys: ["approve"],
     does: "The editor sees the video on a phone and taps approve or reject. n8n waits for the answer.",
     takes: "A message with the video", gives: "A yes or no", where: "The team's Slack workspace", beat: "B7" },
-  outlet: { x: 425, y: 440, w: 130, h: 64, t: "Outlet page", u: "post and blurb", keys: ["publish"],
-    does: "Where approved stories appear, for a made-up outlet. Still an open decision.",
-    takes: "An approved video and headline", gives: "A public post", where: "To decide, likely a page the team controls", beat: "B7" },
+  outlet: { x: 425, y: 440, w: 130, h: 64, t: "Outlet channel", u: "Slack post and blurb", keys: ["publish"],
+    does: "Where approved stories appear, for a made-up outlet. A Slack channel stands in for the outlet page.",
+    takes: "An approved video and headline", gives: "A post with the newsletter blurb", where: "Slack", beat: "B7" },
 };
 const GROUPS = [
   { x: 10, y: 24, w: 222, h: 310, label: "Public data" },
@@ -252,7 +252,7 @@ const STEPS = [
   { n: ["voice", "eleven"], e: ["write>voice", "voice>eleven", "eleven>voice"], t: "Voice sends the script to ElevenLabs and gets the narration back." },
   { n: ["render", "rsvc"], e: ["voice>render", "render>rsvc", "rsvc>render"], t: "Render sends the spec and audio to the render service on the same laptop, which makes a 20 second vertical video and returns a public link." },
   { n: ["publish", "slack"], e: ["render>publish", "publish>slack", "slack>publish"], t: "Publish sends the video to the editor in Slack and waits. The editor taps approve on a phone." },
-  { n: ["outlet"], e: ["publish>outlet"], t: "Approval puts the video on the outlet page and drafts a newsletter blurb. One run, done." },
+  { n: ["outlet"], e: ["publish>outlet"], t: "Approval posts the video and a newsletter blurb to the outlet channel in Slack. One run, done." },
 ];
 const ORDER = ["orch", "src_van", "collect", "score", "write", "voice", "eleven", "render", "tunnel", "rsvc", "publish", "slack", "outlet", "src_sc"];
 const STATE_WORD = { live: "Live", built: "Built", todo: "To do", down: "Down", planned: "Later", done: "Done", review: "Waiting for review", active: "In progress" };
@@ -416,7 +416,7 @@ function renderStatus() {
     row("City data", "City of Vancouver API", "Public, no key", C.src_van.state, P.vancouver.note),
     row("ElevenLabs", "ElevenLabs cloud", "Creator month from the event", C.eleven.state, ""),
     row("Slack", "Team workspace", "Free plan", C.slack.state, ""),
-    row("Outlet page", "To decide", "", C.outlet.state, ""),
+    row("Outlet channel", "A Slack channel (D12)", "Stands in for an outlet page", C.outlet.state, ""),
   ].join("");
   $("contracts").innerHTML = status.contracts.length ? status.contracts.map((c) => `<section class="card contract"><h3>${esc(c.name)}</h3><p>${esc(c.between)}</p><pre>${esc(c.json)}</pre></section>`).join("") : `<div class="card contract"><p>No contracts found in must-work.md yet.</p></div>`;
   $("open").innerHTML = status.open.length ? status.open.map((o) => `<li>${esc(o)}</li>`).join("") : "<li>Nothing open.</li>";

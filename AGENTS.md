@@ -25,12 +25,13 @@ After any piece of work, update what it touched, without being asked:
 
 Workflows are built as code. Nobody on the team works in the n8n editor; you write the workflow and run it.
 
-1. Write or change the workflow JSON in `03_build/output/workflows/<n>-<step>.json`. Follow `_config/contracts.md` for what goes in and out, and the conventions in `_config/infrastructure.md`: two triggers per step workflow, the test webhook at `step-<step>`, schedules off.
-2. `npm run deploy -- <step>` pushes it into n8n.
-3. `npm run invoke -- <step> [input.json]` runs it and prints the result. Fix and repeat until the step's test in `must-work.md` passes.
-4. `npm run sync` pulls the deployed workflows and run history back, then commit.
+1. Change the source in `03_build/output/pipeline/`: Code nodes and the prompt in `code/`, node layout in `build.mjs`. Never hand-edit the JSON in `03_build/output/workflows/`; it is generated. Follow `_config/contracts.md` for what goes in and out of each step.
+2. `npm run pipeline` regenerates the workflow JSON, and `npm run test:pipeline` runs the Code nodes against live city data.
+3. `npm run deploy` pushes the workflows into n8n, the orchestrator last; `npm run deploy -- <step>` pushes one.
+4. `npm run invoke -- <step> [input.json]` runs a step and prints the result. Fix and repeat until the step's test in `must-work.md` passes.
+5. `npm run sync` rebuilds the test log from n8n's run history, then commit.
 
-Logic that can be tested outside n8n, such as the scoring code, gets a plain Node test too. The scripts need `N8N_URL` and `N8N_API_KEY` in `.env`; if they are missing, write and commit the JSON anyway and say once that it needs the key from the repository owner to deploy. Never ask someone to open the editor, download or export a workflow.
+The scripts need `N8N_URL` and `N8N_API_KEY` in `.env`; if they are missing, write and commit the JSON anyway and say once that it needs the key from the repository owner to deploy. Never ask someone to open the editor, download or export a workflow.
 
 ## Stay current
 

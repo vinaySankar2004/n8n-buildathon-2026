@@ -4,7 +4,7 @@ Vancouver publishes fresh city data every day, and nobody has time to turn it in
 
 ## How it works
 
-1. n8n pulls nine weeks of 3-1-1 service requests from the City of Vancouver open data API.
+1. n8n pulls nine weeks of 3-1-1 service requests, building permits and business licences from the City of Vancouver open data API.
 2. A code step compares this week with the eight before and picks the biggest real change.
 3. An AI agent writes a short script and a chart spec, using only numbers from the data.
 4. ElevenLabs voices the script, and a Remotion service renders a vertical video.
