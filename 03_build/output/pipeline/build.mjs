@@ -58,7 +58,18 @@ const execWf = (name, pos, label, mode = "once", wait = true) =>
     mode,
     options: { waitForSubWorkflow: wait },
   }, { onError: "continueErrorOutput" });
-const slackChannel = { __rl: true, value: "", mode: "list" };
+// Slack channels, by ID (in Slack: open the channel, then its name, then the ID at the bottom).
+// Deploy sets every Slack node from these, so nobody picks a channel in the editor.
+// Channel IDs are not secret; the bot token lives only in the n8n "Slack" credential.
+const SLACK_CHANNELS = {
+  editor: "", // review, approval and "No story today" notes
+  outlet: "", // stands in for the outlet page: approved videos and newsletter drafts
+};
+const channel = (which) => {
+  const value = SLACK_CHANNELS[which];
+  if (!value) console.warn(`SLACK_CHANNELS.${which} is empty in build.mjs; its Slack nodes deploy with no channel.`);
+  return { __rl: true, mode: "id", value };
+};
 
 // ---------- connection helpers ----------
 const link = (conns, from, outputs) => {
@@ -274,19 +285,19 @@ const out = {};
     headerParameters: { parameters: [{ name: "ngrok-skip-browser-warning", value: "1" }] },
     options: { timeout: 60000, response: { response: { responseFormat: "file" } } },
   });
-  const upload = (name, pos, comment) => node(name, "n8n-nodes-base.slack", 2.3, pos, {
+  const upload = (name, pos, which, comment) => node(name, "n8n-nodes-base.slack", 2.3, pos, {
     resource: "file",
     binaryData: true,
     binaryPropertyName: "data",
-    options: { channelIds: [], fileName: "={{ $('Input').first().json.story.topic }}.mp4", initialComment: comment },
+    options: { channelIds: SLACK_CHANNELS[which] ? [SLACK_CHANNELS[which]] : [], fileName: "={{ $('Input').first().json.story.topic }}.mp4", initialComment: comment },
   }, { onError: "continueErrorOutput", ...SLACK });
-  const message = (name, pos, text) => node(name, "n8n-nodes-base.slack", 2.3, pos, {
-    select: "channel", channelId: slackChannel, text, otherOptions: {},
+  const message = (name, pos, which, text) => node(name, "n8n-nodes-base.slack", 2.3, pos, {
+    select: "channel", channelId: channel(which), text, otherOptions: {},
   }, { onError: "continueErrorOutput", ...SLACK });
   const ask = node("Ask editor", "n8n-nodes-base.slack", 2.3, [1100, 0], {
     operation: "sendAndWait",
     select: "channel",
-    channelId: slackChannel,
+    channelId: channel("editor"),
     message: "={{ (() => { const r = $('Input').first().json; const s = r.story; return `*${r.spec.headline}*\\n${r.spec.script}\\n\\nFrom ${s.dataset}: ${s.this_week} ${s.unit} in the week to ${s.week_ending}, against an average of ${s.avg_prev_8_weeks} over the 8 weeks before.\\nVideo: ${r.video_url}`; })() }}",
     approvalOptions: { values: { approvalType: "double", approveLabel: "Approve", disapproveLabel: "Reject" } },
     options: { limitWaitTime: { values: { resumeAmount: 3, resumeUnit: "hours" } } },
@@ -296,16 +307,16 @@ const out = {};
     jsonNode("Sample run", [220, 200], { ok: true, story: sampleStory, spec: sampleSpec, blurb: sampleBlurb, video_url: "replace with a video_url from 5 Render" }),
     noop("Input", [440, 100]),
     download("Download video", [660, 100]),
-    upload("Send video to editor", [880, 100], "=For review: {{ $('Input').first().json.spec.headline }}"),
+    upload("Send video to editor", [880, 100], "editor", "=For review: {{ $('Input').first().json.spec.headline }}"),
     ask,
     ifOk("Approved?", [1320, 0], "={{ $json.data.approved }}"),
     download("Download for outlet", [1540, -100]),
-    upload("Post to outlet", [1760, -100], "={{ $('Input').first().json.spec.headline }}\n\n{{ $('Input').first().json.blurb }}\n\nSource: {{ $('Input').first().json.story.source_note }}"),
-    message("Newsletter draft", [1980, -100], "=Newsletter draft: {{ $('Input').first().json.blurb }}"),
-    message("Tell editor it was rejected", [1540, 140], "=Not published: {{ $('Input').first().json.spec.headline }}"),
+    upload("Post to outlet", [1760, -100], "outlet", "={{ $('Input').first().json.spec.headline }}\n\n{{ $('Input').first().json.blurb }}\n\nSource: {{ $('Input').first().json.story.source_note }}"),
+    message("Newsletter draft", [1980, -100], "outlet", "=Newsletter draft: {{ $('Input').first().json.blurb }}"),
+    message("Tell editor it was rejected", [1540, 140], "editor", "=Not published: {{ $('Input').first().json.spec.headline }}"),
     codeNode("Failed", [1100, 300], "publish-failed.js"),
-    node("Tell editor it failed", "n8n-nodes-base.slack", 2.3, [1320, 300], { select: "channel", channelId: slackChannel, text: "=Could not publish. {{ $json.reason }}", otherOptions: {} }, SLACK),
-    sticky("About Publish", [-40, -400], "## 6 Publish\nSends the editor the video in Slack with Approve and Reject, and waits up to 3 hours. Approve posts it to the outlet channel and drafts the newsletter blurb. Reject sends a short note.\n\nCredential: Slack. Pick the editor channel in **Send video to editor**, **Ask editor** and **Tell editor it was rejected**, **Tell editor it failed**, and the outlet channel in **Post to outlet** and **Newsletter draft**.\n\nIts test webhook needs a run with a real `video_url`, such as 5 Render's output.", 340),
+    node("Tell editor it failed", "n8n-nodes-base.slack", 2.3, [1320, 300], { select: "channel", channelId: channel("editor"), text: "=Could not publish. {{ $json.reason }}", otherOptions: {} }, SLACK),
+    sticky("About Publish", [-40, -400], "## 6 Publish\nSends the editor the video in Slack with Approve and Reject, and waits up to 3 hours. Approve posts it to the outlet channel and drafts the newsletter blurb. Reject sends a short note.\n\nCredential: Slack. Channels come from `SLACK_CHANNELS` in the pipeline's build.mjs.\n\nIts test webhook needs a run with a real `video_url`, such as 5 Render's output.", 340),
   ];
   const c = {};
   link(c, "When Executed by Another Workflow", [["Input"]]);
@@ -340,7 +351,7 @@ const out = {};
     ifOk("Video ok?", [2420, 0]),
     execWf("6 Publish", [2640, 0], "6 Publish", "once", false),
     codeNode("Why it stopped", [1760, 400], "why-stopped.js"),
-    node("No story today", "n8n-nodes-base.slack", 2.3, [1980, 400], { select: "channel", channelId: slackChannel, text: "={{ $json.text }}", otherOptions: {} }, SLACK),
+    node("No story today", "n8n-nodes-base.slack", 2.3, [1980, 400], { select: "channel", channelId: channel("editor"), text: "={{ $json.text }}", otherOptions: {} }, SLACK),
     sticky("About the newsroom", [-40, -460], "## 0 Orchestrator\n**Vancouver sources** lists the datasets to watch. **1 Collect** runs once per source, **2 Score** picks the week's strongest change, then Write, Voice, Render and Publish.\n\nIf any step says `ok: false`, or errors, **No story today** tells the editor why in Slack.\n\n**Every morning** stays off while building.\n\nTo test the guard, set `test_tamper` to true in **Run options**.", 360),
   ];
   const c = {};

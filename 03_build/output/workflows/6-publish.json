@@ -121,8 +121,8 @@
         "select": "channel",
         "channelId": {
           "__rl": true,
-          "value": "",
-          "mode": "list"
+          "mode": "id",
+          "value": ""
         },
         "message": "={{ (() => { const r = $('Input').first().json; const s = r.story; return `*${r.spec.headline}*\\n${r.spec.script}\\n\\nFrom ${s.dataset}: ${s.this_week} ${s.unit} in the week to ${s.week_ending}, against an average of ${s.avg_prev_8_weeks} over the 8 weeks before.\\nVideo: ${r.video_url}`; })() }}",
         "approvalOptions": {
@@ -256,8 +256,8 @@
         "select": "channel",
         "channelId": {
           "__rl": true,
-          "value": "",
-          "mode": "list"
+          "mode": "id",
+          "value": ""
         },
         "text": "=Newsletter draft: {{ $('Input').first().json.blurb }}",
         "otherOptions": {}
@@ -282,8 +282,8 @@
         "select": "channel",
         "channelId": {
           "__rl": true,
-          "value": "",
-          "mode": "list"
+          "mode": "id",
+          "value": ""
         },
         "text": "=Not published: {{ $('Input').first().json.spec.headline }}",
         "otherOptions": {}
@@ -321,8 +321,8 @@
         "select": "channel",
         "channelId": {
           "__rl": true,
-          "value": "",
-          "mode": "list"
+          "mode": "id",
+          "value": ""
         },
         "text": "=Could not publish. {{ $json.reason }}",
         "otherOptions": {}
@@ -343,7 +343,7 @@
     },
     {
       "parameters": {
-        "content": "## 6 Publish\nSends the editor the video in Slack with Approve and Reject, and waits up to 3 hours. Approve posts it to the outlet channel and drafts the newsletter blurb. Reject sends a short note.\n\nCredential: Slack. Pick the editor channel in **Send video to editor**, **Ask editor** and **Tell editor it was rejected**, **Tell editor it failed**, and the outlet channel in **Post to outlet** and **Newsletter draft**.\n\nIts test webhook needs a run with a real `video_url`, such as 5 Render's output.",
+        "content": "## 6 Publish\nSends the editor the video in Slack with Approve and Reject, and waits up to 3 hours. Approve posts it to the outlet channel and drafts the newsletter blurb. Reject sends a short note.\n\nCredential: Slack. Channels come from `SLACK_CHANNELS` in the pipeline's build.mjs.\n\nIts test webhook needs a run with a real `video_url`, such as 5 Render's output.",
         "height": 340,
         "width": 460,
         "color": 5

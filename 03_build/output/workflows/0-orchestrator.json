@@ -350,8 +350,8 @@
         "select": "channel",
         "channelId": {
           "__rl": true,
-          "value": "",
-          "mode": "list"
+          "mode": "id",
+          "value": ""
         },
         "text": "={{ $json.text }}",
         "otherOptions": {}

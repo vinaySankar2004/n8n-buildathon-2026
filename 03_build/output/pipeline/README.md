@@ -29,7 +29,7 @@ The source for all seven workflows. Drafted 2026-11-14 by Arman with Claude Code
 | Render token | Header Auth, header `x-render-token` | Render video (5 Render) |
 | Slack | Slack API, bot token | 6 Publish, and "No story today" |
 
-4. The Slack nodes come in with no channel. Pick the editor channel in "Send video to editor", "Ask editor", "Tell editor it was rejected", "Tell editor it failed" and "No story today", and the outlet channel in "Post to outlet" and "Newsletter draft". Once picked, `npm run sync` saves the channel IDs so the next build can keep them.
+4. Slack channels are set in `SLACK_CHANNELS` at the top of [build.mjs](build.mjs): `editor` for review, approval and "No story today" notes, `outlet` for approved videos and newsletter drafts. Put the channel IDs there, then `npm run pipeline` and `npm run deploy`. The bot must be invited to both channels. While an ID is empty, the build warns and those nodes deploy with no channel.
 
 ## Testing, one step at a time
 
@@ -53,7 +53,7 @@ Then the two failure tests from must-work:
 
 These parts were written without an n8n to try them in:
 
-- **Slack file upload** ("Send video to editor", "Post to outlet"). Its parameter names changed between Slack node versions. If the node opens with empty fields, set Binary File on, the property `data`, and the channel.
+- **Slack file upload** ("Send video to editor", "Post to outlet"). Its parameter names changed between Slack node versions. If the node opens with empty fields, set Binary File on and the property `data` in `build.mjs`.
 - **Slack approval** ("Ask editor"). The buttons need interactivity turned on in the Slack app, pointed at n8n's public address.
 - **Model name.** "Write script" asks for `claude-sonnet-5-5`. If Anthropic answers with a model error, change `MODEL` in `build.mjs`.
 - **Credentials by name.** If a node opens with no credential, n8n did not match the name; pick it in the node, then sync.
