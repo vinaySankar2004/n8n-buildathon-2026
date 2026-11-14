@@ -1,6 +1,8 @@
-# Local data newsroom
+# newsReels
 
-Vancouver publishes fresh city data every day, and nobody has time to turn it into stories. This project finds the week's real story in that data and turns it into a narrated 20 second video that an editor approves with one tap. It is built in n8n for LOOP, the UBC eProjects x n8n Buildathon, November 2026.
+newsReels is a service that turns a newsroom's or creator's own sources into short narrated news videos, which their editor approves in Slack. It is built in n8n for LOOP, the UBC eProjects x n8n Buildathon, November 2026.
+
+The working build serves one made-up client, Rain City Ledger, from Vancouver city data. Vancouver publishes fresh data every day, and nobody has time to turn it into stories. newsReels finds the week's real story in that data and turns it into a 20 second video that the editor approves with one tap.
 
 ## How it works
 
