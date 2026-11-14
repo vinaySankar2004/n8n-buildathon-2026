@@ -109,3 +109,16 @@ if (todo.length) {
 } else {
   console.log("Everything is set up. Run the whole pipeline with npm run invoke -- orchestrator.");
 }
+
+// 7. What the team is doing now.
+if (!existsSync(path.join(root, "product/output/spec.md"))) {
+  let names = [];
+  try {
+    const { readdirSync } = await import("node:fs");
+    names = readdirSync(path.join(root, "product/proposals")).filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""));
+  } catch {}
+  console.log(
+    `Team phase: product discussion (product/CONTEXT.md). Proposals so far: ${names.length ? names.join(", ") : "none"}. ` +
+      "If this person has not had theirs, ask the questions in product/questions.md one at a time and record the answers.",
+  );
+}

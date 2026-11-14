@@ -17,27 +17,9 @@ Everything runs on Vinayak's Mac behind one public address, so the n8n API is fu
 
 `npm run host` starts whatever is not running: the render service, n8n, the router and the tunnel, each detached so it outlives the terminal or agent that started it, plus keep-awake so the Mac does not idle-sleep. `npm run host -- status` shows what is up, including n8n through the tunnel, and `npm run host -- stop` stops all of it. Logs are in `03_build/output/host/logs/`. It reads `N8N_START` and `TUNNEL_URL` from the host's `.env`. After a restart, a lid close or a network change, run `npm run host` again.
 
-## Building workflows as code
+## Building and calling
 
-The source is `03_build/output/pipeline/` (see its README). `npm run pipeline` generates one JSON file per step in `03_build/output/workflows/`: `0-orchestrator`, `1-collect`, `2-score`, `3-write`, `4-voice`, `5-render`, `6-publish`. Never hand-edit those files.
-
-- `npm run deploy` creates or updates each workflow in n8n by name and activates it. It refuses to run from a clone that is behind GitHub. `npm run deploy -- score` deploys one.
-- `npm run invoke -- score [input.json]` runs one step through its test webhook and prints what it returned.
-- `npm run sync` rebuilds the test log from n8n's run history. `npm run sync -- --workflows` also pulls the deployed JSON back, only to compare it with the generated files.
-
-Each step workflow has two triggers: "When Executed by Another Workflow", which the orchestrator calls, and a Webhook at `step-<step>` (POST, respond when the last node finishes) for `invoke`. Schedules stay off while building.
-
-These scripts read `N8N_URL` and `N8N_API_KEY` from a git-ignored `.env` at the repository root. On the host laptop `N8N_URL` is `http://localhost:5678`; everyone else uses the tunnel address. Vinayak shares the key in a direct message, never in a doc, channel or commit.
-
-## Calling the render service from n8n
-
-n8n and the render service share a machine, so the HTTP Request node calls `http://127.0.0.1:8787/render` directly, with:
-
-- a Header Auth credential named "Render token" sending `x-render-token`
-- a JSON body `{ "spec": …, "audio_base64": … }` or `{ "spec": …, "audio_url": … }`, with `spec` as in [contracts.md](contracts.md)
-- a timeout of 120 seconds
-
-It returns `{ "video_url", "duration_s", "render_seconds" }`, where `video_url` is a public link through the tunnel.
+Workflows are generated from `03_build/output/pipeline/` and deployed with npm scripts; its README has the steps and tests. The scripts read `N8N_URL` and `N8N_API_KEY` from `.env`: `http://localhost:5678` on the host laptop, the tunnel for everyone else. n8n reaches the render service directly at `http://127.0.0.1:8787/render`; the request and reply are in the render service's README.
 
 ## Secrets
 

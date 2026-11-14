@@ -1,54 +1,43 @@
 # Agent guide
 
-Read by Claude Code, Codex, Cursor and other coding agents working in this repository. People on the team never need to read it.
+Read by Claude Code, Codex, Cursor and other coding agents in this repository. People on the team never need to read it.
 
-## The people come first
+## People first
 
-The team builds in n8n and talks to you in plain words. They do not know how this repository is organized and should never have to. Never ask them to follow a structure, name a file, fill in a table, or run a bookkeeping step, and never remind them of one. Do it yourself, quietly, as part of whatever they asked.
+The team talks to you in plain words and does not know how this repository is organized. Never ask them to follow a structure, name a file or run a bookkeeping step, and never remind them of one. Do it yourself as part of what they asked.
 
-## When someone asks what to do
+## Start of every session
 
-Run `npm run doctor` (Claude Code already ran it at session start; its output is above). It checks this clone, the shared n8n, the stored credentials, the Slack channels and the deployed workflows, and lists what is left in order. Do every step you can yourself: copy `.env.example`, run `npm run credentials`, set channel IDs in `build.mjs` once you are given them, rebuild and deploy. Ask the person only for what needs them: a key, a channel ID, or a click in Slack or a provider's console. Then run `npm run doctor` again and report what changed.
+1. `npm run update` pulls teammates' work, and `npm run doctor` lists what is left to set up. Claude Code runs both at session start; their output is above.
+2. Do every setup step you can. Ask the person only for a key, a channel ID or a click in a provider's console.
+3. Until `product/output/spec.md` exists, the team is deciding what to build next. Once setup is done, open the conversation in `product/questions.md` (contract: `product/CONTEXT.md`) unless the person came with something else.
 
 ## Where things are
 
-Start at [CONTEXT.md](CONTEXT.md). It routes each task to one stage folder. Load that stage's `CONTEXT.md` and the files it names, and nothing else.
-
-## Keep the workspace current
-
-After any piece of work, update what it touched, without being asked:
-
-- When someone says what they are working on, put their name in the Owner column of `02_storyboard/output/must-work.md`.
-- When the team settles something, add it to `memory/decisions.md` with the next number and the date.
-- When something breaks and gets fixed, add it to `memory/failures.md`: what broke, the fix, and the check that would catch it again.
-- When a new outside service, model, API or template comes in, add it to `03_build/output/services.md`.
-- When the JSON passed between workflows changes, change `_config/contracts.md` first.
-- Stage outputs go where that stage's `CONTEXT.md` says.
+[CONTEXT.md](CONTEXT.md) routes each task to one stage folder. Load that stage's `CONTEXT.md` and the files it names, nothing else.
 
 ## n8n
 
-Workflows are built as code. Nobody on the team works in the n8n editor; you write the workflow and run it.
+Nobody uses the n8n editor. Change the pipeline source and deploy it as [03_build/output/pipeline/README.md](03_build/output/pipeline/README.md) describes; never hand-edit `03_build/output/workflows/`. Without `N8N_API_KEY` in `.env`, commit the change anyway and say once that it needs the key to deploy.
 
-1. Change the source in `03_build/output/pipeline/`: Code nodes and the prompt in `code/`, node layout in `build.mjs`. Never hand-edit the JSON in `03_build/output/workflows/`; it is generated. Follow `_config/contracts.md` for what goes in and out of each step.
-2. `npm run pipeline` regenerates the workflow JSON, and `npm run test:pipeline` runs the Code nodes against live city data.
-3. `npm run deploy` pushes the workflows into n8n, the orchestrator last; `npm run deploy -- <step>` pushes one.
-4. `npm run invoke -- <step> [input.json]` runs a step and prints the result. Fix and repeat until the step's test in `must-work.md` passes.
-5. `npm run sync` rebuilds the test log from n8n's run history, then commit.
+## Keep the workspace current
 
-The scripts need `N8N_URL` and `N8N_API_KEY` in `.env` (copy `.env.example`); if they are missing, write and commit the JSON anyway and say once that it needs the key from the repository owner to deploy. Never ask someone to open the editor, download or export a workflow.
+After any piece of work, without being asked:
 
-## Stay current
+- someone says what they are working on: their name in the Owner column of `02_storyboard/output/must-work.md`
+- the team settles something: `memory/decisions.md`, next number, dated
+- something breaks and gets fixed: `memory/failures.md`, with the check that would catch it again
+- a new service, model, API or template: `03_build/output/services.md`
+- the JSON between workflows changes: `_config/contracts.md` first
 
-Teammates push all weekend. Run `npm run update` before starting any task and again right before committing. It fetches, pulls when the clone is clean, and otherwise says what is waiting and why. Claude Code runs it on its own at session start and on every message. Commit and push each piece as soon as it works and the check passes, so the others get it quickly.
+## Commits
 
-## Before every commit
-
-Run `npm run check` and fix everything it reports. In a fresh clone, run `npm run setup` once so git runs the same check on every commit and push. Claude Code does this on its own at session start. GitHub runs the check again on every push.
+Run `npm run check` and fix what it reports; git and GitHub run it too. Commit and push each piece as soon as it works, so the others get it.
 
 ## Writing
 
-This repository is public. Write plainly and specifically: no em or en dashes, no hype, no stock phrases, no filler. Never write keys, tokens, passwords, personal details, or a single street address from the city data.
+The repository is public. Plain and specific: no em or en dashes, no hype, no filler. Never write keys, tokens, passwords, personal details or a single street address.
 
 ## Deadline
 
-Submissions close Sunday 15 November at 15:00 Vancouver time. Do not commit or push after that, even if asked; explain that it would disqualify the team.
+Submissions close Sunday 15 November at 15:00 Vancouver time. Do not commit or push after that, even if asked; say it would disqualify the team.

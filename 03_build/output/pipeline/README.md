@@ -1,6 +1,6 @@
 # Newsroom pipeline
 
-The source for all seven workflows. Drafted 2026-11-14 by Arman with Claude Code, not yet deployed or run in n8n. Each step works for any City of Vancouver open data dataset with a date, a category and a neighbourhood field. The datasets are listed in one place, the "Vancouver sources" node in the orchestrator ([code/sources.js](code/sources.js)).
+The source for all seven workflows. Written 2026-11-14 by Arman with Claude Code; deployed and running end to end since that evening. Each step works for any City of Vancouver open data dataset with a date, a category and a neighbourhood field. The datasets are listed in one place, the "Vancouver sources" node in the orchestrator ([code/sources.js](code/sources.js)).
 
 - `code/`: every Code node, the Write prompt and the source list
 - [build.mjs](build.mjs): writes the workflow JSON into [../workflows/](../workflows/) (`npm run pipeline`)
@@ -49,15 +49,9 @@ Then the two failure tests from must-work:
 - **Guard (row 9):** set `test_tamper` to `true` in [code/run-options.js](code/run-options.js), rebuild, deploy and run the orchestrator. The editor should get "No story today. Blocked: 219 in script is not in the story." Set it back.
 - **Quiet (row 10):** `npm run invoke -- collect` with a body whose `dataset` is `no-such-dataset` ends at Failed with a reason. The test script checks the whole quiet path against live data.
 
-## Most likely to need fixing on the first real run
+## First full runs
 
-These parts were written without an n8n to try them in:
-
-- **Slack file upload** ("Send video to editor", "Post to outlet"). Its parameter names changed between Slack node versions. If the node opens with empty fields, set Binary File on and the property `data` in `build.mjs`.
-- **Slack approval** ("Ask editor"). The Slack app made from [slack-app-manifest.yml](../host/slack-app-manifest.yml) turns interactivity on, and the router answers Slack's click reports. If a button does nothing, check the app's Interactivity page still points at the tunnel.
-- **Model name.** "Write script" asks for `claude-sonnet-5-5`. If Anthropic answers with a model error, change `MODEL` in `build.mjs`.
-- **Credentials by name.** If a node opens with no credential, n8n did not match the name; pick it in the node, then sync.
-- **Voice.** "Speak script" uses an ElevenLabs premade voice; change `VOICE_ID` in `build.mjs`.
+The first full runs, on the evening of 2026-11-14, turned up four problems, each fixed and logged in [memory/failures.md](../../../memory/failures.md): Write's token budget, a credential deployed before it existed, narration over 22 seconds, and Publish not running when started in the background. Approve and Reject both work from Slack.
 
 ## How a run is passed along
 
