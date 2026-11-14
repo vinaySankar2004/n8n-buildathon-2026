@@ -11,3 +11,4 @@ The disclosure list for Devpost. Add each one the moment it enters the build.
 | Express 5.3.0 | The render service's web server | 2026-11-14 |
 | ngrok, free plan | Public address for the render service | 2026-11-14 |
 | create-video blank template | Starting point for the render service | 2026-11-14 |
+| Claude Code (Anthropic) | Writing code, workflow JSON, docs and the repository's checks, directed by the team | 2026-11-14 |
