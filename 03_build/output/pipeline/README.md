@@ -51,7 +51,7 @@ Then the two failure tests from must-work:
 
 ## First full runs
 
-The first full runs, on the evening of 2026-11-14, turned up four problems, each fixed and logged in [memory/failures.md](../../../memory/failures.md): Write's token budget, a credential deployed before it existed, narration over 22 seconds, and Publish not running when started in the background. Approve and Reject both work from Slack.
+The first full runs, on the evening of 2026-11-14, turned up four problems, each fixed and logged in [memory/failures.md](../../../memory/failures.md): Write's token budget, a credential deployed before it existed, narration over 22 seconds, and Publish not running when started in the background. Approve and Reject both work from Slack, and an approved video shows in the outlet channel with its headline, blurb and newsletter draft.
 
 ## How a run is passed along
 
