@@ -198,7 +198,7 @@ const out = {};
     headerParameters: { parameters: [{ name: "anthropic-version", value: "2023-06-01" }] },
     sendBody: true,
     specifyBody: "json",
-    jsonBody: `={{ JSON.stringify({ model: '${MODEL}', max_tokens: 800, system: ${JSON.stringify(prompt)}, messages: [{ role: 'user', content: 'Story JSON:\\n' + JSON.stringify($('Input').first().json.story, null, 2) }] }) }}`,
+    jsonBody: `={{ JSON.stringify({ model: '${MODEL}', max_tokens: 4000, output_config: { effort: 'low' }, system: ${JSON.stringify(prompt)}, messages: [{ role: 'user', content: 'Story JSON:\\n' + JSON.stringify($('Input').first().json.story, null, 2) }] }) }}`,
     options: { timeout: 60000 },
   }, { maxTries: 2, ...creds("anthropicApi", "Anthropic") });
   const n = [

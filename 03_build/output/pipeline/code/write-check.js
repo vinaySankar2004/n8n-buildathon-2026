@@ -8,7 +8,8 @@ let w;
 try {
   w = JSON.parse(raw.replace(/^[\s\S]*?(\{[\s\S]*\})[\s\S]*$/, "$1"));
 } catch {
-  return [{ json: { ok: false, step: "Write", reason: "The model did not return JSON.", raw } }];
+  const why = raw ? "The model did not return JSON." : `The model stopped (${res.stop_reason ?? "no reply"}) before writing any text.`;
+  return [{ json: { ok: false, step: "Write", reason: why, raw } }];
 }
 for (const k of ["headline", "script", "callout_label", "chart_title", "blurb"]) {
   if (typeof w[k] !== "string" || !w[k].trim()) return [{ json: { ok: false, step: "Write", reason: `The model left out ${k}.`, raw } }];
