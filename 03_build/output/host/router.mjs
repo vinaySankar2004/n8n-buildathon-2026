@@ -12,6 +12,13 @@ const N8N = { host: "127.0.0.1", port: Number(process.env.N8N_PORT || 5678) };
 const target = (url) => (/^\/(render|files|health)(\/|$|\?)/.test(url) ? RENDER : N8N);
 
 const server = http.createServer((req, res) => {
+  // Slack reports every button click to the app's interactivity URL. n8n's approval buttons are
+  // links that reach n8n on their own, so these reports only need a quick 200.
+  if (req.method === "POST" && req.url.startsWith("/slack/interactivity")) {
+    req.resume();
+    res.writeHead(200);
+    return res.end();
+  }
   const to = target(req.url);
   const upstream = http.request(
     { ...to, method: req.method, path: req.url, headers: req.headers },

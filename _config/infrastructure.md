@@ -6,11 +6,11 @@ Everything runs on Vinayak's Mac behind one public address, so the n8n API is fu
 | --- | --- | --- | --- |
 | n8n 2.47.7 | Vinayak's Mac, port 5678; editor at `https://paratactical-professionally-yasuko.ngrok-free.dev` | Owner login; API key for scripts | The Mac must stay awake and online |
 | Render service | `03_build/output/render-service`, Vinayak's Mac, port 8787 | `/render` needs the `x-render-token` header | One render at a time |
-| Router | `03_build/output/host/router.mjs`, port 8080 | Sends `/render`, `/files` and `/health` to the render service, everything else to n8n | None |
+| Router | `03_build/output/host/router.mjs`, port 8080 | Sends `/render`, `/files` and `/health` to the render service, answers Slack at `/slack/interactivity`, and sends everything else to n8n | None |
 | Tunnel | ngrok, `https://paratactical-professionally-yasuko.ngrok-free.dev`, pointed at the router | Public | Free plan: a browser sees a warning page once; scripts skip it |
 | City data | City of Vancouver open data API, v2.1 | Public, no key | 3-1-1 data refreshes once a day |
 | ElevenLabs | ElevenLabs cloud | Key in an n8n credential | Creator month from the event |
-| Slack | Team workspace | Not set up yet | Free plan |
+| Slack | Workspace n8n-buildathon, app "Newsroom" made from `03_build/output/host/slack-app-manifest.yml` | Bot token in `.env` as `SLACK_BOT_TOKEN`; channel IDs in `pipeline/build.mjs` | Free plan |
 | n8n Cloud | `vsa91.app.n8n.cloud`, project LOOP newsroom | Team invited | Trial blocks the API (F3). Kept as a fallback. |
 
 ## Building workflows as code

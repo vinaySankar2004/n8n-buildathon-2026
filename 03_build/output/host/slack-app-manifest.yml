@@ -1,0 +1,27 @@
+# Slack app for the newsroom. In Slack: api.slack.com/apps, Create New App, From a manifest,
+# pick the n8n-buildathon workspace, paste this file, Create, then Install to Workspace.
+# The bot token it produces goes in .env as SLACK_BOT_TOKEN, never in git.
+display_information:
+  name: Newsroom
+  description: Posts the week's data story for an editor to approve, then publishes it to the outlet channel.
+  background_color: "#173332"
+features:
+  bot_user:
+    display_name: Newsroom
+    always_online: true
+oauth_config:
+  scopes:
+    bot:
+      - chat:write
+      - chat:write.public
+      - files:write
+      - channels:read
+      - channels:join
+settings:
+  interactivity:
+    # n8n's approval buttons are links; Slack also reports each click here, and the router answers 200.
+    is_enabled: true
+    request_url: https://paratactical-professionally-yasuko.ngrok-free.dev/slack/interactivity
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false

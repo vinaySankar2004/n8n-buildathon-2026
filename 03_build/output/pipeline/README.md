@@ -54,7 +54,7 @@ Then the two failure tests from must-work:
 These parts were written without an n8n to try them in:
 
 - **Slack file upload** ("Send video to editor", "Post to outlet"). Its parameter names changed between Slack node versions. If the node opens with empty fields, set Binary File on and the property `data` in `build.mjs`.
-- **Slack approval** ("Ask editor"). The buttons need interactivity turned on in the Slack app, pointed at n8n's public address.
+- **Slack approval** ("Ask editor"). The Slack app made from [slack-app-manifest.yml](../host/slack-app-manifest.yml) turns interactivity on, and the router answers Slack's click reports. If a button does nothing, check the app's Interactivity page still points at the tunnel.
 - **Model name.** "Write script" asks for `claude-sonnet-5-5`. If Anthropic answers with a model error, change `MODEL` in `build.mjs`.
 - **Credentials by name.** If a node opens with no credential, n8n did not match the name; pick it in the node, then sync.
 - **Voice.** "Speak script" uses an ElevenLabs premade voice; change `VOICE_ID` in `build.mjs`.
