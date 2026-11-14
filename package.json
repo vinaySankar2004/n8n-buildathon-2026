@@ -8,6 +8,9 @@
     "check": "node tools/check.mjs",
     "sync": "node tools/sync-n8n.mjs",
     "architecture": "node tools/architecture/server.mjs",
-    "update": "node tools/stay-current.mjs"
+    "update": "node tools/stay-current.mjs",
+    "deploy": "node tools/deploy-n8n.mjs",
+    "invoke": "node tools/invoke-n8n.mjs",
+    "router": "node 03_build/output/host/router.mjs"
   }
 }

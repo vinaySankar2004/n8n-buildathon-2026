@@ -1,28 +1,39 @@
 # Infrastructure
 
+Everything runs on Vinayak's Mac behind one public address, so the n8n API is fully available and workflows are built as code. See D11 in `memory/decisions.md`.
+
 | Piece | Where | Access | Limits |
 | --- | --- | --- | --- |
-| n8n Cloud | Instance `vsa91.app.n8n.cloud`, project [LOOP newsroom](https://vsa91.app.n8n.cloud/projects/zBY7jRVLjKEeTZ0a) | Team members by invite | Trial with 1,000 executions. Keep schedule triggers off while building. |
-| Render service | `03_build/output/render-service`, on Vinayak's Mac, port 8787 | Through the tunnel | The Mac must stay awake and online. |
-| Tunnel | ngrok, `https://paratactical-professionally-yasuko.ngrok-free.dev` | Every `/render` call needs the `x-render-token` header | Free plan |
+| n8n 2.47.7 | Vinayak's Mac, port 5678; editor at `https://paratactical-professionally-yasuko.ngrok-free.dev` | Owner login; API key for scripts | The Mac must stay awake and online |
+| Render service | `03_build/output/render-service`, Vinayak's Mac, port 8787 | `/render` needs the `x-render-token` header | One render at a time |
+| Router | `03_build/output/host/router.mjs`, port 8080 | Sends `/render`, `/files` and `/health` to the render service, everything else to n8n | None |
+| Tunnel | ngrok, `https://paratactical-professionally-yasuko.ngrok-free.dev`, pointed at the router | Public | Free plan: a browser sees a warning page once; scripts skip it |
 | City data | City of Vancouver open data API, v2.1 | Public, no key | 3-1-1 data refreshes once a day |
 | ElevenLabs | ElevenLabs cloud | Key in an n8n credential | Creator month from the event |
 | Slack | Team workspace | Not set up yet | Free plan |
+| n8n Cloud | `vsa91.app.n8n.cloud`, project LOOP newsroom | Team invited | Trial blocks the API (F3). Kept as a fallback. |
+
+## Building workflows as code
+
+Workflows live as JSON in `03_build/output/workflows/`, one file per step: `0-orchestrator`, `1-collect`, `2-score`, `3-write`, `4-voice`, `5-render`, `6-publish`.
+
+- `npm run deploy` creates or updates each workflow in n8n by name and activates it. It refuses to run from a clone that is behind GitHub. `npm run deploy -- score` deploys one.
+- `npm run invoke -- score [input.json]` runs one step through its test webhook and prints what it returned.
+- `npm run sync` pulls workflows and run history back into the repository.
+
+Each step workflow has two triggers: "When Executed by Another Workflow", which the orchestrator calls, and a Webhook at `step-<step>` (POST, respond when the last node finishes) for `invoke`. Schedules stay off while building.
+
+These scripts read `N8N_URL` and `N8N_API_KEY` from a git-ignored `.env` at the repository root. On the host laptop `N8N_URL` is `http://localhost:5678`; everyone else uses the tunnel address. Vinayak shares the key in a direct message, never in a doc, channel or commit.
 
 ## Calling the render service from n8n
 
-Use an HTTP Request node with:
+n8n and the render service share a machine, so the HTTP Request node calls `http://127.0.0.1:8787/render` directly, with:
 
-- `POST https://paratactical-professionally-yasuko.ngrok-free.dev/render`
-- a Header Auth credential named "Render token", created inside the LOOP newsroom project, sending `x-render-token`; Vinayak shares the value directly, never in a doc or chat log
+- a Header Auth credential named "Render token" sending `x-render-token`
 - a JSON body `{ "spec": …, "audio_base64": … }` or `{ "spec": …, "audio_url": … }`, with `spec` as in [contracts.md](contracts.md)
 - a timeout of 120 seconds
 
-It returns `{ "video_url", "duration_s", "render_seconds" }`. When n8n downloads the video file, add the header `ngrok-skip-browser-warning: 1`.
-
-## Syncing from n8n
-
-`npm run sync` reads `N8N_API_KEY` from a `.env` at the repository root. Only the person who syncs needs one; create it in n8n under Settings, n8n API. The trial blocks API keys for now (see F3 in `memory/failures.md`).
+It returns `{ "video_url", "duration_s", "render_seconds" }`, where `video_url` is a public link through the tunnel.
 
 ## Secrets
 

@@ -60,7 +60,7 @@ async function probe(key, ttlMs, fn) {
 }
 async function get(url) {
   const t0 = Date.now();
-  const r = await fetch(url, { signal: AbortSignal.timeout(4000) });
+  const r = await fetch(url, { signal: AbortSignal.timeout(4000), headers: { "ngrok-skip-browser-warning": "1" } });
   return { r, ms: Date.now() - t0 };
 }
 
@@ -80,8 +80,8 @@ const probes = {
     }),
   n8n: () =>
     probe("n8n", 30000, async () => {
-      const { r, ms } = await get("https://vsa91.app.n8n.cloud/healthz");
-      return { ok: r.ok, ms, note: r.ok ? "vsa91.app.n8n.cloud is up" : `status ${r.status}` };
+      const { r, ms } = await get("https://paratactical-professionally-yasuko.ngrok-free.dev/healthz");
+      return { ok: r.ok, ms, note: r.ok ? "n8n on the host laptop is up" : `status ${r.status}` };
     }),
   vancouver: () =>
     probe("vancouver", 60000, async () => {

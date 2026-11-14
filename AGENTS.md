@@ -23,9 +23,14 @@ After any piece of work, update what it touched, without being asked:
 
 ## n8n
 
-Workflows live in n8n, not in files people edit. To bring them into the repository, run `npm run sync`. It saves every workflow to `03_build/output/workflows/` and rebuilds `03_build/output/test-log.md` from n8n's run history. It needs `N8N_API_KEY` in `.env`; if that is missing, skip the sync and say once that the repository owner will run it. Never ask someone to download or export a workflow.
+Workflows are built as code. Nobody on the team works in the n8n editor; you write the workflow and run it.
 
-A workflow is picked up when its name contains its step: orchestrator, collect, score, write, voice, render or publish, ideally with its number first, like "2 Score".
+1. Write or change the workflow JSON in `03_build/output/workflows/<n>-<step>.json`. Follow `_config/contracts.md` for what goes in and out, and the conventions in `_config/infrastructure.md`: two triggers per step workflow, the test webhook at `step-<step>`, schedules off.
+2. `npm run deploy -- <step>` pushes it into n8n.
+3. `npm run invoke -- <step> [input.json]` runs it and prints the result. Fix and repeat until the step's test in `must-work.md` passes.
+4. `npm run sync` pulls the deployed workflows and run history back, then commit.
+
+Logic that can be tested outside n8n, such as the scoring code, gets a plain Node test too. The scripts need `N8N_URL` and `N8N_API_KEY` in `.env`; if they are missing, write and commit the JSON anyway and say once that it needs the key from the repository owner to deploy. Never ask someone to open the editor, download or export a workflow.
 
 ## Stay current
 

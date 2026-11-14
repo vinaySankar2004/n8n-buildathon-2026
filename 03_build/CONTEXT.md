@@ -11,7 +11,7 @@ Make every step in `must-work.md` work for real in n8n.
 ## Process
 
 1. Build the golden path end to end first, rough. Polish only after it runs.
-2. Each person builds their own workflow in the LOOP newsroom project. The orchestrator joins them with Execute Workflow nodes.
+2. Each step is its own workflow, written as JSON and pushed with `npm run deploy`. The orchestrator joins them with Execute Workflow nodes. `npm run invoke -- <step>` runs a step on its own.
 3. Run `npm run sync` after each working change. It saves every workflow whose name holds its step to `output/workflows/<n>-<step>.json` (`0-orchestrator`, `1-collect`, `2-score`, `3-write`, `4-voice`, `5-render`, `6-publish`) with test data stripped.
 4. Add each outside service, model or template to `output/services.md` when it enters the build.
 5. `npm run sync` also rebuilds `output/test-log.md` from n8n's run history. Never edit it by hand.
@@ -26,6 +26,6 @@ Make every step in `must-work.md` work for real in n8n.
 
 ## Output
 
-`output/workflows/`, `output/render-service/`, `output/services.md`, `output/test-log.md`.
+`output/workflows/`, `output/render-service/`, `output/host/`, `output/services.md`, `output/test-log.md`.
 
 Stop: a rough end-to-end run by Saturday 18:00. Build frozen Sunday 11:00, whatever state it is in.
