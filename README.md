@@ -12,17 +12,13 @@ Vancouver publishes fresh city data every day, and nobody has time to turn it in
 
 On 14 November the top story was street flooding: 215 reports in a week, 7.3 times the usual level.
 
-## Repository
+## For the team
 
-This repository is the team's working space, laid out as an ICM workspace: numbered stage folders, each with a `CONTEXT.md` contract. Start at [CONTEXT.md](CONTEXT.md).
-
-## Working in it
+- Build your part in n8n, inside the LOOP newsroom project.
+- To work on anything in this repository, open it in your AI coding tool (Claude Code, Codex or Cursor) and say what you are doing. The tool knows how the repository is kept.
+- Every commit and push is checked for keys and careless mistakes, here and on GitHub.
+- Nothing gets pushed after Sunday 15:00.
 
 ```bash
 git clone git@github.com:vinaySankar2004/n8n-buildathon-2026.git
 ```
-
-1. Read [CONTEXT.md](CONTEXT.md), then the contract of the stage you are working on.
-2. Put your name against your step in [must-work.md](02_storyboard/output/must-work.md).
-3. Build inside the LOOP newsroom project in n8n, never in your Personal space.
-4. After each working change, download your workflow from n8n and save it as `03_build/output/workflows/<n>-<name>.json`, for example `2-score.json`. Check it holds no pasted keys before you commit.

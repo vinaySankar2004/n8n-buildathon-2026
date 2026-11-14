@@ -25,6 +25,8 @@ Read only the current stage, its declared inputs, and the configuration it names
 - `memory/failures.md`: what broke, the fix, and the check that catches it next time.
 - `memory/lessons.md`: generalizations waiting for a second case.
 - `tools/architecture/`: a live page showing every piece and its state.
+- `tools/check.mjs`: the check run on every commit, push and GitHub build.
+- `tools/sync-n8n.mjs`: pulls workflows and run history from n8n.
 
 ## Stop times
 

@@ -1,0 +1,3 @@
+#!/bin/sh
+# Same check before a push, plus the submission deadline.
+exec node tools/check.mjs --push

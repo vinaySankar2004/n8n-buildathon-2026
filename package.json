@@ -1,0 +1,12 @@
+{
+  "name": "n8n-buildathon-2026",
+  "private": true,
+  "type": "module",
+  "description": "Local data newsroom, built in n8n for LOOP, the UBC eProjects x n8n Buildathon.",
+  "scripts": {
+    "setup": "git config core.hooksPath .githooks",
+    "check": "node tools/check.mjs",
+    "sync": "node tools/sync-n8n.mjs",
+    "architecture": "node tools/architecture/server.mjs"
+  }
+}
