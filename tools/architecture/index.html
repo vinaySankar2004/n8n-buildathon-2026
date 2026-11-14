@@ -194,31 +194,31 @@ const NODES = {
     takes: "A series id", gives: "Monthly values", where: "Statistics Canada Web Data Service", beat: "None yet" },
   orch: { x: 265, y: 58, w: 610, h: 44, t: "Orchestrator", u: "schedule trigger, calls each step with Execute Workflow", keys: ["canvas"], wide: true,
     does: "One workflow that runs on a schedule and calls the six step workflows in order. Each person owns one step workflow, so nobody edits the same canvas.",
-    takes: "A schedule, or a manual run for the demo", gives: "One finished run", where: "n8n Cloud", beat: "B3, B8" },
+    takes: "A schedule, or a manual run for the demo", gives: "One finished run", where: "n8n on the host laptop", beat: "B3, B8" },
   collect: { x: 265, y: 140, w: 130, h: 64, t: "1 Collect", u: "HTTP Request", keys: ["collect"],
     does: "Pulls the last nine weeks of 3-1-1 requests from the city API, counted by type and by week.",
-    takes: "Nothing but the schedule", gives: "Weekly counts per request type", where: "n8n Cloud", beat: "B3" },
+    takes: "Nothing but the schedule", gives: "Weekly counts per request type", where: "n8n on the host laptop", beat: "B3" },
   score: { x: 425, y: 140, w: 130, h: 64, t: "2 Score", u: "Code node", keys: ["score"],
-    does: "Compares this week with the eight before, ranks the biggest real jumps and picks the top story with its neighbourhood breakdown. On 14 Nov the top story was flooding reports at 7.3 times normal.",
-    takes: "Weekly counts", gives: "The story contract", where: "n8n Cloud", beat: "B4" },
+    does: "Compares this week with the eight before, ranks the biggest real jumps and picks the top story with its neighbourhood breakdown. For 7 to 13 November the top story was flooding reports at 7.4 times normal.",
+    takes: "Weekly counts", gives: "The story contract", where: "n8n on the host laptop", beat: "B4" },
   write: { x: 585, y: 140, w: 130, h: 64, t: "3 Write", u: "AI Agent", keys: ["write"],
     does: "Turns the story into a headline, a script of about 50 words and a chart spec. It may only use numbers that are in the story.",
-    takes: "The story contract", gives: "The spec contract", where: "n8n Cloud, with an LLM", beat: "B5" },
+    takes: "The story contract", gives: "The spec contract", where: "n8n on the host laptop, with an LLM", beat: "B5" },
   voice: { x: 745, y: 140, w: 130, h: 64, t: "4 Voice", u: "HTTP to ElevenLabs", keys: ["voice"],
     does: "Sends the script to ElevenLabs and gets the narration back as audio.",
-    takes: "The script from the spec", gives: "An MP3 voice track", where: "n8n Cloud calling ElevenLabs", beat: "B5, B6" },
-  render: { x: 745, y: 280, w: 130, h: 64, t: "5 Render", u: "HTTP to the laptop", keys: ["render"],
-    does: "Sends the spec and the audio through the tunnel to the render service and gets a video link back.",
-    takes: "Spec and audio", gives: "A link to a vertical MP4", where: "n8n Cloud calling a team laptop", beat: "B5, B6" },
+    takes: "The script from the spec", gives: "An MP3 voice track", where: "n8n on the host laptop, calling ElevenLabs", beat: "B5, B6" },
+  render: { x: 745, y: 280, w: 130, h: 64, t: "5 Render", u: "HTTP to the render service", keys: ["render"],
+    does: "Sends the spec and the audio to the render service on the same laptop and gets a public video link back.",
+    takes: "Spec and audio", gives: "A link to a vertical MP4", where: "n8n calling the render service on the same laptop", beat: "B5, B6" },
   publish: { x: 585, y: 280, w: 130, h: 64, t: "6 Publish", u: "Slack, send and wait", keys: ["approve", "publish"],
     does: "Posts the video to the editor in Slack with approve and reject, then waits. Approval publishes to the outlet page and drafts a newsletter blurb.",
-    takes: "The video link and headline", gives: "A published story", where: "n8n Cloud", beat: "B7" },
+    takes: "The video link and headline", gives: "A published story", where: "n8n on the host laptop", beat: "B7" },
   eleven: { x: 940, y: 140, w: 240, h: 64, t: "ElevenLabs", u: "text to speech", keys: ["voice"],
     does: "Reads the script aloud. The key lives only in n8n credentials, never in a doc.",
     takes: "Text", gives: "Audio", where: "ElevenLabs cloud", beat: "B6" },
   tunnel: { x: 940, y: 264, w: 240, h: 64, t: "ngrok tunnel", u: "public https address for the laptop", keys: ["render"],
-    does: "Gives the laptop a public address so n8n Cloud can reach it. Every request must carry the secret render token.",
-    takes: "Requests from n8n", gives: "The same requests, on the laptop", where: "ngrok on the render laptop", beat: "B8" },
+    does: "Gives the host laptop one public address, so teammates' tools can deploy to n8n, Slack approvals reach n8n, and video links open anywhere. A router sends render paths to the render service and the rest to n8n.",
+    takes: "Requests from teammates, Slack and viewers", gives: "The same requests, on the laptop", where: "ngrok and the router on the host laptop", beat: "B8" },
   rsvc: { x: 940, y: 342, w: 240, h: 74, t: "Render service", u: "Express and Remotion, port 8787", keys: ["render"],
     does: "Bundles the video template once, renders each request to MP4 with headless Chrome, and serves the file back.",
     takes: "Spec and audio", gives: "A 1080 by 1920 MP4 and its link", where: "A team laptop that stays awake and online", beat: "B5, B6" },
@@ -231,26 +231,26 @@ const NODES = {
 };
 const GROUPS = [
   { x: 10, y: 24, w: 222, h: 310, label: "Public data" },
-  { x: 250, y: 24, w: 640, h: 345, label: "n8n Cloud · vsa91" },
-  { x: 925, y: 236, w: 268, h: 196, label: "A team laptop" },
+  { x: 250, y: 24, w: 640, h: 345, label: "n8n · host laptop" },
+  { x: 925, y: 236, w: 268, h: 196, label: "Same laptop" },
   { x: 410, y: 408, w: 320, h: 112, label: "People and publishing" },
 ];
 const EDGES = [
   ["src_van", "collect", ""], ["src_sc", "collect", "", { dash: true }],
   ["collect", "score", ""], ["score", "write", ""], ["write", "voice", ""],
   ["voice", "eleven", "script", { off: -9 }], ["eleven", "voice", "audio", { off: 9 }],
-  ["voice", "render", ""], ["render", "tunnel", "request", { off: -9 }], ["tunnel", "rsvc", ""],
-  ["rsvc", "render", "video link", { off: 9, via: "tunnel" }],
+  ["voice", "render", ""], ["render", "rsvc", "spec + audio", { off: -9 }], ["rsvc", "render", "video", { off: 9 }],
+  ["tunnel", "rsvc", "public links"],
   ["render", "publish", ""], ["publish", "slack", "video", { off: -14 }], ["slack", "publish", "approve", { off: 14 }],
   ["publish", "outlet", ""],
 ];
 const STEPS = [
   { n: ["orch"], e: [], t: "The schedule fires. The orchestrator starts the run and calls each step workflow in order." },
   { n: ["src_van", "collect"], e: ["src_van>collect"], t: "Collect pulls nine weeks of 3-1-1 counts from the City of Vancouver API." },
-  { n: ["score"], e: ["collect>score"], t: "Score compares this week with the eight before. On 14 Nov, flooding reports were 7.3 times normal, highest in Mount Pleasant. That is the story." },
+  { n: ["score"], e: ["collect>score"], t: "Score compares this week with the eight before. For 7 to 13 November, flooding reports were 7.4 times normal, 218 against 29.3, highest in Mount Pleasant. That is the story." },
   { n: ["write"], e: ["score>write"], t: "Write hands the story to an AI agent, which returns a headline, a 50 word script and a chart spec, using only numbers from the story." },
   { n: ["voice", "eleven"], e: ["write>voice", "voice>eleven", "eleven>voice"], t: "Voice sends the script to ElevenLabs and gets the narration back." },
-  { n: ["render", "tunnel", "rsvc"], e: ["voice>render", "render>tunnel", "tunnel>rsvc", "rsvc>render"], t: "Render sends the spec and audio through the tunnel. The laptop renders a 20 second vertical video and returns its link." },
+  { n: ["render", "rsvc"], e: ["voice>render", "render>rsvc", "rsvc>render"], t: "Render sends the spec and audio to the render service on the same laptop, which makes a 20 second vertical video and returns a public link." },
   { n: ["publish", "slack"], e: ["render>publish", "publish>slack", "slack>publish"], t: "Publish sends the video to the editor in Slack and waits. The editor taps approve on a phone." },
   { n: ["outlet"], e: ["publish>outlet"], t: "Approval puts the video on the outlet page and drafts a newsletter blurb. One run, done." },
 ];
@@ -298,10 +298,6 @@ function drawStatic() {
     el("path", { d: e.d, class: "edge" + (o.dash ? " dash" : ""), "data-id": `${a}>${b}`, "marker-end": "url(#arrow)" }, ge);
     if (label) edgeLabel(ge, e, label, o.off || 0);
   }
-  // The video link returns from the render service through the tunnel to Render.
-  const back = edgePath("tunnel", "render", 9);
-  el("path", { d: back.d, class: "edge", "data-id": "rsvc>render", "marker-end": "url(#arrow)" }, ge);
-  edgeLabel(ge, back, "video", 9);
 
   const gn = $("nodes");
   for (const id of Object.keys(NODES)) {
@@ -414,9 +410,9 @@ function renderStatus() {
   const P = status.probes, C = status.components;
   const row = (name, runs, limits, s, note) => `<tr><td><b>${esc(name)}</b></td><td>${esc(runs)}</td><td>${esc(limits)}</td><td><span class="chip"><i class="dot s-${s}"></i>${STATE_WORD[s] || s}</span>${note ? `<div class="u" style="font-size:12.5px;color:var(--muted);margin-top:4px">${esc(note)}</div>` : ""}</td></tr>`;
   $("infra").innerHTML = [
-    row("n8n Cloud", "n8n's servers, instance vsa91", "Trial, 1,000 executions", C.n8n.state, P.n8n.note),
-    row("Render service", "A team laptop, port 8787", "Laptop must stay awake", C.rsvc.state, C.rsvc.note),
-    row("Tunnel", "ngrok on the same laptop", "Free plan", C.tunnel.state, P.tunnel.note),
+    row("n8n 2.47.7", "The host laptop, port 5678", "Laptop must stay awake", C.n8n.state, P.n8n.note),
+    row("Render service", "The host laptop, port 8787", "One render at a time", C.rsvc.state, C.rsvc.note),
+    row("Tunnel and router", "ngrok and a router on the host laptop", "Free plan", C.tunnel.state, P.tunnel.note),
     row("City data", "City of Vancouver API", "Public, no key", C.src_van.state, P.vancouver.note),
     row("ElevenLabs", "ElevenLabs cloud", "Creator month from the event", C.eleven.state, ""),
     row("Slack", "Team workspace", "Free plan", C.slack.state, ""),

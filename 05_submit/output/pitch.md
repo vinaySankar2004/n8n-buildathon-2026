@@ -12,7 +12,7 @@ Vancouver publishes city data every day: 3-1-1 complaints, permits, business lic
 
 ## What problem does it solve, and for whom?
 
-Vancouver's 3-1-1 data alone holds 1.33 million requests, refreshed every day, and the stories are in there. This week, street flooding reports reached 7.3 times their usual level. Finding that takes someone who can query the data, compare weeks, chart it and write it up. Small newsrooms, neighbourhood newsletters and city communications teams rarely have that person. The workflow does the finding and the drafting; the editor keeps the judgement.
+Vancouver's 3-1-1 data alone holds 1.33 million requests, refreshed every day, and the stories are in there. In the week of 7 to 13 November, street flooding reports reached 7.4 times their usual level. Finding that takes someone who can query the data, compare weeks, chart it and write it up. Small newsrooms, neighbourhood newsletters and city communications teams rarely have that person. The workflow does the finding and the drafting; the editor keeps the judgement.
 
 ## Who uses it?
 

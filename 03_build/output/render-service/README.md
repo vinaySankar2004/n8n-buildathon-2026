@@ -1,6 +1,6 @@
 # Render service
 
-Turns a story spec and narration audio into a 1080x1920 MP4 with an animated bar chart and captions. n8n Cloud calls it through a tunnel.
+Turns a story spec and narration audio into a 1080x1920 MP4 with an animated bar chart and captions. n8n calls it on the same laptop; the video links it returns are public through the tunnel.
 
 ## Start
 
@@ -30,7 +30,7 @@ Preview the composition in Remotion Studio with `npm run dev`.
       "data": [{ "label": "Mount Pleasant", "value": 33 }],
       "source_note": "City of Vancouver open data, 3-1-1 service requests"
     },
-    "callout": { "value": "7.3×", "label": "215 reports this week against an average of 29.6" },
+    "callout": { "value": "7.4×", "label": "218 reports this week against an average of 29.3" },
     "duration_s": 20
   },
   "audio_base64": "optional MP3 as base64",

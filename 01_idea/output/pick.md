@@ -20,7 +20,7 @@ A local newsroom editor or a city communications team with no data staff. Later:
 
 ## Feasibility, checked 2026-11-14
 
-- The Vancouver open data API answers. 3-1-1 service requests (1.33 million records) refresh once a day (newest record about 05:00 UTC); grouped queries over the last 7 days work. Example: 215 street flooding cases in the last 7 days, to be compared against earlier weeks before calling it a story.
+- The Vancouver open data API answers. 3-1-1 service requests (1.33 million records) refresh once a day (newest record about 05:00 UTC); grouped queries over the last 7 days work. Example: 215 street flooding cases in the last 7 times 24 hours, to be compared against earlier weeks before calling it a story. Collect later settled on whole Vancouver days, which gave 218 for 7 to 13 November.
 - Business licences and issued building permits are updated daily.
 - The Statistics Canada Web Data Service answers; a Labour Force Survey series returned September and October 2026 values.
 - Not yet proven: n8n starting a render. Prove one render by Saturday 14:00.

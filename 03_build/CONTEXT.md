@@ -11,10 +11,10 @@ Make every step in `must-work.md` work for real in n8n.
 ## Process
 
 1. Build the golden path end to end first, rough. Polish only after it runs.
-2. Each step is its own workflow, written as JSON and pushed with `npm run deploy`. The orchestrator joins them with Execute Workflow nodes. `npm run invoke -- <step>` runs a step on its own.
-3. Run `npm run sync` after each working change. It saves every workflow whose name holds its step to `output/workflows/<n>-<step>.json` (`0-orchestrator`, `1-collect`, `2-score`, `3-write`, `4-voice`, `5-render`, `6-publish`) with test data stripped.
-4. Add each outside service, model or template to `output/services.md` when it enters the build.
-5. `npm run sync` also rebuilds `output/test-log.md` from n8n's run history. Never edit it by hand.
+2. Each step is its own workflow, written as JSON in `output/workflows/<n>-<step>.json`: `0-orchestrator`, `1-collect`, `2-score`, `3-write`, `4-voice`, `5-render`, `6-publish`. The orchestrator joins them with Execute Workflow nodes.
+3. `npm run deploy -- <step>` pushes the JSON into n8n, and `npm run invoke -- <step> [input.json]` runs it and prints the result. Repeat until the step's test passes.
+4. `npm run sync` pulls the deployed workflows back and rebuilds `output/test-log.md` from n8n's run history. Never edit the test log by hand.
+5. Add each outside service, model or template to `output/services.md` when it enters the build.
 6. Record anything that broke and its fix in `memory/failures.md`.
 
 ## Audit

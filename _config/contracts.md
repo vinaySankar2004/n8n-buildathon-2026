@@ -86,7 +86,7 @@ Score gets every `collected` and returns `{ "ok": true, "story": …, "runners_u
 {
   "headline": "Flooding reports up seven times",
   "script": "About 50 words, every number from the story",
-  "callout": { "value": "7.3×", "label": "215 reports this week against an average of 29.6" },
+  "callout": { "value": "7.4×", "label": "218 reports this week against an average of 29.3" },
   "chart": {
     "kind": "bar",
     "title": "Flooding reports by neighbourhood, last 7 days",

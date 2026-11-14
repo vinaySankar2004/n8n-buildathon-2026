@@ -4,7 +4,8 @@ The disclosure list for Devpost. Add each one the moment it enters the build.
 
 | Service | Used for | Since |
 | --- | --- | --- |
-| n8n Cloud, trial | Every workflow | 2026-11-14 |
+| n8n 2.47.7, self-hosted community edition | Every workflow | 2026-11-14 |
+| n8n Cloud, trial | Fallback only; its API is blocked | 2026-11-14 |
 | City of Vancouver open data API | 3-1-1 service requests, issued building permits, business licences | 2026-11-14 |
 | Statistics Canada Web Data Service | Checked only, not used yet | 2026-11-14 |
 | Remotion 4.0.543 | Rendering the story video (open-source library; check its licence terms for a team of four) | 2026-11-14 |

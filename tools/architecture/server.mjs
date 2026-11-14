@@ -165,7 +165,7 @@ async function status() {
   const stages = [
     { id: "01_idea", label: "Idea", state: has("01_idea/output/pick.md") ? "done" : "active", note: has("01_idea/output/pick.md") ? "Local data newsroom picked" : "Choosing" },
     { id: "02_storyboard", label: "Storyboard", state: !has("02_storyboard/output/must-work.md") ? "todo" : approved ? "done" : "review", note: approved ? "Approved" : has("02_storyboard/output/must-work.md") ? "Drafted, waiting for the team" : "Not started" },
-    { id: "03_build", label: "Build", state: wf.length || renderBuilt ? "active" : "todo", note: `${wf.length} workflows exported, render service ${renderBuilt ? "written" : "not written"}, ${passes} logged passes` },
+    { id: "03_build", label: "Build", state: wf.length || renderBuilt ? "active" : "todo", note: `${wf.length} workflow${wf.length === 1 ? "" : "s"} exported, render service ${renderBuilt ? "written" : "not written"}, ${passes} logged pass${passes === 1 ? "" : "es"}` },
     { id: "04_demo", label: "Demo video", state: has("04_demo/output/link.md") ? "done" : has("04_demo/output/demo.mp4") ? "active" : "todo", note: has("04_demo/output/link.md") ? "Uploaded" : has("04_demo/output/demo.mp4") ? "Cut, not uploaded" : "Not started" },
     { id: "05_submit", label: "Submit", state: has("05_submit/output/checklist.md") ? "done" : has("05_submit/output/devpost.md") ? "active" : "todo", note: has("05_submit/output/checklist.md") ? "Submitted" : "Not started" },
   ];
