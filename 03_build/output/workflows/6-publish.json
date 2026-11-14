@@ -264,7 +264,9 @@
           "value": "C0CHVG02PJM"
         },
         "text": "=Newsletter draft: {{ $('Input').first().json.blurb }}",
-        "otherOptions": {}
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
       },
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
@@ -290,7 +292,9 @@
           "value": "C0CHNAKERA9"
         },
         "text": "=Not published: {{ $('Input').first().json.spec.headline }}",
-        "otherOptions": {}
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
       },
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
@@ -329,7 +333,9 @@
           "value": "C0CHNAKERA9"
         },
         "text": "=Could not publish. {{ $json.reason }}",
-        "otherOptions": {}
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
       },
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
