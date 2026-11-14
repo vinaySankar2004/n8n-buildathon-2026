@@ -24,5 +24,5 @@ Pulled live 2026-11-14 from 3-1-1 service requests: street surface flooding repo
 
 - Product and outlet names. Both made up; no real newsroom's name or look.
 - Video shape: vertical 9:16 for social is the default.
-- Where approval publishes: a simple outlet page the team controls is the safest demo target.
+- Where approval publishes: a Slack outlet channel (D12).
 - Who narrates the submission video.
