@@ -20,7 +20,7 @@ The source for all seven workflows. Drafted 2026-11-14 by Arman with Claude Code
 
 1. Change code in `code/` or `build.mjs`, never the JSON in `workflows/`. Then `npm run pipeline` and `npm run test:pipeline`.
 2. `npm run deploy` pushes all seven, the orchestrator last. Deploy points the orchestrator's Execute Workflow nodes at the other six by name.
-3. These credentials must exist in n8n with exactly these names, so the nodes find them:
+3. These credentials must exist in n8n with exactly these names, so the nodes find them. Fill in their values in the git-ignored `.env` (`ANTHROPIC_API_KEY`, `ELEVENLABS_API_KEY`, `RENDER_TOKEN`, `SLACK_BOT_TOKEN`) and run `npm run credentials`, which creates or updates each one and skips blanks. Then deploy again:
 
 | Name | Type | Used by |
 | --- | --- | --- |

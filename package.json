@@ -13,6 +13,7 @@
     "invoke": "node tools/invoke-n8n.mjs",
     "router": "node 03_build/output/host/router.mjs",
     "pipeline": "node 03_build/output/pipeline/build.mjs",
-    "test:pipeline": "node 03_build/output/pipeline/test.mjs"
+    "test:pipeline": "node 03_build/output/pipeline/test.mjs",
+    "credentials": "node tools/credentials-n8n.mjs"
   }
 }

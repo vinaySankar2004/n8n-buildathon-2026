@@ -11,7 +11,7 @@ export const WORKFLOW_DIR = path.join(root, "03_build/output/workflows");
 function fromEnvFile(name) {
   const file = path.join(root, ".env");
   if (!existsSync(file)) return undefined;
-  const m = readFileSync(file, "utf8").match(new RegExp(`^\\s*${name}\\s*=\\s*(.+?)\\s*$`, "m"));
+  const m = readFileSync(file, "utf8").match(new RegExp(`^[ \\t]*${name}[ \\t]*=[ \\t]*(\\S.*?)[ \\t]*$`, "m"));
   return m?.[1];
 }
 
