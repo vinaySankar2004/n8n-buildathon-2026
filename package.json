@@ -14,6 +14,7 @@
     "router": "node 03_build/output/host/router.mjs",
     "pipeline": "node 03_build/output/pipeline/build.mjs",
     "test:pipeline": "node 03_build/output/pipeline/test.mjs",
-    "credentials": "node tools/credentials-n8n.mjs"
+    "credentials": "node tools/credentials-n8n.mjs",
+    "doctor": "node tools/doctor.mjs"
   }
 }

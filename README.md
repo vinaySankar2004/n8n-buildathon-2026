@@ -14,7 +14,8 @@ For the week of 7 to 13 November the top story was street flooding: 218 reports,
 
 ## For the team
 
-- Open this repository in your AI coding tool (Claude Code, Codex or Cursor) and say what you want to build. It writes the n8n workflow as code, deploys it to our n8n, runs it and fixes it. Nobody needs the n8n editor.
+- Open this repository in your AI coding tool (Claude Code, Codex or Cursor) and ask it what to do. It runs `npm run doctor`, which checks your setup and lists what is left, then does what it can and asks you only for keys or clicks. After that, say what you want to build.
+- To build something, say what you want. It writes the n8n workflow as code, deploys it to our n8n, runs it and fixes it. Nobody needs the n8n editor.
 - To deploy, copy `.env.example` to `.env` and fill in `N8N_API_KEY`, which Vinayak sends in a direct message. The file says what else, if anything, is yours to fill in.
 - Every commit and push is checked for keys and careless mistakes, here and on GitHub.
 - Nothing gets pushed after Sunday 15:00.

@@ -6,6 +6,10 @@ Read by Claude Code, Codex, Cursor and other coding agents working in this repos
 
 The team builds in n8n and talks to you in plain words. They do not know how this repository is organized and should never have to. Never ask them to follow a structure, name a file, fill in a table, or run a bookkeeping step, and never remind them of one. Do it yourself, quietly, as part of whatever they asked.
 
+## When someone asks what to do
+
+Run `npm run doctor` (Claude Code already ran it at session start; its output is above). It checks this clone, the shared n8n, the stored credentials, the Slack channels and the deployed workflows, and lists what is left in order. Do every step you can yourself: copy `.env.example`, run `npm run credentials`, set channel IDs in `build.mjs` once you are given them, rebuild and deploy. Ask the person only for what needs them: a key, a channel ID, or a click in Slack or a provider's console. Then run `npm run doctor` again and report what changed.
+
 ## Where things are
 
 Start at [CONTEXT.md](CONTEXT.md). It routes each task to one stage folder. Load that stage's `CONTEXT.md` and the files it names, and nothing else.
