@@ -40,9 +40,19 @@ if (!files.length) {
 
 const notActive = [];
 const existing = new Map((await listAll("/workflows")).map((w) => [w.name, w]));
+// Credentials are named in the JSON; link each one to its id in this n8n on every deploy, so a
+// workflow deployed before its credential existed picks it up as soon as it is deployed again.
+const credentialIds = new Map((await listAll("/credentials")).map((c) => [`${c.type}/${c.name}`, c.id]));
 
 for (const file of files) {
   const wf = JSON.parse(readFileSync(path.join(WORKFLOW_DIR, file), "utf8"));
+  for (const n of wf.nodes) {
+    for (const [type, ref] of Object.entries(n.credentials || {})) {
+      const id = credentialIds.get(`${type}/${ref?.name}`);
+      if (id) ref.id = id;
+      else console.warn(`"${wf.name}": no "${ref?.name}" credential in n8n yet for node "${n.name}". Run npm run credentials.`);
+    }
+  }
   // An Execute Workflow node names the workflow it calls; point it at that workflow's id in this n8n.
   for (const n of wf.nodes) {
     const ref = n.type === "n8n-nodes-base.executeWorkflow" ? n.parameters?.workflowId : null;
