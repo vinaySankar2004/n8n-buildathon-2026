@@ -38,6 +38,7 @@ if (!files.length) {
   process.exit(1);
 }
 
+const notActive = [];
 const existing = new Map((await listAll("/workflows")).map((w) => [w.name, w]));
 
 for (const file of files) {
@@ -62,11 +63,29 @@ for (const file of files) {
   }
   existing.set(saved.name, saved);
   const hooks = wf.nodes.filter((n) => n.type === "n8n-nodes-base.webhook" && !n.disabled);
-  if (hooks.length) await api("POST", `/workflows/${saved.id}/activate`);
+  // n8n refuses to activate a workflow whose credential does not exist yet. Save it anyway and
+  // carry on, so one missing key does not stop the other workflows from deploying.
+  let inactive = "";
+  if (hooks.length) {
+    try {
+      await api("POST", `/workflows/${saved.id}/activate`);
+    } catch (e) {
+      try {
+        inactive = JSON.parse(e.message.slice(e.message.indexOf("{"))).message.split("\n")[0];
+      } catch {
+        inactive = e.message;
+      }
+      notActive.push(wf.name);
+    }
+  }
   const step = stepOf(wf.name);
   console.log(
     `${found ? "Updated" : "Created"} "${wf.name}" from ${file}` +
-      (hooks.length ? `, active; run it with npm run invoke -- ${step}` : "") +
+      (hooks.length && !inactive ? `, active; run it with npm run invoke -- ${step}` : "") +
+      (inactive ? `, saved but not active: ${inactive}` : "") +
       ` (${N8N_URL}/workflow/${saved.id})`,
   );
+}
+if (notActive.length) {
+  console.log(`Not active yet: ${notActive.join(", ")}. Add the missing keys to .env, run npm run credentials, then deploy again.`);
 }
