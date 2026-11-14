@@ -96,144 +96,6 @@
         "binaryPropertyName": "data",
         "options": {
           "channelIds": [
-            "C0CHNAKERA9"
-          ],
-          "fileName": "={{ $('Input').first().json.story.topic }}.mp4",
-          "initialComment": "=For review: {{ $('Input').first().json.spec.headline }}"
-        }
-      },
-      "type": "n8n-nodes-base.slack",
-      "typeVersion": 2.3,
-      "position": [
-        880,
-        100
-      ],
-      "id": "44d93fbd-72a9-5680-a7ac-06f4e9680395",
-      "name": "Send video to editor",
-      "onError": "continueErrorOutput",
-      "credentials": {
-        "slackApi": {
-          "name": "Slack"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "operation": "sendAndWait",
-        "select": "channel",
-        "channelId": {
-          "__rl": true,
-          "mode": "id",
-          "value": "C0CHNAKERA9"
-        },
-        "message": "={{ (() => { const r = $('Input').first().json; const s = r.story; return `*${r.spec.headline}*\\n${r.spec.script}\\n\\nFrom ${s.dataset}: ${s.this_week} ${s.unit} in the week to ${s.week_ending}, against an average of ${s.avg_prev_8_weeks} over the 8 weeks before.\\nVideo: ${r.video_url}`; })() }}",
-        "approvalOptions": {
-          "values": {
-            "approvalType": "double",
-            "approveLabel": "Approve",
-            "disapproveLabel": "Reject"
-          }
-        },
-        "options": {
-          "limitWaitTime": {
-            "values": {
-              "resumeAmount": 3,
-              "resumeUnit": "hours"
-            }
-          }
-        }
-      },
-      "type": "n8n-nodes-base.slack",
-      "typeVersion": 2.3,
-      "position": [
-        1100,
-        0
-      ],
-      "id": "d3d03a06-7a37-5148-a2ea-e8f417a5df7d",
-      "name": "Ask editor",
-      "webhookId": "f9dec743-9398-5cd1-a88c-c8640fb5f4dd",
-      "onError": "continueErrorOutput",
-      "credentials": {
-        "slackApi": {
-          "name": "Slack"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "c3d228f6-7c75-5e3d-a134-cfe6a67afad0",
-              "leftValue": "={{ $json.data.approved }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        1320,
-        0
-      ],
-      "id": "ca059e26-473f-5def-aad1-76fd5591cc18",
-      "name": "Approved?"
-    },
-    {
-      "parameters": {
-        "options": {
-          "timeout": 60000,
-          "response": {
-            "response": {
-              "responseFormat": "file"
-            }
-          }
-        },
-        "url": "={{ $('Input').first().json.video_url }}",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "ngrok-skip-browser-warning",
-              "value": "1"
-            }
-          ]
-        }
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        1540,
-        -100
-      ],
-      "id": "ec278b94-b9ed-554f-ad32-251ba288d836",
-      "name": "Download for outlet",
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 2000,
-      "onError": "continueErrorOutput"
-    },
-    {
-      "parameters": {
-        "resource": "file",
-        "binaryData": true,
-        "binaryPropertyName": "data",
-        "options": {
-          "channelIds": [
             "C0CHVG02PJM"
           ],
           "fileName": "={{ $('Input').first().json.story.topic }}.mp4",
@@ -243,8 +105,8 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        1760,
-        -100
+        880,
+        0
       ],
       "id": "6939a7ec-b415-58da-a45b-7cf573acc65c",
       "name": "Post to outlet",
@@ -271,7 +133,7 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        1980,
+        1100,
         -100
       ],
       "id": "8ec76f61-1292-5462-a4be-02bc2d2b87d6",
@@ -285,31 +147,16 @@
     },
     {
       "parameters": {
-        "select": "channel",
-        "channelId": {
-          "__rl": true,
-          "mode": "id",
-          "value": "C0CHNAKERA9"
-        },
-        "text": "=Not published: {{ $('Input').first().json.spec.headline }}",
-        "otherOptions": {
-          "includeLinkToWorkflow": false
-        }
+        "jsCode": "// \"Published\": the video and blurb are in the outlet channel. Hands the run back to \"7 Chat\".\nconst input = $(\"Input\").first().json;\nreturn [{ json: { ...input, ok: true, published: true } }];\n"
       },
-      "type": "n8n-nodes-base.slack",
-      "typeVersion": 2.3,
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
-        1540,
-        140
+        1320,
+        -100
       ],
-      "id": "64cf66be-767b-52d1-a079-f75a51b90755",
-      "name": "Tell editor it was rejected",
-      "onError": "continueErrorOutput",
-      "credentials": {
-        "slackApi": {
-          "name": "Slack"
-        }
-      }
+      "id": "62936e0b-a598-5dcf-a1a6-eb5d39a52117",
+      "name": "Published"
     },
     {
       "parameters": {
@@ -326,34 +173,7 @@
     },
     {
       "parameters": {
-        "select": "channel",
-        "channelId": {
-          "__rl": true,
-          "mode": "id",
-          "value": "C0CHNAKERA9"
-        },
-        "text": "=Could not publish. {{ $json.reason }}",
-        "otherOptions": {
-          "includeLinkToWorkflow": false
-        }
-      },
-      "type": "n8n-nodes-base.slack",
-      "typeVersion": 2.3,
-      "position": [
-        1320,
-        300
-      ],
-      "id": "fb3ebc95-1d8d-5731-aac8-e23b793d1ec0",
-      "name": "Tell editor it failed",
-      "credentials": {
-        "slackApi": {
-          "name": "Slack"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "content": "## 6 Publish\nSends the editor the video in Slack with Approve and Reject, and waits up to 3 hours. Approve posts it to the outlet channel and drafts the newsletter blurb. Reject sends a short note.\n\nCredential: Slack. Channels come from `SLACK_CHANNELS` in the pipeline's build.mjs.\n\nIts test webhook needs a run with a real `video_url`, such as 5 Render's output.",
+        "content": "## 6 Publish\nPosts an approved video to the outlet channel with its headline, blurb and source, then the newsletter draft. The editor approves it in the Slack thread run by **7 Chat**.\n\nCredential: Slack. Channels come from `SLACK_CHANNELS` in the pipeline's build.mjs.\n\nIts test webhook posts straight to the outlet channel, so it needs a run with a real `video_url`, such as 5 Render's output.",
         "height": 340,
         "width": 460,
         "color": 5
@@ -406,78 +226,6 @@
       "main": [
         [
           {
-            "node": "Send video to editor",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Failed",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Send video to editor": {
-      "main": [
-        [
-          {
-            "node": "Ask editor",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Failed",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ask editor": {
-      "main": [
-        [
-          {
-            "node": "Approved?",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Failed",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Approved?": {
-      "main": [
-        [
-          {
-            "node": "Download for outlet",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Tell editor it was rejected",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Download for outlet": {
-      "main": [
-        [
-          {
             "node": "Post to outlet",
             "type": "main",
             "index": 0
@@ -510,11 +258,18 @@
         ]
       ]
     },
-    "Failed": {
+    "Newsletter draft": {
       "main": [
         [
           {
-            "node": "Tell editor it failed",
+            "node": "Published",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Failed",
             "type": "main",
             "index": 0
           }

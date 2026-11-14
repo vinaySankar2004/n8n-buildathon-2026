@@ -85,5 +85,48 @@ check(junk.ok === false, `Write without JSON: ${junk.reason}`);
 const [note] = await run(codeOf(orch, "Why it stopped"), [quiet]);
 check(note.text.startsWith("No story today."), `Quiet note: ${note.text}`);
 
+// 7 Chat: the editor's review thread, with Claude's answers faked here.
+const chat = wf("7-chat.json");
+const editor = chat.nodes.find((x) => x.name === "Upload to thread").parameters.options.channelId;
+const runForChat = good;
+const [card] = await run(codeOf(chat, "Start review"), [runForChat]);
+const cardText = JSON.stringify(card.post.blocks);
+check(card.post.channel === editor && !card.post.thread_ts && cardText.includes(String(story.this_week)) && cardText.includes("newsroom_approve_script"),
+  "Start review posts the script, the data and Approve script to the editor channel");
+check(card.row.stage === "script" && JSON.parse(card.row.state).run.spec.script === runForChat.spec.script, "Start review saves the thread at the script stage");
+
+const event = (e) => [{ body: { source: "events", body: { type: "event_callback", event: { type: "message", channel: editor, ts: "2.0", thread_ts: "1.0", user: "U1", ...e } } } }];
+const [replyEv] = await run(codeOf(chat, "Read Slack event"), event({ text: "Make the headline calmer" }));
+check(replyEv?.kind === "reply" && replyEv.thread_ts === "1.0", "Read Slack event takes a thread reply");
+const ignored = [
+  await run(codeOf(chat, "Read Slack event"), event({ text: "bot echo", bot_id: "B1" })),
+  await run(codeOf(chat, "Read Slack event"), event({ text: "not in a thread", thread_ts: undefined })),
+  await run(codeOf(chat, "Read Slack event"), event({ text: "other channel", channel: "C999" })),
+];
+check(ignored.every((x) => x.length === 0), "Read Slack event ignores the bot's own posts, top-level messages and other channels");
+const [tap] = await run(codeOf(chat, "Read Slack event"), [{ body: { source: "interactivity", payload: { type: "block_actions", channel: { id: editor }, user: { id: "U1" }, message: { ts: "1.0" }, actions: [{ action_id: "newsroom_approve_script" }] } } }]);
+check(tap?.kind === "action" && tap.action === "approve_script" && tap.thread_ts === "1.0", "Read Slack event takes a button tap");
+
+const row = { thread_ts: "1.0", ...card.row };
+const decide = (ev, stage = "script") => run(codeOf(chat, "Decide"), [{ ...row, stage }], { "Read Slack event": [ev] });
+const [revise] = await decide(replyEv);
+check(revise.route === "revise" && revise.claude_body.messages[0].content.includes("Make the headline calmer"), "Decide sends a reply to Claude with the story and draft");
+const [approve] = await decide(tap);
+check(approve.route === "approve_script" && approve.working_note, "Decide routes Approve script to the video");
+check((await decide(tap, "video")).length === 0 && (await decide(replyEv, "published")).length === 0, "Decide ignores old buttons and finished threads");
+
+const claude = (obj) => [{ content: [{ type: "text", text: JSON.stringify(obj) }] }];
+const draft = { ...answer, chart_kind: "weekly", headline: `${story.topic} reports climb` };
+const [revised] = await run(codeOf(chat, "Check revision"), claude({ reply: "I made the headline calmer and switched to the weekly chart.", draft }), { Decide: [revise] });
+const revisedState = JSON.parse(revised.row.state);
+check(revised.post.thread_ts === "1.0" && revisedState.run.spec.headline === draft.headline && revisedState.run.chart_kind === "weekly" && revisedState.run.spec.chart.data.length === 6,
+  "Check revision posts the new draft in the thread and saves it");
+const [blocked] = await run(codeOf(chat, "Check revision"), claude({ reply: "Done.", draft: { ...draft, script: draft.script.replace(String(story.this_week), String(story.this_week + 5)) } }), { Decide: [revise] });
+check(blocked.post.text.startsWith("I did not make that change") && JSON.parse(blocked.row.state).run.spec.script === runForChat.spec.script, `Check revision blocks a new number: ${blocked.post.text.slice(0, 90)}`);
+const [answered] = await run(codeOf(chat, "Check revision"), claude({ reply: "It rose to 12345 reports.", draft: null }), { Decide: [revise] });
+check(!answered.post.text.includes("12345"), "Check revision never posts a number that is not in the data");
+const [remake] = await run(codeOf(chat, "Check revision"), claude({ reply: "Switched to the weekly chart.", draft }), { Decide: [{ ...revise, chat: { ...revise.chat, stage: "video" } }] });
+check(remake.render === true && remake.chat.thread_ts === "1.0", "Check revision remakes the video when the editor changes it after seeing it");
+
 console.log(failures ? `\n${failures} check(s) failed.` : "\nAll checks passed.");
 process.exit(failures ? 1 : 0);

@@ -38,6 +38,15 @@ if (!files.length) {
   process.exit(1);
 }
 
+// Data tables the workflows use by name. Each column holds text.
+const DATA_TABLES = [{ name: "editor_threads", columns: ["thread_ts", "stage", "state"] }];
+const tables = new Map((await listAll("/data-tables")).map((t) => [t.name, t]));
+for (const t of DATA_TABLES) {
+  if (tables.has(t.name)) continue;
+  await api("POST", "/data-tables", { name: t.name, columns: t.columns.map((name) => ({ name, type: "string" })) });
+  console.log(`Created the data table "${t.name}".`);
+}
+
 const notActive = [];
 const existing = new Map((await listAll("/workflows")).map((w) => [w.name, w]));
 // Credentials are named in the JSON; link each one to its id in this n8n on every deploy, so a

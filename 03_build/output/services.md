@@ -15,4 +15,4 @@ The disclosure list for Devpost. Add each one the moment it enters the build.
 | Claude Code (Anthropic) | Writing code, workflow JSON, docs and the repository's checks, directed by the team | 2026-11-14 |
 | Anthropic API, Claude Sonnet 5.5 | Writing the headline, script, chart title and newsletter blurb (draft) | 2026-11-14 |
 | ElevenLabs text to speech | Reading the script (draft) | 2026-11-14 |
-| Slack | Editor approval, the outlet channel, and "no story today" notes (draft) | 2026-11-14 |
+| Slack | Editor review threads (Events API and interactivity through the router, D14), the outlet channel, and "no story today" notes | 2026-11-14 |

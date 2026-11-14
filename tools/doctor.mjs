@@ -93,13 +93,13 @@ if (existsSync(build)) {
 
 // 6. Workflows deployed and switched on.
 if (credentials.length || workflows.length) {
-  const names = ["0 Orchestrator", "1 Collect", "2 Score", "3 Write", "4 Voice", "5 Render", "6 Publish"];
+  const names = ["0 Orchestrator", "1 Collect", "2 Score", "3 Write", "4 Voice", "5 Render", "6 Publish", "7 Chat"];
   const byName = new Map(workflows.map((w) => [w.name, w]));
   const missing = names.filter((n) => !byName.has(n));
   const off = names.filter((n) => byName.has(n) && !byName.get(n).active);
   if (missing.length) next(`Not deployed: ${missing.join(", ")}. Run npm run deploy.`);
   if (off.length) next(`Deployed but not active: ${off.join(", ")}. Load their credentials, then npm run deploy.`);
-  if (!missing.length && !off.length) done("all seven workflows are deployed and active");
+  if (!missing.length && !off.length) done("all eight workflows are deployed and active");
 }
 
 console.log(`Setup check: ${ok.length} fine, ${todo.length} to do.`);

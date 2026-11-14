@@ -201,7 +201,7 @@
           "__rl": true,
           "value": "",
           "mode": "list",
-          "cachedResultName": "4 Voice"
+          "cachedResultName": "7 Chat"
         },
         "mode": "once",
         "options": {
@@ -214,122 +214,8 @@
         1760,
         0
       ],
-      "id": "5a9f44d1-150a-517b-aa45-b1125689062b",
-      "name": "4 Voice",
-      "onError": "continueErrorOutput"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "f7eeec1b-a267-57a9-a461-19f8ad765698",
-              "leftValue": "={{ $json.ok }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        1980,
-        0
-      ],
-      "id": "1f67fe8c-6b87-58bd-ada3-ea789d21b448",
-      "name": "Voice ok?"
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "",
-          "mode": "list",
-          "cachedResultName": "5 Render"
-        },
-        "mode": "once",
-        "options": {
-          "waitForSubWorkflow": true
-        }
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
-      "position": [
-        2200,
-        0
-      ],
-      "id": "6813eeac-4cee-5de1-a3d7-b9879aace1c0",
-      "name": "5 Render",
-      "onError": "continueErrorOutput"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "8554adcb-905a-5f9e-a150-c1215499cc0d",
-              "leftValue": "={{ $json.ok }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        2420,
-        0
-      ],
-      "id": "a0171f94-75ab-5146-a2ee-33f4f60483ca",
-      "name": "Video ok?"
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "",
-          "mode": "list",
-          "cachedResultName": "6 Publish"
-        },
-        "mode": "once",
-        "options": {
-          "waitForSubWorkflow": true
-        }
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
-      "position": [
-        2640,
-        0
-      ],
-      "id": "be20c791-12a3-5775-a3fb-5319154eaaa1",
-      "name": "6 Publish",
+      "id": "5d88ca8e-9c29-5dc6-a202-ede3849a1266",
+      "name": "7 Chat",
       "onError": "continueErrorOutput"
     },
     {
@@ -374,8 +260,8 @@
     },
     {
       "parameters": {
-        "content": "## 0 Orchestrator\n**Vancouver sources** lists the datasets to watch. **1 Collect** runs once per source, **2 Score** picks the week's strongest change, then Write, Voice, Render and Publish.\n\nIf any step says `ok: false`, or errors, **No story today** tells the editor why in Slack.\n\n**Every morning** stays off while building.\n\nTo test the guard, set `test_tamper` to true in **Run options**.",
-        "height": 360,
+        "content": "## 0 Orchestrator\n**Vancouver sources** lists the datasets to watch. **1 Collect** runs once per source, **2 Score** picks the week's strongest change, **3 Write** drafts it, and **7 Chat** posts the draft and its data to the editor in Slack. From there the editor's thread drives Voice, Render and Publish.\n\nIf any step says `ok: false`, or errors, **No story today** tells the editor why in Slack.\n\n**Every morning** stays off while building.\n\nTo test the guard, set `test_tamper` to true in **Run options**.",
+        "height": 380,
         "width": 460,
         "color": 5
       },
@@ -520,7 +406,7 @@
       "main": [
         [
           {
-            "node": "4 Voice",
+            "node": "7 Chat",
             "type": "main",
             "index": 0
           }
@@ -534,79 +420,7 @@
         ]
       ]
     },
-    "4 Voice": {
-      "main": [
-        [
-          {
-            "node": "Voice ok?",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Why it stopped",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Voice ok?": {
-      "main": [
-        [
-          {
-            "node": "5 Render",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Why it stopped",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "5 Render": {
-      "main": [
-        [
-          {
-            "node": "Video ok?",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Why it stopped",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Video ok?": {
-      "main": [
-        [
-          {
-            "node": "6 Publish",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Why it stopped",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "6 Publish": {
+    "7 Chat": {
       "main": [
         [],
         [

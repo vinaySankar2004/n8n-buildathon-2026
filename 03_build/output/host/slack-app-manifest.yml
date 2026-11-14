@@ -1,6 +1,8 @@
 # Slack app for the newsroom. In Slack: api.slack.com/apps, Create New App, From a manifest,
 # pick the n8n-buildathon workspace, paste this file, Create, then Install to Workspace.
-# The bot token it produces goes in .env as SLACK_BOT_TOKEN, never in git.
+# The bot token it produces goes in .env as SLACK_BOT_TOKEN, never in git. On the host laptop, the
+# Signing Secret from the app's Basic Information page goes in .env as SLACK_SIGNING_SECRET.
+# After changing this file: paste it into the app's App Manifest page, save, then reinstall the app.
 display_information:
   name: Newsroom
   description: Posts the week's data story for an editor to approve, then publishes it to the outlet channel.
@@ -17,9 +19,19 @@ oauth_config:
       - files:write
       - channels:read
       - channels:join
+      # Thread replies from the editor reach 7 Chat as message events.
+      - channels:history
+      - groups:history
 settings:
+  event_subscriptions:
+    # The editor's replies in a review thread. The router checks Slack's signature, then hands them to 7 Chat.
+    request_url: https://paratactical-professionally-yasuko.ngrok-free.dev/slack/events
+    bot_events:
+      - message.channels
+      - message.groups
   interactivity:
-    # n8n's approval buttons are links; Slack also reports each click here, and the router answers 200.
+    # The review buttons (Approve script, Approve and publish, Reject). The router checks Slack's
+    # signature and hands them to 7 Chat.
     is_enabled: true
     request_url: https://paratactical-professionally-yasuko.ngrok-free.dev/slack/interactivity
   org_deploy_enabled: false

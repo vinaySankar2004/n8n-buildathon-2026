@@ -8,13 +8,14 @@ The source for all seven workflows. Written 2026-11-14 by Arman with Claude Code
 
 | Workflow | Does |
 | --- | --- |
-| 0 Orchestrator | Lists the sources, runs every step in order, and sends "No story today" to Slack when a step stops |
+| 0 Orchestrator | Lists the sources, runs Collect, Score and Write, hands the draft to 7 Chat, and sends "No story today" to Slack when a step stops |
 | 1 Collect | 9 weeks of one dataset, grouped by category, day and neighbourhood |
 | 2 Score | Picks the week's strongest change across all sources |
 | 3 Write | Claude writes the headline, script, chart title and blurb; the guard checks every number |
 | 4 Voice | ElevenLabs reads the script; stops if it runs 22 seconds or longer |
 | 5 Render | The Remotion service beside n8n makes the 9:16 video |
-| 6 Publish | Slack approval; Approve posts to the outlet channel with the newsletter blurb |
+| 6 Publish | Posts an approved video to the outlet channel with the newsletter blurb |
+| 7 Chat | The editor's review in one Slack thread per story: script and data first, then the video. Replies change either one; Claude revises and the guard checks every number (D14) |
 
 ## See the workflows
 
@@ -31,17 +32,21 @@ On our self-hosted n8n, a member account sees only the workflows it made (sharin
 ## Getting it into n8n
 
 1. Change code in `code/` or `build.mjs`, never the JSON in `workflows/`. Then `npm run pipeline` and `npm run test:pipeline`.
-2. `npm run deploy` pushes all seven, the orchestrator last. Deploy points the orchestrator's Execute Workflow nodes at the other six by name.
+2. `npm run deploy` pushes all eight, the orchestrator last, and creates the data table `editor_threads` that 7 Chat keeps its threads in. Deploy points every Execute Workflow node at its workflow by name.
 3. These credentials must exist in n8n with exactly these names, so the nodes find them. Fill in their values in the git-ignored `.env` (`ANTHROPIC_API_KEY`, `ELEVENLABS_API_KEY`, `RENDER_TOKEN`, `SLACK_BOT_TOKEN`) and run `npm run credentials`, which creates or updates each one and skips blanks. Then deploy again:
 
 | Name | Type | Used by |
 | --- | --- | --- |
-| Anthropic | Anthropic | Write script (3 Write) |
+| Anthropic | Anthropic | Write script (3 Write), Revise with Claude (7 Chat) |
 | ElevenLabs | Header Auth, header `xi-api-key` | Speak script (4 Voice) |
 | Render token | Header Auth, header `x-render-token` | Render video (5 Render) |
-| Slack | Slack API, bot token | 6 Publish, and "No story today" |
+| Slack | Slack API, bot token | 6 Publish, 7 Chat, and "No story today" |
 
-4. Slack channels are set in `SLACK_CHANNELS` at the top of [build.mjs](build.mjs): `editor` for review, approval and "No story today" notes, `outlet` for approved videos and newsletter drafts. Put the channel IDs there, then `npm run pipeline` and `npm run deploy`. The bot must be invited to both channels. While an ID is empty, the build warns and those nodes deploy with no channel.
+4. **Slack on the host laptop, for 7 Chat.** Slack sends thread replies and button taps to the tunnel, and the router checks each one's signature before passing it to n8n. Once, in this order:
+   1. Pull, then put the Signing Secret from the Slack app's Basic Information page in the host laptop's `.env` as `SLACK_SIGNING_SECRET`.
+   2. Restart the router: `npm run host -- stop`, then `npm run host`.
+   3. In the Slack app's App Manifest page, paste [slack-app-manifest.yml](../host/slack-app-manifest.yml) and save. Slack checks the events address against the running router. Then reinstall the app to the workspace, since it asks for two new scopes to read thread replies.
+5. Slack channels are set in `SLACK_CHANNELS` at the top of [build.mjs](build.mjs): `editor` for review, approval and "No story today" notes, `outlet` for approved videos and newsletter drafts. Put the channel IDs there, then `npm run pipeline` and `npm run deploy`. The bot must be invited to both channels. While an ID is empty, the build warns and those nodes deploy with no channel.
 
 ## Testing, one step at a time
 
@@ -53,8 +58,11 @@ Each step has a test webhook at `step-<step>`. An empty body runs it on a built-
 | `npm run invoke -- write` | `ok: true` and a `spec`. If `ok: false`, the reason names the number that was not in the story |
 | `npm run invoke -- voice` | `ok: true` and `audio_seconds` under 22 |
 | `npm run invoke -- render` | `ok: true` and a `video_url` that plays (silent, since the sample has no audio) |
-| `npm run invoke -- publish run.json` | The video in the editor channel with Approve and Reject. `run.json` is a saved 5 Render result. The command waits until someone taps a button |
-| `npm run invoke -- orchestrator` | The whole run, ending with the Slack approval message |
+| `npm run invoke -- publish run.json` | The video and blurb in the outlet channel. `run.json` is a saved 5 Render result. This posts straight to the outlet |
+| `npm run invoke -- chat run.json` | A review message in the editor channel with the script, the data and Approve script. `run.json` is a saved 3 Write result; an empty body uses the sample |
+| `npm run invoke -- orchestrator` | The whole run, ending with the review message in the editor channel |
+
+Then in the review thread: reply with a change ("make the headline calmer", "use the weekly chart") and the bot posts a revised draft; tap Approve script and the video comes in the thread; reply again to change the video; tap Approve and publish and it is in the outlet channel.
 
 Then the two failure tests from must-work:
 

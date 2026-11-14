@@ -1,0 +1,1212 @@
+{
+  "name": "7 Chat",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b5cd40c2-0c60-5d89-ad92-ecb7147beada",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "step-chat",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        200
+      ],
+      "id": "75d0ba10-7405-5b91-a9a1-e43c7069362d",
+      "name": "Test webhook",
+      "webhookId": "daad9aa5-9caf-5ee7-a936-622c73e22919"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input for a run through the test webhook (npm run invoke). An empty body uses this sample.\nconst body = $input.first().json.body;\nif (body && typeof body === \"object\" && Object.keys(body).length) return [{ json: body }];\nreturn [{ json: {\n  \"ok\": true,\n  \"story\": {\n    \"week_start\": \"2026-11-07\",\n    \"week_ending\": \"2026-11-13\",\n    \"dataset\": \"3-1-1 service requests\",\n    \"source_note\": \"City of Vancouver open data, 3-1-1 service requests\",\n    \"source_url\": \"https://opendata.vancouver.ca/explore/dataset/3-1-1-service-requests/\",\n    \"unit\": \"reports\",\n    \"type\": \"Street Surface Water Flooding Case\",\n    \"topic\": \"Street Surface Water Flooding\",\n    \"direction\": \"up\",\n    \"chart_kind\": \"by_area\",\n    \"this_week\": 218,\n    \"avg_prev_8_weeks\": 29.3,\n    \"ratio\": 7.4,\n    \"pct_change\": 644,\n    \"by_area\": [\n      {\n        \"area\": \"Mount Pleasant\",\n        \"count\": 33\n      },\n      {\n        \"area\": \"Downtown\",\n        \"count\": 24\n      },\n      {\n        \"area\": \"Grandview-Woodland\",\n        \"count\": 20\n      },\n      {\n        \"area\": \"Fairview\",\n        \"count\": 16\n      },\n      {\n        \"area\": \"Kensington-Cedar Cottage\",\n        \"count\": 14\n      },\n      {\n        \"area\": \"Hastings-Sunrise\",\n        \"count\": 11\n      }\n    ],\n    \"unknown_area\": 4,\n    \"weekly\": [\n      {\n        \"week_ending\": \"2026-09-18\",\n        \"count\": 18\n      },\n      {\n        \"week_ending\": \"2026-09-25\",\n        \"count\": 13\n      },\n      {\n        \"week_ending\": \"2026-10-02\",\n        \"count\": 31\n      },\n      {\n        \"week_ending\": \"2026-10-09\",\n        \"count\": 13\n      },\n      {\n        \"week_ending\": \"2026-10-16\",\n        \"count\": 15\n      },\n      {\n        \"week_ending\": \"2026-10-23\",\n        \"count\": 6\n      },\n      {\n        \"week_ending\": \"2026-10-30\",\n        \"count\": 45\n      },\n      {\n        \"week_ending\": \"2026-11-06\",\n        \"count\": 93\n      },\n      {\n        \"week_ending\": \"2026-11-13\",\n        \"count\": 218\n      }\n    ]\n  },\n  \"spec\": {\n    \"headline\": \"Flooding reports up more than seven times\",\n    \"script\": \"Vancouver logged 218 street flooding reports in the week to November 13. The usual level over the 8 weeks before was 29.3 a week. Mount Pleasant had the most, with 33, then Downtown with 24. The city data does not say why. Source: City of Vancouver open data.\",\n    \"callout\": {\n      \"value\": \"7.4×\",\n      \"label\": \"218 reports this week against an average of 29.3\"\n    },\n    \"chart\": {\n      \"kind\": \"bar\",\n      \"title\": \"Flooding reports by neighbourhood, last 7 days\",\n      \"data\": [\n        {\n          \"label\": \"Mount Pleasant\",\n          \"value\": 33\n        },\n        {\n          \"label\": \"Downtown\",\n          \"value\": 24\n        },\n        {\n          \"label\": \"Grandview-Woodland\",\n          \"value\": 20\n        },\n        {\n          \"label\": \"Fairview\",\n          \"value\": 16\n        },\n        {\n          \"label\": \"Kensington-Cedar Cottage\",\n          \"value\": 14\n        },\n        {\n          \"label\": \"Hastings-Sunrise\",\n          \"value\": 11\n        }\n      ],\n      \"source_note\": \"City of Vancouver open data, 3-1-1 service requests\"\n    },\n    \"duration_s\": 20\n  },\n  \"chart_kind\": \"by_area\",\n  \"blurb\": \"Street flooding reports to 3-1-1 reached 218 this week, against a usual 29.3. Mount Pleasant and Downtown had the most.\",\n  \"script_words\": 47\n} }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        200
+      ],
+      "id": "20865996-f2bd-524a-a75c-4f1fb7c96815",
+      "name": "Sample run"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Shared by \"3 Write\" and \"7 Chat\" (build.mjs puts it at the top of their Code nodes).\n// Turns a draft (headline, script, callout_label, chart_title, chart_kind, blurb) into the render spec,\n// builds the chart from the story itself, and lists every problem the guard finds (must-work row 9).\nconst numbersIn = (text) => (String(text).match(/\\d[\\d,]*(?:\\.\\d+)?/g) || []).map((m) => Number(m.replace(/,/g, \"\")));\n\nfunction allowedNumbers(story) {\n  const allowed = new Set([7, 8, 9]); // the window lengths: 7 days, 8 weeks, 9 weeks\n  for (const n of numbersIn(JSON.stringify(story))) { allowed.add(n); allowed.add(Math.abs(n)); }\n  return allowed;\n}\n\nfunction unknownNumbers(story, fields) {\n  const allowed = allowedNumbers(story);\n  const unknown = [];\n  for (const [field, text] of Object.entries(fields)) {\n    for (const n of numbersIn(text)) if (!allowed.has(n)) unknown.push(`${n} in ${field}`);\n  }\n  return unknown;\n}\n\nfunction buildSpec(story, d) {\n  const hasAreas = (story.by_area || []).length > 0;\n  const chartKind = d.chart_kind === \"weekly\" || !hasAreas ? \"weekly\" : d.chart_kind === \"by_area\" ? \"by_area\" : story.chart_kind;\n  const callout = {\n    value: story.direction === \"up\" ? `${story.ratio}×` : `${Math.abs(story.pct_change)}%`,\n    label: d.callout_label,\n  };\n  const spec = {\n    headline: d.headline,\n    script: d.script,\n    callout,\n    chart: {\n      kind: \"bar\",\n      title: d.chart_title,\n      data: chartKind === \"weekly\"\n        ? story.weekly.slice(-6).map((w) => ({ label: new Date(w.week_ending + \"T12:00:00Z\").toLocaleDateString(\"en-CA\", { month: \"short\", day: \"numeric\", timeZone: \"UTC\" }), value: w.count }))\n        : story.by_area.slice(0, 6).map((a) => ({ label: a.area, value: a.count })),\n      source_note: story.source_note,\n    },\n    duration_s: 20,\n  };\n  const problems = [];\n  const unknown = unknownNumbers(story, { headline: d.headline, script: d.script, callout_value: callout.value, callout_label: d.callout_label, chart_title: d.chart_title, blurb: d.blurb });\n  if (unknown.length) problems.push(`${unknown.join(\", \")} is not in the story`);\n  const words = String(d.script).trim().split(/\\s+/).length;\n  if (words < 25 || words > 50) problems.push(`the script is ${words} words; it needs 25 to 50`);\n  return { spec, chart_kind: chartKind, words, problems };\n}\n\n// The draft as the model sees it, rebuilt from a run.\nconst draftOf = (run) => ({\n  headline: run.spec.headline,\n  script: run.spec.script,\n  callout_label: run.spec.callout.label,\n  chart_title: run.spec.chart.title,\n  chart_kind: run.chart_kind || run.story.chart_kind,\n  blurb: run.blurb,\n});\n\n// Shared by the \"7 Chat\" Code nodes (build.mjs puts it at the top of each): the Slack messages the bot\n// posts, and the row it keeps for each review thread in the \"editor_threads\" data table.\nconst EDITOR = \"C0CHNAKERA9\";\nconst OUTLET = \"C0CHVG02PJM\";\n\nconst section = (text) => ({ type: \"section\", text: { type: \"mrkdwn\", text: String(text).slice(0, 2900) } });\nconst context = (text) => ({ type: \"context\", elements: [{ type: \"mrkdwn\", text: String(text).slice(0, 2900) }] });\nconst button = (text, action, style) => ({ type: \"button\", text: { type: \"plain_text\", text }, action_id: `newsroom_${action}`, value: action, ...(style ? { style } : {}) });\n\nfunction numbersLine(story) {\n  const change = story.direction === \"up\"\n    ? `${story.ratio}× the usual level`\n    : `down ${Math.abs(story.pct_change)}% from the usual level`;\n  return `${story.this_week} ${story.unit} in the week ${story.week_start} to ${story.week_ending}, against an average of ${story.avg_prev_8_weeks} a week over the 8 weeks before (${change}).`;\n}\n\nfunction scriptBlocks(run) {\n  const s = run.story;\n  const spec = run.spec;\n  const areas = (s.by_area || []).slice(0, 6).map((a) => `${a.area} ${a.count}`).join(\", \");\n  const weeks = (s.weekly || []).slice(-6).map((w) => w.count).join(\", \");\n  const chart = spec.chart.data.map((d) => `${d.label} ${d.value}`).join(\", \");\n  return [\n    section(`*${spec.headline}*`),\n    section(`*Script* (${run.script_words || String(spec.script).split(/\\s+/).length} words)\\n>${spec.script}`),\n    section(\n      `*The data*\\n• ${s.dataset}: ${s.type}\\n• ${numbersLine(s)}` +\n        (areas ? `\\n• This week by neighbourhood: ${areas}` : \"\") +\n        (weeks ? `\\n• Last 6 weeks: ${weeks}` : \"\") +\n        `\\n• Source: <${s.source_url}|${s.source_note}>`,\n    ),\n    section(`*On screen*\\n• Big number: ${spec.callout.value}, \"${spec.callout.label}\"\\n• Chart: ${spec.chart.title}\\n• Bars: ${chart}`),\n    section(`*Newsletter blurb*\\n${run.blurb}`),\n  ];\n}\n\nconst scriptButtons = () => ({ type: \"actions\", elements: [button(\"Approve script\", \"approve_script\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst videoButtons = () => ({ type: \"actions\", elements: [button(\"Approve and publish\", \"approve_video\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst HOW_TO_REPLY = \"Reply in this thread to change anything: the script, headline, big number label, chart or blurb. Every number has to come from the city data.\";\n\n// The run without the parts that are large or only for this message.\nfunction keep(run) {\n  const { audio_base64, chat, route, working_note, claude_body, post, row, render, ...rest } = run;\n  return rest;\n}\nconst rowFor = (threadTs, stage, run, history) => ({ thread_ts: threadTs || \"\", stage, state: JSON.stringify({ run: keep(run), history: (history || []).slice(-12) }) });\n\n// What every branch hands to \"Reply ready\": the Slack message to post and the row to save.\nconst reply = (threadTs, text, blocks, stage, run, history) => ({\n  json: {\n    post: { channel: EDITOR, ...(threadTs ? { thread_ts: threadTs } : {}), text: String(text).slice(0, 3000), ...(blocks ? { blocks } : {}), unfurl_links: false },\n    row: rowFor(threadTs, stage, run, history),\n  },\n});\n\n// \"Start review\": the first message of a review thread, posted to the editor channel after Write.\n// It shows the headline, script, the numbers behind them and what goes on screen, before any voice\n// or video is made. Its timestamp becomes the thread the editor replies in.\nconst run = $input.first().json;\nif (!run.spec || !run.story) throw new Error(\"Start review needs a run from 3 Write, with story and spec.\");\nconst blocks = [\n  section(\"*New story for review.* Nothing is recorded or published until you approve.\"),\n  ...scriptBlocks(run),\n  context(HOW_TO_REPLY),\n  scriptButtons(),\n];\nreturn [reply(\"\", `For review: ${run.spec.headline}`, blocks, \"script\", run, [])];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        100
+      ],
+      "id": "9d7885e7-a1cf-5f0c-a002-b96ab21b7498",
+      "name": "Start review"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "slack-events",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        600
+      ],
+      "id": "e3065d24-128a-5c90-ae05-f16012ac9299",
+      "name": "Slack event",
+      "webhookId": "9a94ae82-81f4-5c24-a546-152e8ff16b73"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Shared by \"3 Write\" and \"7 Chat\" (build.mjs puts it at the top of their Code nodes).\n// Turns a draft (headline, script, callout_label, chart_title, chart_kind, blurb) into the render spec,\n// builds the chart from the story itself, and lists every problem the guard finds (must-work row 9).\nconst numbersIn = (text) => (String(text).match(/\\d[\\d,]*(?:\\.\\d+)?/g) || []).map((m) => Number(m.replace(/,/g, \"\")));\n\nfunction allowedNumbers(story) {\n  const allowed = new Set([7, 8, 9]); // the window lengths: 7 days, 8 weeks, 9 weeks\n  for (const n of numbersIn(JSON.stringify(story))) { allowed.add(n); allowed.add(Math.abs(n)); }\n  return allowed;\n}\n\nfunction unknownNumbers(story, fields) {\n  const allowed = allowedNumbers(story);\n  const unknown = [];\n  for (const [field, text] of Object.entries(fields)) {\n    for (const n of numbersIn(text)) if (!allowed.has(n)) unknown.push(`${n} in ${field}`);\n  }\n  return unknown;\n}\n\nfunction buildSpec(story, d) {\n  const hasAreas = (story.by_area || []).length > 0;\n  const chartKind = d.chart_kind === \"weekly\" || !hasAreas ? \"weekly\" : d.chart_kind === \"by_area\" ? \"by_area\" : story.chart_kind;\n  const callout = {\n    value: story.direction === \"up\" ? `${story.ratio}×` : `${Math.abs(story.pct_change)}%`,\n    label: d.callout_label,\n  };\n  const spec = {\n    headline: d.headline,\n    script: d.script,\n    callout,\n    chart: {\n      kind: \"bar\",\n      title: d.chart_title,\n      data: chartKind === \"weekly\"\n        ? story.weekly.slice(-6).map((w) => ({ label: new Date(w.week_ending + \"T12:00:00Z\").toLocaleDateString(\"en-CA\", { month: \"short\", day: \"numeric\", timeZone: \"UTC\" }), value: w.count }))\n        : story.by_area.slice(0, 6).map((a) => ({ label: a.area, value: a.count })),\n      source_note: story.source_note,\n    },\n    duration_s: 20,\n  };\n  const problems = [];\n  const unknown = unknownNumbers(story, { headline: d.headline, script: d.script, callout_value: callout.value, callout_label: d.callout_label, chart_title: d.chart_title, blurb: d.blurb });\n  if (unknown.length) problems.push(`${unknown.join(\", \")} is not in the story`);\n  const words = String(d.script).trim().split(/\\s+/).length;\n  if (words < 25 || words > 50) problems.push(`the script is ${words} words; it needs 25 to 50`);\n  return { spec, chart_kind: chartKind, words, problems };\n}\n\n// The draft as the model sees it, rebuilt from a run.\nconst draftOf = (run) => ({\n  headline: run.spec.headline,\n  script: run.spec.script,\n  callout_label: run.spec.callout.label,\n  chart_title: run.spec.chart.title,\n  chart_kind: run.chart_kind || run.story.chart_kind,\n  blurb: run.blurb,\n});\n\n// Shared by the \"7 Chat\" Code nodes (build.mjs puts it at the top of each): the Slack messages the bot\n// posts, and the row it keeps for each review thread in the \"editor_threads\" data table.\nconst EDITOR = \"C0CHNAKERA9\";\nconst OUTLET = \"C0CHVG02PJM\";\n\nconst section = (text) => ({ type: \"section\", text: { type: \"mrkdwn\", text: String(text).slice(0, 2900) } });\nconst context = (text) => ({ type: \"context\", elements: [{ type: \"mrkdwn\", text: String(text).slice(0, 2900) }] });\nconst button = (text, action, style) => ({ type: \"button\", text: { type: \"plain_text\", text }, action_id: `newsroom_${action}`, value: action, ...(style ? { style } : {}) });\n\nfunction numbersLine(story) {\n  const change = story.direction === \"up\"\n    ? `${story.ratio}× the usual level`\n    : `down ${Math.abs(story.pct_change)}% from the usual level`;\n  return `${story.this_week} ${story.unit} in the week ${story.week_start} to ${story.week_ending}, against an average of ${story.avg_prev_8_weeks} a week over the 8 weeks before (${change}).`;\n}\n\nfunction scriptBlocks(run) {\n  const s = run.story;\n  const spec = run.spec;\n  const areas = (s.by_area || []).slice(0, 6).map((a) => `${a.area} ${a.count}`).join(\", \");\n  const weeks = (s.weekly || []).slice(-6).map((w) => w.count).join(\", \");\n  const chart = spec.chart.data.map((d) => `${d.label} ${d.value}`).join(\", \");\n  return [\n    section(`*${spec.headline}*`),\n    section(`*Script* (${run.script_words || String(spec.script).split(/\\s+/).length} words)\\n>${spec.script}`),\n    section(\n      `*The data*\\n• ${s.dataset}: ${s.type}\\n• ${numbersLine(s)}` +\n        (areas ? `\\n• This week by neighbourhood: ${areas}` : \"\") +\n        (weeks ? `\\n• Last 6 weeks: ${weeks}` : \"\") +\n        `\\n• Source: <${s.source_url}|${s.source_note}>`,\n    ),\n    section(`*On screen*\\n• Big number: ${spec.callout.value}, \"${spec.callout.label}\"\\n• Chart: ${spec.chart.title}\\n• Bars: ${chart}`),\n    section(`*Newsletter blurb*\\n${run.blurb}`),\n  ];\n}\n\nconst scriptButtons = () => ({ type: \"actions\", elements: [button(\"Approve script\", \"approve_script\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst videoButtons = () => ({ type: \"actions\", elements: [button(\"Approve and publish\", \"approve_video\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst HOW_TO_REPLY = \"Reply in this thread to change anything: the script, headline, big number label, chart or blurb. Every number has to come from the city data.\";\n\n// The run without the parts that are large or only for this message.\nfunction keep(run) {\n  const { audio_base64, chat, route, working_note, claude_body, post, row, render, ...rest } = run;\n  return rest;\n}\nconst rowFor = (threadTs, stage, run, history) => ({ thread_ts: threadTs || \"\", stage, state: JSON.stringify({ run: keep(run), history: (history || []).slice(-12) }) });\n\n// What every branch hands to \"Reply ready\": the Slack message to post and the row to save.\nconst reply = (threadTs, text, blocks, stage, run, history) => ({\n  json: {\n    post: { channel: EDITOR, ...(threadTs ? { thread_ts: threadTs } : {}), text: String(text).slice(0, 3000), ...(blocks ? { blocks } : {}), unfurl_links: false },\n    row: rowFor(threadTs, stage, run, history),\n  },\n});\n\n// \"Read Slack event\": the router on the host laptop checks Slack's signature, then forwards each\n// thread reply (Events API) and each button tap (interactivity) here. Anything else is dropped.\nconst body = $input.first().json.body || {};\nif (body.source === \"events\") {\n  const env = body.body || {};\n  const e = env.event || {};\n  if (env.type !== \"event_callback\" || e.type !== \"message\") return [];\n  if (e.bot_id || e.subtype || !e.thread_ts || e.thread_ts === e.ts || e.channel !== EDITOR) return [];\n  const text = String(e.text || \"\").trim();\n  if (!text) return [];\n  return [{ json: { kind: \"reply\", thread_ts: e.thread_ts, text, user: e.user } }];\n}\nif (body.source === \"interactivity\") {\n  const p = body.payload || {};\n  const a = (p.actions || [])[0];\n  if (p.type !== \"block_actions\" || !a || !String(a.action_id).startsWith(\"newsroom_\")) return [];\n  if ((p.channel || {}).id !== EDITOR) return [];\n  const m = p.message || {};\n  return [{ json: { kind: \"action\", action: a.action_id.replace(\"newsroom_\", \"\"), thread_ts: m.thread_ts || m.ts, user: (p.user || {}).id } }];\n}\nreturn [];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        600
+      ],
+      "id": "36ce9529-5606-53c3-a4e4-0975cdd78364",
+      "name": "Read Slack event"
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "editor_threads"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "thread_ts",
+              "condition": "eq",
+              "keyValue": "={{ $json.thread_ts }}"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        600
+      ],
+      "id": "53b25727-8a6a-5119-a816-24350d2c9a7c",
+      "name": "Find thread"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Shared by \"3 Write\" and \"7 Chat\" (build.mjs puts it at the top of their Code nodes).\n// Turns a draft (headline, script, callout_label, chart_title, chart_kind, blurb) into the render spec,\n// builds the chart from the story itself, and lists every problem the guard finds (must-work row 9).\nconst numbersIn = (text) => (String(text).match(/\\d[\\d,]*(?:\\.\\d+)?/g) || []).map((m) => Number(m.replace(/,/g, \"\")));\n\nfunction allowedNumbers(story) {\n  const allowed = new Set([7, 8, 9]); // the window lengths: 7 days, 8 weeks, 9 weeks\n  for (const n of numbersIn(JSON.stringify(story))) { allowed.add(n); allowed.add(Math.abs(n)); }\n  return allowed;\n}\n\nfunction unknownNumbers(story, fields) {\n  const allowed = allowedNumbers(story);\n  const unknown = [];\n  for (const [field, text] of Object.entries(fields)) {\n    for (const n of numbersIn(text)) if (!allowed.has(n)) unknown.push(`${n} in ${field}`);\n  }\n  return unknown;\n}\n\nfunction buildSpec(story, d) {\n  const hasAreas = (story.by_area || []).length > 0;\n  const chartKind = d.chart_kind === \"weekly\" || !hasAreas ? \"weekly\" : d.chart_kind === \"by_area\" ? \"by_area\" : story.chart_kind;\n  const callout = {\n    value: story.direction === \"up\" ? `${story.ratio}×` : `${Math.abs(story.pct_change)}%`,\n    label: d.callout_label,\n  };\n  const spec = {\n    headline: d.headline,\n    script: d.script,\n    callout,\n    chart: {\n      kind: \"bar\",\n      title: d.chart_title,\n      data: chartKind === \"weekly\"\n        ? story.weekly.slice(-6).map((w) => ({ label: new Date(w.week_ending + \"T12:00:00Z\").toLocaleDateString(\"en-CA\", { month: \"short\", day: \"numeric\", timeZone: \"UTC\" }), value: w.count }))\n        : story.by_area.slice(0, 6).map((a) => ({ label: a.area, value: a.count })),\n      source_note: story.source_note,\n    },\n    duration_s: 20,\n  };\n  const problems = [];\n  const unknown = unknownNumbers(story, { headline: d.headline, script: d.script, callout_value: callout.value, callout_label: d.callout_label, chart_title: d.chart_title, blurb: d.blurb });\n  if (unknown.length) problems.push(`${unknown.join(\", \")} is not in the story`);\n  const words = String(d.script).trim().split(/\\s+/).length;\n  if (words < 25 || words > 50) problems.push(`the script is ${words} words; it needs 25 to 50`);\n  return { spec, chart_kind: chartKind, words, problems };\n}\n\n// The draft as the model sees it, rebuilt from a run.\nconst draftOf = (run) => ({\n  headline: run.spec.headline,\n  script: run.spec.script,\n  callout_label: run.spec.callout.label,\n  chart_title: run.spec.chart.title,\n  chart_kind: run.chart_kind || run.story.chart_kind,\n  blurb: run.blurb,\n});\n\n// Shared by the \"7 Chat\" Code nodes (build.mjs puts it at the top of each): the Slack messages the bot\n// posts, and the row it keeps for each review thread in the \"editor_threads\" data table.\nconst EDITOR = \"C0CHNAKERA9\";\nconst OUTLET = \"C0CHVG02PJM\";\n\nconst section = (text) => ({ type: \"section\", text: { type: \"mrkdwn\", text: String(text).slice(0, 2900) } });\nconst context = (text) => ({ type: \"context\", elements: [{ type: \"mrkdwn\", text: String(text).slice(0, 2900) }] });\nconst button = (text, action, style) => ({ type: \"button\", text: { type: \"plain_text\", text }, action_id: `newsroom_${action}`, value: action, ...(style ? { style } : {}) });\n\nfunction numbersLine(story) {\n  const change = story.direction === \"up\"\n    ? `${story.ratio}× the usual level`\n    : `down ${Math.abs(story.pct_change)}% from the usual level`;\n  return `${story.this_week} ${story.unit} in the week ${story.week_start} to ${story.week_ending}, against an average of ${story.avg_prev_8_weeks} a week over the 8 weeks before (${change}).`;\n}\n\nfunction scriptBlocks(run) {\n  const s = run.story;\n  const spec = run.spec;\n  const areas = (s.by_area || []).slice(0, 6).map((a) => `${a.area} ${a.count}`).join(\", \");\n  const weeks = (s.weekly || []).slice(-6).map((w) => w.count).join(\", \");\n  const chart = spec.chart.data.map((d) => `${d.label} ${d.value}`).join(\", \");\n  return [\n    section(`*${spec.headline}*`),\n    section(`*Script* (${run.script_words || String(spec.script).split(/\\s+/).length} words)\\n>${spec.script}`),\n    section(\n      `*The data*\\n• ${s.dataset}: ${s.type}\\n• ${numbersLine(s)}` +\n        (areas ? `\\n• This week by neighbourhood: ${areas}` : \"\") +\n        (weeks ? `\\n• Last 6 weeks: ${weeks}` : \"\") +\n        `\\n• Source: <${s.source_url}|${s.source_note}>`,\n    ),\n    section(`*On screen*\\n• Big number: ${spec.callout.value}, \"${spec.callout.label}\"\\n• Chart: ${spec.chart.title}\\n• Bars: ${chart}`),\n    section(`*Newsletter blurb*\\n${run.blurb}`),\n  ];\n}\n\nconst scriptButtons = () => ({ type: \"actions\", elements: [button(\"Approve script\", \"approve_script\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst videoButtons = () => ({ type: \"actions\", elements: [button(\"Approve and publish\", \"approve_video\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst HOW_TO_REPLY = \"Reply in this thread to change anything: the script, headline, big number label, chart or blurb. Every number has to come from the city data.\";\n\n// The run without the parts that are large or only for this message.\nfunction keep(run) {\n  const { audio_base64, chat, route, working_note, claude_body, post, row, render, ...rest } = run;\n  return rest;\n}\nconst rowFor = (threadTs, stage, run, history) => ({ thread_ts: threadTs || \"\", stage, state: JSON.stringify({ run: keep(run), history: (history || []).slice(-12) }) });\n\n// What every branch hands to \"Reply ready\": the Slack message to post and the row to save.\nconst reply = (threadTs, text, blocks, stage, run, history) => ({\n  json: {\n    post: { channel: EDITOR, ...(threadTs ? { thread_ts: threadTs } : {}), text: String(text).slice(0, 3000), ...(blocks ? { blocks } : {}), unfurl_links: false },\n    row: rowFor(threadTs, stage, run, history),\n  },\n});\n\n// \"Decide\": joins the Slack event with the thread's saved row and picks a route for \"Route\".\n// script stage: a reply revises the draft, \"Approve script\" makes the video, \"Reject\" ends it.\n// video stage: a reply revises and remakes the video, \"Approve and publish\" posts to the outlet.\n// A tap on an old button, or anything in a finished thread, is ignored.\nconst ev = $(\"Read Slack event\").first().json;\nconst row = $input.first().json;\nlet state;\ntry {\n  state = JSON.parse(row.state);\n} catch {\n  return [];\n}\nconst stage = row.stage;\nconst run = state.run;\nconst history = state.history || [];\nconst chat = { thread_ts: ev.thread_ts, stage, history, user: ev.user, text: ev.text || \"\" };\n\nlet route = \"\";\nif (ev.kind === \"action\") {\n  if (ev.action === \"approve_script\" && stage === \"script\") route = \"approve_script\";\n  else if (ev.action === \"approve_video\" && stage === \"video\") route = \"approve_video\";\n  else if (ev.action === \"reject\" && (stage === \"script\" || stage === \"video\")) route = \"reject\";\n} else if (ev.kind === \"reply\" && (stage === \"script\" || stage === \"video\")) {\n  route = \"revise\";\n}\nif (!route) return [];\n\nconst item = { ...run, chat, route };\nif (route === \"approve_script\") {\n  item.working_note = \"Script approved. Recording the voice and making the video; this takes about 20 seconds.\";\n}\nif (route === \"revise\") {\n  const ask = {\n    stage: stage === \"script\" ? \"script review: no voice or video made yet\" : \"video review: the editor has seen the video\",\n    story: run.story,\n    current_draft: draftOf(run),\n    conversation: history,\n    editor_message: ev.text,\n  };\n  item.claude_body = {\n    model: \"claude-sonnet-5-5\",\n    max_tokens: 4000,\n    output_config: { effort: \"low\" },\n    system: \"You are the newsroom bot for a Vancouver local news outlet. An editor is reviewing a short data video in a Slack thread and has replied to you. You get one JSON object: the story worked out from City of Vancouver open data, the current draft, the review stage, the conversation so far, and the editor's new message.\\n\\nDecide what the editor wants:\\n- A change to the draft: make it, keeping everything they did not ask to change.\\n- A question about the data or the draft: answer it from the story JSON only.\\n- Something you cannot do (a number that is not in the story, a cause the data does not show, a change to the voice, colours or video length): say so plainly and offer what you can do.\\n\\nThe draft has these fields, all strings:\\n- headline: at most 8 words\\n- script: 35 to 45 words, 3 sentences, read aloud in under 18 seconds. Say \\\"this week\\\", never a date. Name at most 2 neighbourhoods. The source is shown on screen, so the script does not name it\\n- callout_label: one line under the big number\\n- chart_title: what the bars show\\n- chart_kind: \\\"by_area\\\" (this week by neighbourhood, top 6) or \\\"weekly\\\" (the count for each of the last 6 weeks). Only \\\"weekly\\\" if by_area is empty\\n- blurb: 2 sentences for the newsletter, naming the source from source_note\\n\\nRules for anything you write, in the draft or in your reply:\\n- Use only numbers that appear in the story JSON, written in digits exactly as they appear there. Never round, add, subtract or work out a new number. Write \\\"8 weeks\\\", not \\\"eight weeks\\\".\\n- Never mention an address, street or person.\\n- Plain, calm, specific. No hype, no exclamation marks, no guessing at causes.\\n\\nReturn only a JSON object, no other text:\\n{\\\"reply\\\": \\\"one or two short sentences to the editor saying what you changed or answering them\\\", \\\"draft\\\": {the full draft with all six fields} or null if nothing should change}\\n\",\n    messages: [{ role: \"user\", content: JSON.stringify(ask, null, 2) }],\n  };\n}\nreturn [{ json: item }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        600
+      ],
+      "id": "70fb97b8-e8c5-5d24-ad6f-cb2b23af0a38",
+      "name": "Decide"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "37a4cda1-a97c-5743-aa37-ce7e067beecf",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "revise",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "revise"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7679c043-c8c7-5f07-ae99-fcfde7c59d54",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "approve_script",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "approve_script"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "89dd504d-d7a8-59db-a73c-1872f02baf39",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "approve_video",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "approve_video"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "997bc61d-6448-5252-a31a-c2ec7b733dda",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "reject",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "reject"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        880,
+        600
+      ],
+      "id": "b27e4309-d72d-5ebc-a58c-21c6c6700a48",
+      "name": "Route"
+    },
+    {
+      "parameters": {
+        "options": {
+          "timeout": 60000
+        },
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.claude_body) }}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        400
+      ],
+      "id": "4bf1617f-fb60-5b1b-a354-10d90ede7209",
+      "name": "Revise with Claude",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "anthropicApi": {
+          "name": "Anthropic"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Shared by \"3 Write\" and \"7 Chat\" (build.mjs puts it at the top of their Code nodes).\n// Turns a draft (headline, script, callout_label, chart_title, chart_kind, blurb) into the render spec,\n// builds the chart from the story itself, and lists every problem the guard finds (must-work row 9).\nconst numbersIn = (text) => (String(text).match(/\\d[\\d,]*(?:\\.\\d+)?/g) || []).map((m) => Number(m.replace(/,/g, \"\")));\n\nfunction allowedNumbers(story) {\n  const allowed = new Set([7, 8, 9]); // the window lengths: 7 days, 8 weeks, 9 weeks\n  for (const n of numbersIn(JSON.stringify(story))) { allowed.add(n); allowed.add(Math.abs(n)); }\n  return allowed;\n}\n\nfunction unknownNumbers(story, fields) {\n  const allowed = allowedNumbers(story);\n  const unknown = [];\n  for (const [field, text] of Object.entries(fields)) {\n    for (const n of numbersIn(text)) if (!allowed.has(n)) unknown.push(`${n} in ${field}`);\n  }\n  return unknown;\n}\n\nfunction buildSpec(story, d) {\n  const hasAreas = (story.by_area || []).length > 0;\n  const chartKind = d.chart_kind === \"weekly\" || !hasAreas ? \"weekly\" : d.chart_kind === \"by_area\" ? \"by_area\" : story.chart_kind;\n  const callout = {\n    value: story.direction === \"up\" ? `${story.ratio}×` : `${Math.abs(story.pct_change)}%`,\n    label: d.callout_label,\n  };\n  const spec = {\n    headline: d.headline,\n    script: d.script,\n    callout,\n    chart: {\n      kind: \"bar\",\n      title: d.chart_title,\n      data: chartKind === \"weekly\"\n        ? story.weekly.slice(-6).map((w) => ({ label: new Date(w.week_ending + \"T12:00:00Z\").toLocaleDateString(\"en-CA\", { month: \"short\", day: \"numeric\", timeZone: \"UTC\" }), value: w.count }))\n        : story.by_area.slice(0, 6).map((a) => ({ label: a.area, value: a.count })),\n      source_note: story.source_note,\n    },\n    duration_s: 20,\n  };\n  const problems = [];\n  const unknown = unknownNumbers(story, { headline: d.headline, script: d.script, callout_value: callout.value, callout_label: d.callout_label, chart_title: d.chart_title, blurb: d.blurb });\n  if (unknown.length) problems.push(`${unknown.join(\", \")} is not in the story`);\n  const words = String(d.script).trim().split(/\\s+/).length;\n  if (words < 25 || words > 50) problems.push(`the script is ${words} words; it needs 25 to 50`);\n  return { spec, chart_kind: chartKind, words, problems };\n}\n\n// The draft as the model sees it, rebuilt from a run.\nconst draftOf = (run) => ({\n  headline: run.spec.headline,\n  script: run.spec.script,\n  callout_label: run.spec.callout.label,\n  chart_title: run.spec.chart.title,\n  chart_kind: run.chart_kind || run.story.chart_kind,\n  blurb: run.blurb,\n});\n\n// Shared by the \"7 Chat\" Code nodes (build.mjs puts it at the top of each): the Slack messages the bot\n// posts, and the row it keeps for each review thread in the \"editor_threads\" data table.\nconst EDITOR = \"C0CHNAKERA9\";\nconst OUTLET = \"C0CHVG02PJM\";\n\nconst section = (text) => ({ type: \"section\", text: { type: \"mrkdwn\", text: String(text).slice(0, 2900) } });\nconst context = (text) => ({ type: \"context\", elements: [{ type: \"mrkdwn\", text: String(text).slice(0, 2900) }] });\nconst button = (text, action, style) => ({ type: \"button\", text: { type: \"plain_text\", text }, action_id: `newsroom_${action}`, value: action, ...(style ? { style } : {}) });\n\nfunction numbersLine(story) {\n  const change = story.direction === \"up\"\n    ? `${story.ratio}× the usual level`\n    : `down ${Math.abs(story.pct_change)}% from the usual level`;\n  return `${story.this_week} ${story.unit} in the week ${story.week_start} to ${story.week_ending}, against an average of ${story.avg_prev_8_weeks} a week over the 8 weeks before (${change}).`;\n}\n\nfunction scriptBlocks(run) {\n  const s = run.story;\n  const spec = run.spec;\n  const areas = (s.by_area || []).slice(0, 6).map((a) => `${a.area} ${a.count}`).join(\", \");\n  const weeks = (s.weekly || []).slice(-6).map((w) => w.count).join(\", \");\n  const chart = spec.chart.data.map((d) => `${d.label} ${d.value}`).join(\", \");\n  return [\n    section(`*${spec.headline}*`),\n    section(`*Script* (${run.script_words || String(spec.script).split(/\\s+/).length} words)\\n>${spec.script}`),\n    section(\n      `*The data*\\n• ${s.dataset}: ${s.type}\\n• ${numbersLine(s)}` +\n        (areas ? `\\n• This week by neighbourhood: ${areas}` : \"\") +\n        (weeks ? `\\n• Last 6 weeks: ${weeks}` : \"\") +\n        `\\n• Source: <${s.source_url}|${s.source_note}>`,\n    ),\n    section(`*On screen*\\n• Big number: ${spec.callout.value}, \"${spec.callout.label}\"\\n• Chart: ${spec.chart.title}\\n• Bars: ${chart}`),\n    section(`*Newsletter blurb*\\n${run.blurb}`),\n  ];\n}\n\nconst scriptButtons = () => ({ type: \"actions\", elements: [button(\"Approve script\", \"approve_script\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst videoButtons = () => ({ type: \"actions\", elements: [button(\"Approve and publish\", \"approve_video\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst HOW_TO_REPLY = \"Reply in this thread to change anything: the script, headline, big number label, chart or blurb. Every number has to come from the city data.\";\n\n// The run without the parts that are large or only for this message.\nfunction keep(run) {\n  const { audio_base64, chat, route, working_note, claude_body, post, row, render, ...rest } = run;\n  return rest;\n}\nconst rowFor = (threadTs, stage, run, history) => ({ thread_ts: threadTs || \"\", stage, state: JSON.stringify({ run: keep(run), history: (history || []).slice(-12) }) });\n\n// What every branch hands to \"Reply ready\": the Slack message to post and the row to save.\nconst reply = (threadTs, text, blocks, stage, run, history) => ({\n  json: {\n    post: { channel: EDITOR, ...(threadTs ? { thread_ts: threadTs } : {}), text: String(text).slice(0, 3000), ...(blocks ? { blocks } : {}), unfurl_links: false },\n    row: rowFor(threadTs, stage, run, history),\n  },\n});\n\n// \"Check revision\": reads Claude's answer, rebuilds the spec from the revised draft and runs the same\n// number guard as Write. A change that fails the guard is not used; the editor is told why.\n// In the video stage, a change to anything on screen or in the script remakes the video.\nconst base = $(\"Decide\").first().json;\nconst res = $input.first().json;\nconst { chat, ...run } = base;\nconst raw = String(res.content?.find((c) => c.type === \"text\")?.text ?? \"\");\nconst history = [...chat.history, { editor: chat.text }];\nconst threadTs = chat.thread_ts;\n\nlet answer;\ntry {\n  answer = JSON.parse(raw.replace(/^[\\s\\S]*?(\\{[\\s\\S]*\\})[\\s\\S]*$/, \"$1\"));\n} catch {\n  const text = \"Sorry, I could not work out a change from that. Could you say it another way?\";\n  return [reply(threadTs, text, null, chat.stage, run, [...history, { bot: text }])];\n}\n\nlet said = String(answer.reply || \"\").trim() || \"Done.\";\n// The reply is checked too, so the bot never states a number the data does not have.\nif (unknownNumbers(run.story, { reply: said }).length) {\n  said = answer.draft ? \"Here is the new version.\" : \"I can only use numbers that are in the city data for this story.\";\n}\n\nif (!answer.draft || typeof answer.draft !== \"object\") {\n  return [reply(threadTs, said, null, chat.stage, run, [...history, { bot: said }])];\n}\n\nconst draft = { ...draftOf(run), ...answer.draft };\nfor (const k of [\"headline\", \"script\", \"callout_label\", \"chart_title\", \"blurb\"]) draft[k] = String(draft[k] ?? \"\").trim();\nconst built = buildSpec(run.story, draft);\nif (built.problems.length) {\n  const text = `I did not make that change: ${built.problems.join(\"; \")}. Every number has to come from the city data. The draft is as it was.`;\n  return [reply(threadTs, text, null, chat.stage, run, [...history, { bot: text }])];\n}\n\nconst revised = { ...run, spec: built.spec, chart_kind: built.chart_kind, blurb: draft.blurb, script_words: built.words };\nconst after = [...history, { bot: said }];\nconst videoChanged = JSON.stringify(built.spec) !== JSON.stringify(run.spec);\n\nif (chat.stage === \"video\" && videoChanged) {\n  // Goes to \"Make voice\", then the new video is posted with its buttons.\n  return [{ json: { ...revised, chat: { ...chat, history: after }, render: true, working_note: `${said} Making a new video; this takes about 20 seconds.` } }];\n}\nconst blocks = [section(said), ...scriptBlocks(revised), context(HOW_TO_REPLY), chat.stage === \"video\" ? videoButtons() : scriptButtons()];\nreturn [reply(threadTs, said, blocks, chat.stage, revised, after)];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        400
+      ],
+      "id": "f1b25429-2f8c-5623-afa4-1e840b6c2cbd",
+      "name": "Check revision"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6a5ba0b3-d02a-5718-a2bc-1a3eb60e255b",
+              "leftValue": "={{ $json.render === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1540,
+        400
+      ],
+      "id": "f75b1626-dc23-553e-a330-e6264b0485b9",
+      "name": "Needs video?"
+    },
+    {
+      "parameters": {
+        "options": {
+          "timeout": 30000
+        },
+        "method": "POST",
+        "url": "https://slack.com/api/chat.postMessage",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ channel: 'C0CHNAKERA9', thread_ts: $json.chat.thread_ts, text: $json.working_note }) }}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        760
+      ],
+      "id": "afed7dda-3cd1-5f25-a605-43279516689e",
+      "name": "Say working on it",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "slackApi": {
+          "name": "Slack"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": "4 Voice"
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1760,
+        600
+      ],
+      "id": "7a05855f-ae56-5b9c-a9c4-8fe52f93714f",
+      "name": "Make voice",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f7eeec1b-a267-57a9-a461-19f8ad765698",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1980,
+        600
+      ],
+      "id": "a32f5e6f-b701-53a6-a681-e31e2be5dfa6",
+      "name": "Voice ok?"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": "5 Render"
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2200,
+        600
+      ],
+      "id": "1e69fa1e-ada5-5d1d-a2ec-496ac6bf1287",
+      "name": "Make video",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8554adcb-905a-5f9e-a150-c1215499cc0d",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2420,
+        600
+      ],
+      "id": "4fb03598-431c-54c2-aae8-9a7598b11e9e",
+      "name": "Video ok?"
+    },
+    {
+      "parameters": {
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        },
+        "url": "={{ $json.video_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "ngrok-skip-browser-warning",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2640,
+        600
+      ],
+      "id": "77ac5949-4254-5c74-a12f-1bb58f0cab58",
+      "name": "Download video",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "options": {
+          "channelId": "C0CHNAKERA9",
+          "threadTs": "={{ $('Make video').first().json.chat.thread_ts }}",
+          "fileName": "={{ $('Make video').first().json.story.topic }}.mp4",
+          "initialComment": "=Video: {{ $('Make video').first().json.spec.headline }}"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2860,
+        600
+      ],
+      "id": "1c3a3f54-cc84-59b6-ad52-d8d7284b2550",
+      "name": "Upload to thread",
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "slackApi": {
+          "name": "Slack"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Shared by \"3 Write\" and \"7 Chat\" (build.mjs puts it at the top of their Code nodes).\n// Turns a draft (headline, script, callout_label, chart_title, chart_kind, blurb) into the render spec,\n// builds the chart from the story itself, and lists every problem the guard finds (must-work row 9).\nconst numbersIn = (text) => (String(text).match(/\\d[\\d,]*(?:\\.\\d+)?/g) || []).map((m) => Number(m.replace(/,/g, \"\")));\n\nfunction allowedNumbers(story) {\n  const allowed = new Set([7, 8, 9]); // the window lengths: 7 days, 8 weeks, 9 weeks\n  for (const n of numbersIn(JSON.stringify(story))) { allowed.add(n); allowed.add(Math.abs(n)); }\n  return allowed;\n}\n\nfunction unknownNumbers(story, fields) {\n  const allowed = allowedNumbers(story);\n  const unknown = [];\n  for (const [field, text] of Object.entries(fields)) {\n    for (const n of numbersIn(text)) if (!allowed.has(n)) unknown.push(`${n} in ${field}`);\n  }\n  return unknown;\n}\n\nfunction buildSpec(story, d) {\n  const hasAreas = (story.by_area || []).length > 0;\n  const chartKind = d.chart_kind === \"weekly\" || !hasAreas ? \"weekly\" : d.chart_kind === \"by_area\" ? \"by_area\" : story.chart_kind;\n  const callout = {\n    value: story.direction === \"up\" ? `${story.ratio}×` : `${Math.abs(story.pct_change)}%`,\n    label: d.callout_label,\n  };\n  const spec = {\n    headline: d.headline,\n    script: d.script,\n    callout,\n    chart: {\n      kind: \"bar\",\n      title: d.chart_title,\n      data: chartKind === \"weekly\"\n        ? story.weekly.slice(-6).map((w) => ({ label: new Date(w.week_ending + \"T12:00:00Z\").toLocaleDateString(\"en-CA\", { month: \"short\", day: \"numeric\", timeZone: \"UTC\" }), value: w.count }))\n        : story.by_area.slice(0, 6).map((a) => ({ label: a.area, value: a.count })),\n      source_note: story.source_note,\n    },\n    duration_s: 20,\n  };\n  const problems = [];\n  const unknown = unknownNumbers(story, { headline: d.headline, script: d.script, callout_value: callout.value, callout_label: d.callout_label, chart_title: d.chart_title, blurb: d.blurb });\n  if (unknown.length) problems.push(`${unknown.join(\", \")} is not in the story`);\n  const words = String(d.script).trim().split(/\\s+/).length;\n  if (words < 25 || words > 50) problems.push(`the script is ${words} words; it needs 25 to 50`);\n  return { spec, chart_kind: chartKind, words, problems };\n}\n\n// The draft as the model sees it, rebuilt from a run.\nconst draftOf = (run) => ({\n  headline: run.spec.headline,\n  script: run.spec.script,\n  callout_label: run.spec.callout.label,\n  chart_title: run.spec.chart.title,\n  chart_kind: run.chart_kind || run.story.chart_kind,\n  blurb: run.blurb,\n});\n\n// Shared by the \"7 Chat\" Code nodes (build.mjs puts it at the top of each): the Slack messages the bot\n// posts, and the row it keeps for each review thread in the \"editor_threads\" data table.\nconst EDITOR = \"C0CHNAKERA9\";\nconst OUTLET = \"C0CHVG02PJM\";\n\nconst section = (text) => ({ type: \"section\", text: { type: \"mrkdwn\", text: String(text).slice(0, 2900) } });\nconst context = (text) => ({ type: \"context\", elements: [{ type: \"mrkdwn\", text: String(text).slice(0, 2900) }] });\nconst button = (text, action, style) => ({ type: \"button\", text: { type: \"plain_text\", text }, action_id: `newsroom_${action}`, value: action, ...(style ? { style } : {}) });\n\nfunction numbersLine(story) {\n  const change = story.direction === \"up\"\n    ? `${story.ratio}× the usual level`\n    : `down ${Math.abs(story.pct_change)}% from the usual level`;\n  return `${story.this_week} ${story.unit} in the week ${story.week_start} to ${story.week_ending}, against an average of ${story.avg_prev_8_weeks} a week over the 8 weeks before (${change}).`;\n}\n\nfunction scriptBlocks(run) {\n  const s = run.story;\n  const spec = run.spec;\n  const areas = (s.by_area || []).slice(0, 6).map((a) => `${a.area} ${a.count}`).join(\", \");\n  const weeks = (s.weekly || []).slice(-6).map((w) => w.count).join(\", \");\n  const chart = spec.chart.data.map((d) => `${d.label} ${d.value}`).join(\", \");\n  return [\n    section(`*${spec.headline}*`),\n    section(`*Script* (${run.script_words || String(spec.script).split(/\\s+/).length} words)\\n>${spec.script}`),\n    section(\n      `*The data*\\n• ${s.dataset}: ${s.type}\\n• ${numbersLine(s)}` +\n        (areas ? `\\n• This week by neighbourhood: ${areas}` : \"\") +\n        (weeks ? `\\n• Last 6 weeks: ${weeks}` : \"\") +\n        `\\n• Source: <${s.source_url}|${s.source_note}>`,\n    ),\n    section(`*On screen*\\n• Big number: ${spec.callout.value}, \"${spec.callout.label}\"\\n• Chart: ${spec.chart.title}\\n• Bars: ${chart}`),\n    section(`*Newsletter blurb*\\n${run.blurb}`),\n  ];\n}\n\nconst scriptButtons = () => ({ type: \"actions\", elements: [button(\"Approve script\", \"approve_script\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst videoButtons = () => ({ type: \"actions\", elements: [button(\"Approve and publish\", \"approve_video\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst HOW_TO_REPLY = \"Reply in this thread to change anything: the script, headline, big number label, chart or blurb. Every number has to come from the city data.\";\n\n// The run without the parts that are large or only for this message.\nfunction keep(run) {\n  const { audio_base64, chat, route, working_note, claude_body, post, row, render, ...rest } = run;\n  return rest;\n}\nconst rowFor = (threadTs, stage, run, history) => ({ thread_ts: threadTs || \"\", stage, state: JSON.stringify({ run: keep(run), history: (history || []).slice(-12) }) });\n\n// What every branch hands to \"Reply ready\": the Slack message to post and the row to save.\nconst reply = (threadTs, text, blocks, stage, run, history) => ({\n  json: {\n    post: { channel: EDITOR, ...(threadTs ? { thread_ts: threadTs } : {}), text: String(text).slice(0, 3000), ...(blocks ? { blocks } : {}), unfurl_links: false },\n    row: rowFor(threadTs, stage, run, history),\n  },\n});\n\n// \"Video card\": after the video is uploaded into the thread, the buttons to publish or reject it.\nconst r = $(\"Make video\").first().json;\nconst chat = r.chat;\nconst text = `Here is the video (${Math.round(r.video_seconds * 10) / 10} seconds). Approve to post it to <#${OUTLET}> with the newsletter blurb.`;\nconst blocks = [section(text), context(HOW_TO_REPLY), videoButtons()];\nreturn [reply(chat.thread_ts, text, blocks, \"video\", r, chat.history)];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3080,
+        600
+      ],
+      "id": "4a4b2799-06f5-5d71-ab94-1543e6d84539",
+      "name": "Video card"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Shared by \"3 Write\" and \"7 Chat\" (build.mjs puts it at the top of their Code nodes).\n// Turns a draft (headline, script, callout_label, chart_title, chart_kind, blurb) into the render spec,\n// builds the chart from the story itself, and lists every problem the guard finds (must-work row 9).\nconst numbersIn = (text) => (String(text).match(/\\d[\\d,]*(?:\\.\\d+)?/g) || []).map((m) => Number(m.replace(/,/g, \"\")));\n\nfunction allowedNumbers(story) {\n  const allowed = new Set([7, 8, 9]); // the window lengths: 7 days, 8 weeks, 9 weeks\n  for (const n of numbersIn(JSON.stringify(story))) { allowed.add(n); allowed.add(Math.abs(n)); }\n  return allowed;\n}\n\nfunction unknownNumbers(story, fields) {\n  const allowed = allowedNumbers(story);\n  const unknown = [];\n  for (const [field, text] of Object.entries(fields)) {\n    for (const n of numbersIn(text)) if (!allowed.has(n)) unknown.push(`${n} in ${field}`);\n  }\n  return unknown;\n}\n\nfunction buildSpec(story, d) {\n  const hasAreas = (story.by_area || []).length > 0;\n  const chartKind = d.chart_kind === \"weekly\" || !hasAreas ? \"weekly\" : d.chart_kind === \"by_area\" ? \"by_area\" : story.chart_kind;\n  const callout = {\n    value: story.direction === \"up\" ? `${story.ratio}×` : `${Math.abs(story.pct_change)}%`,\n    label: d.callout_label,\n  };\n  const spec = {\n    headline: d.headline,\n    script: d.script,\n    callout,\n    chart: {\n      kind: \"bar\",\n      title: d.chart_title,\n      data: chartKind === \"weekly\"\n        ? story.weekly.slice(-6).map((w) => ({ label: new Date(w.week_ending + \"T12:00:00Z\").toLocaleDateString(\"en-CA\", { month: \"short\", day: \"numeric\", timeZone: \"UTC\" }), value: w.count }))\n        : story.by_area.slice(0, 6).map((a) => ({ label: a.area, value: a.count })),\n      source_note: story.source_note,\n    },\n    duration_s: 20,\n  };\n  const problems = [];\n  const unknown = unknownNumbers(story, { headline: d.headline, script: d.script, callout_value: callout.value, callout_label: d.callout_label, chart_title: d.chart_title, blurb: d.blurb });\n  if (unknown.length) problems.push(`${unknown.join(\", \")} is not in the story`);\n  const words = String(d.script).trim().split(/\\s+/).length;\n  if (words < 25 || words > 50) problems.push(`the script is ${words} words; it needs 25 to 50`);\n  return { spec, chart_kind: chartKind, words, problems };\n}\n\n// The draft as the model sees it, rebuilt from a run.\nconst draftOf = (run) => ({\n  headline: run.spec.headline,\n  script: run.spec.script,\n  callout_label: run.spec.callout.label,\n  chart_title: run.spec.chart.title,\n  chart_kind: run.chart_kind || run.story.chart_kind,\n  blurb: run.blurb,\n});\n\n// Shared by the \"7 Chat\" Code nodes (build.mjs puts it at the top of each): the Slack messages the bot\n// posts, and the row it keeps for each review thread in the \"editor_threads\" data table.\nconst EDITOR = \"C0CHNAKERA9\";\nconst OUTLET = \"C0CHVG02PJM\";\n\nconst section = (text) => ({ type: \"section\", text: { type: \"mrkdwn\", text: String(text).slice(0, 2900) } });\nconst context = (text) => ({ type: \"context\", elements: [{ type: \"mrkdwn\", text: String(text).slice(0, 2900) }] });\nconst button = (text, action, style) => ({ type: \"button\", text: { type: \"plain_text\", text }, action_id: `newsroom_${action}`, value: action, ...(style ? { style } : {}) });\n\nfunction numbersLine(story) {\n  const change = story.direction === \"up\"\n    ? `${story.ratio}× the usual level`\n    : `down ${Math.abs(story.pct_change)}% from the usual level`;\n  return `${story.this_week} ${story.unit} in the week ${story.week_start} to ${story.week_ending}, against an average of ${story.avg_prev_8_weeks} a week over the 8 weeks before (${change}).`;\n}\n\nfunction scriptBlocks(run) {\n  const s = run.story;\n  const spec = run.spec;\n  const areas = (s.by_area || []).slice(0, 6).map((a) => `${a.area} ${a.count}`).join(\", \");\n  const weeks = (s.weekly || []).slice(-6).map((w) => w.count).join(\", \");\n  const chart = spec.chart.data.map((d) => `${d.label} ${d.value}`).join(\", \");\n  return [\n    section(`*${spec.headline}*`),\n    section(`*Script* (${run.script_words || String(spec.script).split(/\\s+/).length} words)\\n>${spec.script}`),\n    section(\n      `*The data*\\n• ${s.dataset}: ${s.type}\\n• ${numbersLine(s)}` +\n        (areas ? `\\n• This week by neighbourhood: ${areas}` : \"\") +\n        (weeks ? `\\n• Last 6 weeks: ${weeks}` : \"\") +\n        `\\n• Source: <${s.source_url}|${s.source_note}>`,\n    ),\n    section(`*On screen*\\n• Big number: ${spec.callout.value}, \"${spec.callout.label}\"\\n• Chart: ${spec.chart.title}\\n• Bars: ${chart}`),\n    section(`*Newsletter blurb*\\n${run.blurb}`),\n  ];\n}\n\nconst scriptButtons = () => ({ type: \"actions\", elements: [button(\"Approve script\", \"approve_script\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst videoButtons = () => ({ type: \"actions\", elements: [button(\"Approve and publish\", \"approve_video\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst HOW_TO_REPLY = \"Reply in this thread to change anything: the script, headline, big number label, chart or blurb. Every number has to come from the city data.\";\n\n// The run without the parts that are large or only for this message.\nfunction keep(run) {\n  const { audio_base64, chat, route, working_note, claude_body, post, row, render, ...rest } = run;\n  return rest;\n}\nconst rowFor = (threadTs, stage, run, history) => ({ thread_ts: threadTs || \"\", stage, state: JSON.stringify({ run: keep(run), history: (history || []).slice(-12) }) });\n\n// What every branch hands to \"Reply ready\": the Slack message to post and the row to save.\nconst reply = (threadTs, text, blocks, stage, run, history) => ({\n  json: {\n    post: { channel: EDITOR, ...(threadTs ? { thread_ts: threadTs } : {}), text: String(text).slice(0, 3000), ...(blocks ? { blocks } : {}), unfurl_links: false },\n    row: rowFor(threadTs, stage, run, history),\n  },\n});\n\n// \"Video failed\": Voice, Render or the upload stopped. The thread stays where it was, so the editor\n// can reply with a change or tap the button again.\nlet base;\ntry {\n  base = $(\"Check revision\").first().json;\n} catch {\n  base = $(\"Decide\").first().json;\n}\nconst failed = $input.first().json;\nconst why = failed.reason || failed.error?.message || failed.message || \"a step stopped without saying why\";\nconst text = `I could not make the video: ${why}. Reply with a change, such as a shorter script, and I will try again.`;\nreturn [reply(base.chat.thread_ts, text, null, base.chat.stage, base, [...base.chat.history, { bot: text }])];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2640,
+        880
+      ],
+      "id": "99f6c097-f9e1-55c6-aea7-85cdbb6e40a1",
+      "name": "Video failed"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": "6 Publish"
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1100,
+        1000
+      ],
+      "id": "61425659-0da8-56c7-ad08-f9bfe2f6790a",
+      "name": "Publish it",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "aaecde80-2b95-571e-a768-1f06605df25b",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1320,
+        1000
+      ],
+      "id": "6d106e41-934b-5ff3-a15e-56cd03b37d9e",
+      "name": "Published?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Shared by \"3 Write\" and \"7 Chat\" (build.mjs puts it at the top of their Code nodes).\n// Turns a draft (headline, script, callout_label, chart_title, chart_kind, blurb) into the render spec,\n// builds the chart from the story itself, and lists every problem the guard finds (must-work row 9).\nconst numbersIn = (text) => (String(text).match(/\\d[\\d,]*(?:\\.\\d+)?/g) || []).map((m) => Number(m.replace(/,/g, \"\")));\n\nfunction allowedNumbers(story) {\n  const allowed = new Set([7, 8, 9]); // the window lengths: 7 days, 8 weeks, 9 weeks\n  for (const n of numbersIn(JSON.stringify(story))) { allowed.add(n); allowed.add(Math.abs(n)); }\n  return allowed;\n}\n\nfunction unknownNumbers(story, fields) {\n  const allowed = allowedNumbers(story);\n  const unknown = [];\n  for (const [field, text] of Object.entries(fields)) {\n    for (const n of numbersIn(text)) if (!allowed.has(n)) unknown.push(`${n} in ${field}`);\n  }\n  return unknown;\n}\n\nfunction buildSpec(story, d) {\n  const hasAreas = (story.by_area || []).length > 0;\n  const chartKind = d.chart_kind === \"weekly\" || !hasAreas ? \"weekly\" : d.chart_kind === \"by_area\" ? \"by_area\" : story.chart_kind;\n  const callout = {\n    value: story.direction === \"up\" ? `${story.ratio}×` : `${Math.abs(story.pct_change)}%`,\n    label: d.callout_label,\n  };\n  const spec = {\n    headline: d.headline,\n    script: d.script,\n    callout,\n    chart: {\n      kind: \"bar\",\n      title: d.chart_title,\n      data: chartKind === \"weekly\"\n        ? story.weekly.slice(-6).map((w) => ({ label: new Date(w.week_ending + \"T12:00:00Z\").toLocaleDateString(\"en-CA\", { month: \"short\", day: \"numeric\", timeZone: \"UTC\" }), value: w.count }))\n        : story.by_area.slice(0, 6).map((a) => ({ label: a.area, value: a.count })),\n      source_note: story.source_note,\n    },\n    duration_s: 20,\n  };\n  const problems = [];\n  const unknown = unknownNumbers(story, { headline: d.headline, script: d.script, callout_value: callout.value, callout_label: d.callout_label, chart_title: d.chart_title, blurb: d.blurb });\n  if (unknown.length) problems.push(`${unknown.join(\", \")} is not in the story`);\n  const words = String(d.script).trim().split(/\\s+/).length;\n  if (words < 25 || words > 50) problems.push(`the script is ${words} words; it needs 25 to 50`);\n  return { spec, chart_kind: chartKind, words, problems };\n}\n\n// The draft as the model sees it, rebuilt from a run.\nconst draftOf = (run) => ({\n  headline: run.spec.headline,\n  script: run.spec.script,\n  callout_label: run.spec.callout.label,\n  chart_title: run.spec.chart.title,\n  chart_kind: run.chart_kind || run.story.chart_kind,\n  blurb: run.blurb,\n});\n\n// Shared by the \"7 Chat\" Code nodes (build.mjs puts it at the top of each): the Slack messages the bot\n// posts, and the row it keeps for each review thread in the \"editor_threads\" data table.\nconst EDITOR = \"C0CHNAKERA9\";\nconst OUTLET = \"C0CHVG02PJM\";\n\nconst section = (text) => ({ type: \"section\", text: { type: \"mrkdwn\", text: String(text).slice(0, 2900) } });\nconst context = (text) => ({ type: \"context\", elements: [{ type: \"mrkdwn\", text: String(text).slice(0, 2900) }] });\nconst button = (text, action, style) => ({ type: \"button\", text: { type: \"plain_text\", text }, action_id: `newsroom_${action}`, value: action, ...(style ? { style } : {}) });\n\nfunction numbersLine(story) {\n  const change = story.direction === \"up\"\n    ? `${story.ratio}× the usual level`\n    : `down ${Math.abs(story.pct_change)}% from the usual level`;\n  return `${story.this_week} ${story.unit} in the week ${story.week_start} to ${story.week_ending}, against an average of ${story.avg_prev_8_weeks} a week over the 8 weeks before (${change}).`;\n}\n\nfunction scriptBlocks(run) {\n  const s = run.story;\n  const spec = run.spec;\n  const areas = (s.by_area || []).slice(0, 6).map((a) => `${a.area} ${a.count}`).join(\", \");\n  const weeks = (s.weekly || []).slice(-6).map((w) => w.count).join(\", \");\n  const chart = spec.chart.data.map((d) => `${d.label} ${d.value}`).join(\", \");\n  return [\n    section(`*${spec.headline}*`),\n    section(`*Script* (${run.script_words || String(spec.script).split(/\\s+/).length} words)\\n>${spec.script}`),\n    section(\n      `*The data*\\n• ${s.dataset}: ${s.type}\\n• ${numbersLine(s)}` +\n        (areas ? `\\n• This week by neighbourhood: ${areas}` : \"\") +\n        (weeks ? `\\n• Last 6 weeks: ${weeks}` : \"\") +\n        `\\n• Source: <${s.source_url}|${s.source_note}>`,\n    ),\n    section(`*On screen*\\n• Big number: ${spec.callout.value}, \"${spec.callout.label}\"\\n• Chart: ${spec.chart.title}\\n• Bars: ${chart}`),\n    section(`*Newsletter blurb*\\n${run.blurb}`),\n  ];\n}\n\nconst scriptButtons = () => ({ type: \"actions\", elements: [button(\"Approve script\", \"approve_script\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst videoButtons = () => ({ type: \"actions\", elements: [button(\"Approve and publish\", \"approve_video\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst HOW_TO_REPLY = \"Reply in this thread to change anything: the script, headline, big number label, chart or blurb. Every number has to come from the city data.\";\n\n// The run without the parts that are large or only for this message.\nfunction keep(run) {\n  const { audio_base64, chat, route, working_note, claude_body, post, row, render, ...rest } = run;\n  return rest;\n}\nconst rowFor = (threadTs, stage, run, history) => ({ thread_ts: threadTs || \"\", stage, state: JSON.stringify({ run: keep(run), history: (history || []).slice(-12) }) });\n\n// What every branch hands to \"Reply ready\": the Slack message to post and the row to save.\nconst reply = (threadTs, text, blocks, stage, run, history) => ({\n  json: {\n    post: { channel: EDITOR, ...(threadTs ? { thread_ts: threadTs } : {}), text: String(text).slice(0, 3000), ...(blocks ? { blocks } : {}), unfurl_links: false },\n    row: rowFor(threadTs, stage, run, history),\n  },\n});\n\n// \"Published note\": 6 Publish posted the video and blurb to the outlet channel.\nconst base = $(\"Decide\").first().json;\nconst text = `Published to <#${OUTLET}> with the newsletter blurb. This thread is closed.`;\nreturn [reply(base.chat.thread_ts, text, null, \"published\", base, [...base.chat.history, { bot: text }])];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        940
+      ],
+      "id": "bfde70bf-99e7-5922-afd8-eeb48da10645",
+      "name": "Published note"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Shared by \"3 Write\" and \"7 Chat\" (build.mjs puts it at the top of their Code nodes).\n// Turns a draft (headline, script, callout_label, chart_title, chart_kind, blurb) into the render spec,\n// builds the chart from the story itself, and lists every problem the guard finds (must-work row 9).\nconst numbersIn = (text) => (String(text).match(/\\d[\\d,]*(?:\\.\\d+)?/g) || []).map((m) => Number(m.replace(/,/g, \"\")));\n\nfunction allowedNumbers(story) {\n  const allowed = new Set([7, 8, 9]); // the window lengths: 7 days, 8 weeks, 9 weeks\n  for (const n of numbersIn(JSON.stringify(story))) { allowed.add(n); allowed.add(Math.abs(n)); }\n  return allowed;\n}\n\nfunction unknownNumbers(story, fields) {\n  const allowed = allowedNumbers(story);\n  const unknown = [];\n  for (const [field, text] of Object.entries(fields)) {\n    for (const n of numbersIn(text)) if (!allowed.has(n)) unknown.push(`${n} in ${field}`);\n  }\n  return unknown;\n}\n\nfunction buildSpec(story, d) {\n  const hasAreas = (story.by_area || []).length > 0;\n  const chartKind = d.chart_kind === \"weekly\" || !hasAreas ? \"weekly\" : d.chart_kind === \"by_area\" ? \"by_area\" : story.chart_kind;\n  const callout = {\n    value: story.direction === \"up\" ? `${story.ratio}×` : `${Math.abs(story.pct_change)}%`,\n    label: d.callout_label,\n  };\n  const spec = {\n    headline: d.headline,\n    script: d.script,\n    callout,\n    chart: {\n      kind: \"bar\",\n      title: d.chart_title,\n      data: chartKind === \"weekly\"\n        ? story.weekly.slice(-6).map((w) => ({ label: new Date(w.week_ending + \"T12:00:00Z\").toLocaleDateString(\"en-CA\", { month: \"short\", day: \"numeric\", timeZone: \"UTC\" }), value: w.count }))\n        : story.by_area.slice(0, 6).map((a) => ({ label: a.area, value: a.count })),\n      source_note: story.source_note,\n    },\n    duration_s: 20,\n  };\n  const problems = [];\n  const unknown = unknownNumbers(story, { headline: d.headline, script: d.script, callout_value: callout.value, callout_label: d.callout_label, chart_title: d.chart_title, blurb: d.blurb });\n  if (unknown.length) problems.push(`${unknown.join(\", \")} is not in the story`);\n  const words = String(d.script).trim().split(/\\s+/).length;\n  if (words < 25 || words > 50) problems.push(`the script is ${words} words; it needs 25 to 50`);\n  return { spec, chart_kind: chartKind, words, problems };\n}\n\n// The draft as the model sees it, rebuilt from a run.\nconst draftOf = (run) => ({\n  headline: run.spec.headline,\n  script: run.spec.script,\n  callout_label: run.spec.callout.label,\n  chart_title: run.spec.chart.title,\n  chart_kind: run.chart_kind || run.story.chart_kind,\n  blurb: run.blurb,\n});\n\n// Shared by the \"7 Chat\" Code nodes (build.mjs puts it at the top of each): the Slack messages the bot\n// posts, and the row it keeps for each review thread in the \"editor_threads\" data table.\nconst EDITOR = \"C0CHNAKERA9\";\nconst OUTLET = \"C0CHVG02PJM\";\n\nconst section = (text) => ({ type: \"section\", text: { type: \"mrkdwn\", text: String(text).slice(0, 2900) } });\nconst context = (text) => ({ type: \"context\", elements: [{ type: \"mrkdwn\", text: String(text).slice(0, 2900) }] });\nconst button = (text, action, style) => ({ type: \"button\", text: { type: \"plain_text\", text }, action_id: `newsroom_${action}`, value: action, ...(style ? { style } : {}) });\n\nfunction numbersLine(story) {\n  const change = story.direction === \"up\"\n    ? `${story.ratio}× the usual level`\n    : `down ${Math.abs(story.pct_change)}% from the usual level`;\n  return `${story.this_week} ${story.unit} in the week ${story.week_start} to ${story.week_ending}, against an average of ${story.avg_prev_8_weeks} a week over the 8 weeks before (${change}).`;\n}\n\nfunction scriptBlocks(run) {\n  const s = run.story;\n  const spec = run.spec;\n  const areas = (s.by_area || []).slice(0, 6).map((a) => `${a.area} ${a.count}`).join(\", \");\n  const weeks = (s.weekly || []).slice(-6).map((w) => w.count).join(\", \");\n  const chart = spec.chart.data.map((d) => `${d.label} ${d.value}`).join(\", \");\n  return [\n    section(`*${spec.headline}*`),\n    section(`*Script* (${run.script_words || String(spec.script).split(/\\s+/).length} words)\\n>${spec.script}`),\n    section(\n      `*The data*\\n• ${s.dataset}: ${s.type}\\n• ${numbersLine(s)}` +\n        (areas ? `\\n• This week by neighbourhood: ${areas}` : \"\") +\n        (weeks ? `\\n• Last 6 weeks: ${weeks}` : \"\") +\n        `\\n• Source: <${s.source_url}|${s.source_note}>`,\n    ),\n    section(`*On screen*\\n• Big number: ${spec.callout.value}, \"${spec.callout.label}\"\\n• Chart: ${spec.chart.title}\\n• Bars: ${chart}`),\n    section(`*Newsletter blurb*\\n${run.blurb}`),\n  ];\n}\n\nconst scriptButtons = () => ({ type: \"actions\", elements: [button(\"Approve script\", \"approve_script\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst videoButtons = () => ({ type: \"actions\", elements: [button(\"Approve and publish\", \"approve_video\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst HOW_TO_REPLY = \"Reply in this thread to change anything: the script, headline, big number label, chart or blurb. Every number has to come from the city data.\";\n\n// The run without the parts that are large or only for this message.\nfunction keep(run) {\n  const { audio_base64, chat, route, working_note, claude_body, post, row, render, ...rest } = run;\n  return rest;\n}\nconst rowFor = (threadTs, stage, run, history) => ({ thread_ts: threadTs || \"\", stage, state: JSON.stringify({ run: keep(run), history: (history || []).slice(-12) }) });\n\n// What every branch hands to \"Reply ready\": the Slack message to post and the row to save.\nconst reply = (threadTs, text, blocks, stage, run, history) => ({\n  json: {\n    post: { channel: EDITOR, ...(threadTs ? { thread_ts: threadTs } : {}), text: String(text).slice(0, 3000), ...(blocks ? { blocks } : {}), unfurl_links: false },\n    row: rowFor(threadTs, stage, run, history),\n  },\n});\n\n// \"Publish failed note\": 6 Publish stopped; the editor can tap Approve and publish again.\nconst base = $(\"Decide\").first().json;\nconst failed = $input.first().json;\nconst why = failed.reason || failed.error?.message || \"the publish step stopped\";\nconst text = `Could not publish: ${why}. Tap Approve and publish to try again.`;\nreturn [reply(base.chat.thread_ts, text, null, \"video\", base, [...base.chat.history, { bot: text }])];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        1100
+      ],
+      "id": "37a55e0e-dd72-5c22-a8ff-4c0d057038a5",
+      "name": "Publish failed note"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Shared by \"3 Write\" and \"7 Chat\" (build.mjs puts it at the top of their Code nodes).\n// Turns a draft (headline, script, callout_label, chart_title, chart_kind, blurb) into the render spec,\n// builds the chart from the story itself, and lists every problem the guard finds (must-work row 9).\nconst numbersIn = (text) => (String(text).match(/\\d[\\d,]*(?:\\.\\d+)?/g) || []).map((m) => Number(m.replace(/,/g, \"\")));\n\nfunction allowedNumbers(story) {\n  const allowed = new Set([7, 8, 9]); // the window lengths: 7 days, 8 weeks, 9 weeks\n  for (const n of numbersIn(JSON.stringify(story))) { allowed.add(n); allowed.add(Math.abs(n)); }\n  return allowed;\n}\n\nfunction unknownNumbers(story, fields) {\n  const allowed = allowedNumbers(story);\n  const unknown = [];\n  for (const [field, text] of Object.entries(fields)) {\n    for (const n of numbersIn(text)) if (!allowed.has(n)) unknown.push(`${n} in ${field}`);\n  }\n  return unknown;\n}\n\nfunction buildSpec(story, d) {\n  const hasAreas = (story.by_area || []).length > 0;\n  const chartKind = d.chart_kind === \"weekly\" || !hasAreas ? \"weekly\" : d.chart_kind === \"by_area\" ? \"by_area\" : story.chart_kind;\n  const callout = {\n    value: story.direction === \"up\" ? `${story.ratio}×` : `${Math.abs(story.pct_change)}%`,\n    label: d.callout_label,\n  };\n  const spec = {\n    headline: d.headline,\n    script: d.script,\n    callout,\n    chart: {\n      kind: \"bar\",\n      title: d.chart_title,\n      data: chartKind === \"weekly\"\n        ? story.weekly.slice(-6).map((w) => ({ label: new Date(w.week_ending + \"T12:00:00Z\").toLocaleDateString(\"en-CA\", { month: \"short\", day: \"numeric\", timeZone: \"UTC\" }), value: w.count }))\n        : story.by_area.slice(0, 6).map((a) => ({ label: a.area, value: a.count })),\n      source_note: story.source_note,\n    },\n    duration_s: 20,\n  };\n  const problems = [];\n  const unknown = unknownNumbers(story, { headline: d.headline, script: d.script, callout_value: callout.value, callout_label: d.callout_label, chart_title: d.chart_title, blurb: d.blurb });\n  if (unknown.length) problems.push(`${unknown.join(\", \")} is not in the story`);\n  const words = String(d.script).trim().split(/\\s+/).length;\n  if (words < 25 || words > 50) problems.push(`the script is ${words} words; it needs 25 to 50`);\n  return { spec, chart_kind: chartKind, words, problems };\n}\n\n// The draft as the model sees it, rebuilt from a run.\nconst draftOf = (run) => ({\n  headline: run.spec.headline,\n  script: run.spec.script,\n  callout_label: run.spec.callout.label,\n  chart_title: run.spec.chart.title,\n  chart_kind: run.chart_kind || run.story.chart_kind,\n  blurb: run.blurb,\n});\n\n// Shared by the \"7 Chat\" Code nodes (build.mjs puts it at the top of each): the Slack messages the bot\n// posts, and the row it keeps for each review thread in the \"editor_threads\" data table.\nconst EDITOR = \"C0CHNAKERA9\";\nconst OUTLET = \"C0CHVG02PJM\";\n\nconst section = (text) => ({ type: \"section\", text: { type: \"mrkdwn\", text: String(text).slice(0, 2900) } });\nconst context = (text) => ({ type: \"context\", elements: [{ type: \"mrkdwn\", text: String(text).slice(0, 2900) }] });\nconst button = (text, action, style) => ({ type: \"button\", text: { type: \"plain_text\", text }, action_id: `newsroom_${action}`, value: action, ...(style ? { style } : {}) });\n\nfunction numbersLine(story) {\n  const change = story.direction === \"up\"\n    ? `${story.ratio}× the usual level`\n    : `down ${Math.abs(story.pct_change)}% from the usual level`;\n  return `${story.this_week} ${story.unit} in the week ${story.week_start} to ${story.week_ending}, against an average of ${story.avg_prev_8_weeks} a week over the 8 weeks before (${change}).`;\n}\n\nfunction scriptBlocks(run) {\n  const s = run.story;\n  const spec = run.spec;\n  const areas = (s.by_area || []).slice(0, 6).map((a) => `${a.area} ${a.count}`).join(\", \");\n  const weeks = (s.weekly || []).slice(-6).map((w) => w.count).join(\", \");\n  const chart = spec.chart.data.map((d) => `${d.label} ${d.value}`).join(\", \");\n  return [\n    section(`*${spec.headline}*`),\n    section(`*Script* (${run.script_words || String(spec.script).split(/\\s+/).length} words)\\n>${spec.script}`),\n    section(\n      `*The data*\\n• ${s.dataset}: ${s.type}\\n• ${numbersLine(s)}` +\n        (areas ? `\\n• This week by neighbourhood: ${areas}` : \"\") +\n        (weeks ? `\\n• Last 6 weeks: ${weeks}` : \"\") +\n        `\\n• Source: <${s.source_url}|${s.source_note}>`,\n    ),\n    section(`*On screen*\\n• Big number: ${spec.callout.value}, \"${spec.callout.label}\"\\n• Chart: ${spec.chart.title}\\n• Bars: ${chart}`),\n    section(`*Newsletter blurb*\\n${run.blurb}`),\n  ];\n}\n\nconst scriptButtons = () => ({ type: \"actions\", elements: [button(\"Approve script\", \"approve_script\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst videoButtons = () => ({ type: \"actions\", elements: [button(\"Approve and publish\", \"approve_video\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst HOW_TO_REPLY = \"Reply in this thread to change anything: the script, headline, big number label, chart or blurb. Every number has to come from the city data.\";\n\n// The run without the parts that are large or only for this message.\nfunction keep(run) {\n  const { audio_base64, chat, route, working_note, claude_body, post, row, render, ...rest } = run;\n  return rest;\n}\nconst rowFor = (threadTs, stage, run, history) => ({ thread_ts: threadTs || \"\", stage, state: JSON.stringify({ run: keep(run), history: (history || []).slice(-12) }) });\n\n// What every branch hands to \"Reply ready\": the Slack message to post and the row to save.\nconst reply = (threadTs, text, blocks, stage, run, history) => ({\n  json: {\n    post: { channel: EDITOR, ...(threadTs ? { thread_ts: threadTs } : {}), text: String(text).slice(0, 3000), ...(blocks ? { blocks } : {}), unfurl_links: false },\n    row: rowFor(threadTs, stage, run, history),\n  },\n});\n\n// \"Rejected note\": the editor tapped Reject. Nothing is published and the thread is closed.\nconst base = $(\"Decide\").first().json;\nconst text = \"Rejected. Nothing was published, and this thread is closed.\";\nreturn [reply(base.chat.thread_ts, text, null, \"rejected\", base, [...base.chat.history, { bot: text }])];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        1220
+      ],
+      "id": "f0962210-3b49-5fb0-ab1f-e001f37338b4",
+      "name": "Rejected note"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        3300,
+        300
+      ],
+      "id": "988dd8c2-243f-58dd-a9c8-17921fa7ef2f",
+      "name": "Reply ready"
+    },
+    {
+      "parameters": {
+        "options": {
+          "timeout": 30000
+        },
+        "method": "POST",
+        "url": "https://slack.com/api/chat.postMessage",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.post) }}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3520,
+        300
+      ],
+      "id": "1f8f3a7d-2660-5d4a-a399-31a1a69061ed",
+      "name": "Post to Slack",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "stopWorkflow",
+      "credentials": {
+        "slackApi": {
+          "name": "Slack"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Shared by \"3 Write\" and \"7 Chat\" (build.mjs puts it at the top of their Code nodes).\n// Turns a draft (headline, script, callout_label, chart_title, chart_kind, blurb) into the render spec,\n// builds the chart from the story itself, and lists every problem the guard finds (must-work row 9).\nconst numbersIn = (text) => (String(text).match(/\\d[\\d,]*(?:\\.\\d+)?/g) || []).map((m) => Number(m.replace(/,/g, \"\")));\n\nfunction allowedNumbers(story) {\n  const allowed = new Set([7, 8, 9]); // the window lengths: 7 days, 8 weeks, 9 weeks\n  for (const n of numbersIn(JSON.stringify(story))) { allowed.add(n); allowed.add(Math.abs(n)); }\n  return allowed;\n}\n\nfunction unknownNumbers(story, fields) {\n  const allowed = allowedNumbers(story);\n  const unknown = [];\n  for (const [field, text] of Object.entries(fields)) {\n    for (const n of numbersIn(text)) if (!allowed.has(n)) unknown.push(`${n} in ${field}`);\n  }\n  return unknown;\n}\n\nfunction buildSpec(story, d) {\n  const hasAreas = (story.by_area || []).length > 0;\n  const chartKind = d.chart_kind === \"weekly\" || !hasAreas ? \"weekly\" : d.chart_kind === \"by_area\" ? \"by_area\" : story.chart_kind;\n  const callout = {\n    value: story.direction === \"up\" ? `${story.ratio}×` : `${Math.abs(story.pct_change)}%`,\n    label: d.callout_label,\n  };\n  const spec = {\n    headline: d.headline,\n    script: d.script,\n    callout,\n    chart: {\n      kind: \"bar\",\n      title: d.chart_title,\n      data: chartKind === \"weekly\"\n        ? story.weekly.slice(-6).map((w) => ({ label: new Date(w.week_ending + \"T12:00:00Z\").toLocaleDateString(\"en-CA\", { month: \"short\", day: \"numeric\", timeZone: \"UTC\" }), value: w.count }))\n        : story.by_area.slice(0, 6).map((a) => ({ label: a.area, value: a.count })),\n      source_note: story.source_note,\n    },\n    duration_s: 20,\n  };\n  const problems = [];\n  const unknown = unknownNumbers(story, { headline: d.headline, script: d.script, callout_value: callout.value, callout_label: d.callout_label, chart_title: d.chart_title, blurb: d.blurb });\n  if (unknown.length) problems.push(`${unknown.join(\", \")} is not in the story`);\n  const words = String(d.script).trim().split(/\\s+/).length;\n  if (words < 25 || words > 50) problems.push(`the script is ${words} words; it needs 25 to 50`);\n  return { spec, chart_kind: chartKind, words, problems };\n}\n\n// The draft as the model sees it, rebuilt from a run.\nconst draftOf = (run) => ({\n  headline: run.spec.headline,\n  script: run.spec.script,\n  callout_label: run.spec.callout.label,\n  chart_title: run.spec.chart.title,\n  chart_kind: run.chart_kind || run.story.chart_kind,\n  blurb: run.blurb,\n});\n\n// Shared by the \"7 Chat\" Code nodes (build.mjs puts it at the top of each): the Slack messages the bot\n// posts, and the row it keeps for each review thread in the \"editor_threads\" data table.\nconst EDITOR = \"C0CHNAKERA9\";\nconst OUTLET = \"C0CHVG02PJM\";\n\nconst section = (text) => ({ type: \"section\", text: { type: \"mrkdwn\", text: String(text).slice(0, 2900) } });\nconst context = (text) => ({ type: \"context\", elements: [{ type: \"mrkdwn\", text: String(text).slice(0, 2900) }] });\nconst button = (text, action, style) => ({ type: \"button\", text: { type: \"plain_text\", text }, action_id: `newsroom_${action}`, value: action, ...(style ? { style } : {}) });\n\nfunction numbersLine(story) {\n  const change = story.direction === \"up\"\n    ? `${story.ratio}× the usual level`\n    : `down ${Math.abs(story.pct_change)}% from the usual level`;\n  return `${story.this_week} ${story.unit} in the week ${story.week_start} to ${story.week_ending}, against an average of ${story.avg_prev_8_weeks} a week over the 8 weeks before (${change}).`;\n}\n\nfunction scriptBlocks(run) {\n  const s = run.story;\n  const spec = run.spec;\n  const areas = (s.by_area || []).slice(0, 6).map((a) => `${a.area} ${a.count}`).join(\", \");\n  const weeks = (s.weekly || []).slice(-6).map((w) => w.count).join(\", \");\n  const chart = spec.chart.data.map((d) => `${d.label} ${d.value}`).join(\", \");\n  return [\n    section(`*${spec.headline}*`),\n    section(`*Script* (${run.script_words || String(spec.script).split(/\\s+/).length} words)\\n>${spec.script}`),\n    section(\n      `*The data*\\n• ${s.dataset}: ${s.type}\\n• ${numbersLine(s)}` +\n        (areas ? `\\n• This week by neighbourhood: ${areas}` : \"\") +\n        (weeks ? `\\n• Last 6 weeks: ${weeks}` : \"\") +\n        `\\n• Source: <${s.source_url}|${s.source_note}>`,\n    ),\n    section(`*On screen*\\n• Big number: ${spec.callout.value}, \"${spec.callout.label}\"\\n• Chart: ${spec.chart.title}\\n• Bars: ${chart}`),\n    section(`*Newsletter blurb*\\n${run.blurb}`),\n  ];\n}\n\nconst scriptButtons = () => ({ type: \"actions\", elements: [button(\"Approve script\", \"approve_script\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst videoButtons = () => ({ type: \"actions\", elements: [button(\"Approve and publish\", \"approve_video\", \"primary\"), button(\"Reject\", \"reject\", \"danger\")] });\nconst HOW_TO_REPLY = \"Reply in this thread to change anything: the script, headline, big number label, chart or blurb. Every number has to come from the city data.\";\n\n// The run without the parts that are large or only for this message.\nfunction keep(run) {\n  const { audio_base64, chat, route, working_note, claude_body, post, row, render, ...rest } = run;\n  return rest;\n}\nconst rowFor = (threadTs, stage, run, history) => ({ thread_ts: threadTs || \"\", stage, state: JSON.stringify({ run: keep(run), history: (history || []).slice(-12) }) });\n\n// What every branch hands to \"Reply ready\": the Slack message to post and the row to save.\nconst reply = (threadTs, text, blocks, stage, run, history) => ({\n  json: {\n    post: { channel: EDITOR, ...(threadTs ? { thread_ts: threadTs } : {}), text: String(text).slice(0, 3000), ...(blocks ? { blocks } : {}), unfurl_links: false },\n    row: rowFor(threadTs, stage, run, history),\n  },\n});\n\n// \"Check Slack\": Slack answers 200 even when a post fails, so check ok here, then hand the row to\n// \"Save thread\". A new thread's key is the timestamp of the message just posted.\nconst r = $input.first().json;\nif (!r.ok) throw new Error(`Slack did not post the message: ${r.error || JSON.stringify(r).slice(0, 200)}`);\nconst row = $(\"Reply ready\").first().json.row;\nreturn [{ json: { ...row, thread_ts: row.thread_ts || r.ts } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3740,
+        300
+      ],
+      "id": "af026ba8-da81-5f46-ac50-49d0376f8f76",
+      "name": "Check Slack"
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "editor_threads"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "thread_ts",
+              "condition": "eq",
+              "keyValue": "={{ $json.thread_ts }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "thread_ts",
+              "displayName": "thread_ts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stage",
+              "displayName": "stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3960,
+        300
+      ],
+      "id": "3f17976d-5a31-5d5f-a070-3e82dcea859a",
+      "name": "Save thread"
+    },
+    {
+      "parameters": {
+        "content": "## 7 Chat\nThe editor's review, as a conversation in one Slack thread per story.\n\n**Start review** posts the headline, script, the data behind it and what goes on screen, with Approve script and Reject. Replies in the thread go to Claude (**Revise with Claude**), and every change passes the same number guard as Write. **Approve script** makes the voice and video and posts them in the thread; replies can still change it, which remakes the video. **Approve and publish** runs 6 Publish.\n\nEach thread's draft and history are saved in the data table `editor_threads`. Slack reaches **Slack event** through the router, which checks Slack's signature.",
+        "height": 400,
+        "width": 520,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -420
+      ],
+      "id": "702f28f3-4817-5504-aa4f-baf607470954",
+      "name": "About Chat"
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Start review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sample run": {
+      "main": [
+        [
+          {
+            "node": "Start review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start review": {
+      "main": [
+        [
+          {
+            "node": "Reply ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack event": {
+      "main": [
+        [
+          {
+            "node": "Read Slack event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Slack event": {
+      "main": [
+        [
+          {
+            "node": "Find thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find thread": {
+      "main": [
+        [
+          {
+            "node": "Decide",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decide": {
+      "main": [
+        [
+          {
+            "node": "Route",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route": {
+      "main": [
+        [
+          {
+            "node": "Revise with Claude",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Say working on it",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Make voice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Publish it",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Rejected note",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revise with Claude": {
+      "main": [
+        [
+          {
+            "node": "Check revision",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check revision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check revision": {
+      "main": [
+        [
+          {
+            "node": "Needs video?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs video?": {
+      "main": [
+        [
+          {
+            "node": "Say working on it",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Make voice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make voice": {
+      "main": [
+        [
+          {
+            "node": "Voice ok?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Video failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voice ok?": {
+      "main": [
+        [
+          {
+            "node": "Make video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Video failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make video": {
+      "main": [
+        [
+          {
+            "node": "Video ok?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Video failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video ok?": {
+      "main": [
+        [
+          {
+            "node": "Download video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Video failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download video": {
+      "main": [
+        [
+          {
+            "node": "Upload to thread",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Video failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to thread": {
+      "main": [
+        [
+          {
+            "node": "Video card",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Video failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video card": {
+      "main": [
+        [
+          {
+            "node": "Reply ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video failed": {
+      "main": [
+        [
+          {
+            "node": "Reply ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish it": {
+      "main": [
+        [
+          {
+            "node": "Published?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Publish failed note",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Published?": {
+      "main": [
+        [
+          {
+            "node": "Published note",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Publish failed note",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Published note": {
+      "main": [
+        [
+          {
+            "node": "Reply ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish failed note": {
+      "main": [
+        [
+          {
+            "node": "Reply ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rejected note": {
+      "main": [
+        [
+          {
+            "node": "Reply ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply ready": {
+      "main": [
+        [
+          {
+            "node": "Post to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to Slack": {
+      "main": [
+        [
+          {
+            "node": "Check Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Slack": {
+      "main": [
+        [
+          {
+            "node": "Save thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test webhook": {
+      "main": [
+        [
+          {
+            "node": "Sample run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

@@ -25,6 +25,12 @@ const VOICE_ID = "JBFqnCBsd6RMkjVDRZzb"; // an ElevenLabs premade voice; change 
 const node = (name, type, typeVersion, position, parameters = {}, extra = {}) =>
   ({ parameters, type, typeVersion, position, id: "", name, ...extra });
 const codeNode = (name, pos, file) => node(name, "n8n-nodes-base.code", 2, pos, { jsCode: code(file) });
+// A Code node with shared helpers from code/ put above its own code.
+const codeWith = (name, pos, file, shared, fill = {}) => {
+  let js = [...shared, file].map(code).join("\n");
+  for (const [k, v] of Object.entries(fill)) js = js.split(k).join(v);
+  return node(name, "n8n-nodes-base.code", 2, pos, { jsCode: js });
+};
 // The test webhook's body becomes the input; an empty body falls back to this sample.
 const jsonNode = (name, pos, value) =>
   node(name, "n8n-nodes-base.code", 2, pos, { jsCode: `// Input for a run through the test webhook (npm run invoke). An empty body uses this sample.\nconst body = $input.first().json.body;\nif (body && typeof body === "object" && Object.keys(body).length) return [{ json: body }];\nreturn [{ json: ${JSON.stringify(value, null, 2)} }];\n` });
@@ -207,9 +213,9 @@ const out = {};
     jsonNode("Sample story", [220, 200], { ok: true, story: sampleStory, test_tamper: false }),
     noop("Input", [440, 100]),
     write,
-    codeNode("Build spec and check numbers", [900, 0], "write-check.js"),
+    codeWith("Build spec and check numbers", [900, 0], "write-check.js", ["spec-build.js"]),
     codeNode("Failed", [900, 240], "write-failed.js"),
-    sticky("About Write", [-40, -380], "## 3 Write\nClaude (Anthropic API, credential \"Anthropic\") turns the story into a headline, a script of about 50 words, a chart title and a newsletter blurb.\n\n**Build spec and check numbers** builds the chart from the story itself and stops the run if any number in the text is not in the story (the guard).\n\nIts test webhook takes a `story` run; an empty body uses **Sample story**.", 320),
+    sticky("About Write", [-40, -380], "## 3 Write\nClaude (Anthropic API, credential \"Anthropic\") turns the story into a headline, a script of 35 to 45 words, a chart title and a newsletter blurb.\n\n**Build spec and check numbers** builds the chart from the story itself and stops the run if any number in the text is not in the story (the guard).\n\nIts test webhook takes a `story` run; an empty body uses **Sample story**.", 320),
   ];
   const c = {};
   link(c, "When Executed by Another Workflow", [["Input"]]);
@@ -279,59 +285,173 @@ const out = {};
 }
 
 // ---------- 6 Publish ----------
+// Posts an approved video and its blurb to the outlet channel. The editor approves in "7 Chat".
 {
-  const download = (name, pos) => http(name, pos, {
-    url: "={{ $('Input').first().json.video_url }}",
-    sendHeaders: true,
-    headerParameters: { parameters: [{ name: "ngrok-skip-browser-warning", value: "1" }] },
-    options: { timeout: 60000, response: { response: { responseFormat: "file" } } },
-  });
-  const upload = (name, pos, which, comment) => node(name, "n8n-nodes-base.slack", 2.3, pos, {
-    resource: "file",
-    binaryData: true,
-    binaryPropertyName: "data",
-    options: { channelIds: SLACK_CHANNELS[which] ? [SLACK_CHANNELS[which]] : [], fileName: "={{ $('Input').first().json.story.topic }}.mp4", initialComment: comment },
-  }, { onError: "continueErrorOutput", ...SLACK });
-  const message = (name, pos, which, text) => node(name, "n8n-nodes-base.slack", 2.3, pos, {
-    select: "channel", channelId: channel(which), text, otherOptions: { includeLinkToWorkflow: false },
-  }, { onError: "continueErrorOutput", ...SLACK });
-  const ask = node("Ask editor", "n8n-nodes-base.slack", 2.3, [1100, 0], {
-    operation: "sendAndWait",
-    select: "channel",
-    channelId: channel("editor"),
-    message: "={{ (() => { const r = $('Input').first().json; const s = r.story; return `*${r.spec.headline}*\\n${r.spec.script}\\n\\nFrom ${s.dataset}: ${s.this_week} ${s.unit} in the week to ${s.week_ending}, against an average of ${s.avg_prev_8_weeks} over the 8 weeks before.\\nVideo: ${r.video_url}`; })() }}",
-    approvalOptions: { values: { approvalType: "double", approveLabel: "Approve", disapproveLabel: "Reject" } },
-    options: { limitWaitTime: { values: { resumeAmount: 3, resumeUnit: "hours" } } },
-  }, { webhookId: id("6 Publish Ask editor webhook"), onError: "continueErrorOutput", ...SLACK });
   const n = [
     calledBy([0, 0]), testRun([0, 200]),
     jsonNode("Sample run", [220, 200], { ok: true, story: sampleStory, spec: sampleSpec, blurb: sampleBlurb, video_url: "replace with a video_url from 5 Render" }),
     noop("Input", [440, 100]),
-    download("Download video", [660, 100]),
-    upload("Send video to editor", [880, 100], "editor", "=For review: {{ $('Input').first().json.spec.headline }}"),
-    ask,
-    ifOk("Approved?", [1320, 0], "={{ $json.data.approved }}"),
-    download("Download for outlet", [1540, -100]),
-    upload("Post to outlet", [1760, -100], "outlet", "={{ $('Input').first().json.spec.headline }}\n\n{{ $('Input').first().json.blurb }}\n\nSource: {{ $('Input').first().json.story.source_note }}"),
-    message("Newsletter draft", [1980, -100], "outlet", "=Newsletter draft: {{ $('Input').first().json.blurb }}"),
-    message("Tell editor it was rejected", [1540, 140], "editor", "=Not published: {{ $('Input').first().json.spec.headline }}"),
+    http("Download video", [660, 100], {
+      url: "={{ $('Input').first().json.video_url }}",
+      sendHeaders: true,
+      headerParameters: { parameters: [{ name: "ngrok-skip-browser-warning", value: "1" }] },
+      options: { timeout: 60000, response: { response: { responseFormat: "file" } } },
+    }),
+    node("Post to outlet", "n8n-nodes-base.slack", 2.3, [880, 0], {
+      resource: "file",
+      binaryData: true,
+      binaryPropertyName: "data",
+      options: { channelIds: SLACK_CHANNELS.outlet ? [SLACK_CHANNELS.outlet] : [], fileName: "={{ $('Input').first().json.story.topic }}.mp4", initialComment: "={{ $('Input').first().json.spec.headline }}\n\n{{ $('Input').first().json.blurb }}\n\nSource: {{ $('Input').first().json.story.source_note }}" },
+    }, { onError: "continueErrorOutput", ...SLACK }),
+    node("Newsletter draft", "n8n-nodes-base.slack", 2.3, [1100, -100], {
+      select: "channel", channelId: channel("outlet"), text: "=Newsletter draft: {{ $('Input').first().json.blurb }}", otherOptions: { includeLinkToWorkflow: false },
+    }, { onError: "continueErrorOutput", ...SLACK }),
+    codeNode("Published", [1320, -100], "publish-done.js"),
     codeNode("Failed", [1100, 300], "publish-failed.js"),
-    node("Tell editor it failed", "n8n-nodes-base.slack", 2.3, [1320, 300], { select: "channel", channelId: channel("editor"), text: "=Could not publish. {{ $json.reason }}", otherOptions: { includeLinkToWorkflow: false } }, SLACK),
-    sticky("About Publish", [-40, -400], "## 6 Publish\nSends the editor the video in Slack with Approve and Reject, and waits up to 3 hours. Approve posts it to the outlet channel and drafts the newsletter blurb. Reject sends a short note.\n\nCredential: Slack. Channels come from `SLACK_CHANNELS` in the pipeline's build.mjs.\n\nIts test webhook needs a run with a real `video_url`, such as 5 Render's output.", 340),
+    sticky("About Publish", [-40, -400], "## 6 Publish\nPosts an approved video to the outlet channel with its headline, blurb and source, then the newsletter draft. The editor approves it in the Slack thread run by **7 Chat**.\n\nCredential: Slack. Channels come from `SLACK_CHANNELS` in the pipeline's build.mjs.\n\nIts test webhook posts straight to the outlet channel, so it needs a run with a real `video_url`, such as 5 Render's output.", 340),
   ];
   const c = {};
   link(c, "When Executed by Another Workflow", [["Input"]]);
   link(c, "Test run", [["Sample run"]]);
   link(c, "Sample run", [["Input"]]);
   link(c, "Input", [["Download video"]]);
-  link(c, "Download video", [["Send video to editor"], ["Failed"]]);
-  link(c, "Send video to editor", [["Ask editor"], ["Failed"]]);
-  link(c, "Ask editor", [["Approved?"], ["Failed"]]);
-  link(c, "Approved?", [["Download for outlet"], ["Tell editor it was rejected"]]);
-  link(c, "Download for outlet", [["Post to outlet"], ["Failed"]]);
+  link(c, "Download video", [["Post to outlet"], ["Failed"]]);
   link(c, "Post to outlet", [["Newsletter draft"], ["Failed"]]);
-  link(c, "Failed", [["Tell editor it failed"]]);
+  link(c, "Newsletter draft", [["Published"], ["Failed"]]);
   out["6-publish"] = workflow("6 Publish", n, c);
+}
+
+// ---------- 7 Chat ----------
+// The editor's review, as a conversation in one Slack thread per story. Each thread's draft and
+// history live in the n8n data table "editor_threads" (deploy creates it). Slack reaches the
+// "Slack event" webhook through the router on the host laptop, which checks Slack's signature.
+{
+  const SHARED = ["spec-build.js", "chat-cards.js"];
+  const fill = {
+    __EDITOR_CHANNEL__: SLACK_CHANNELS.editor,
+    __OUTLET_CHANNEL__: SLACK_CHANNELS.outlet,
+    __MODEL__: MODEL,
+    __CHAT_PROMPT__: JSON.stringify(code("chat-prompt.md")),
+  };
+  const chatCode = (name, pos, file) => codeWith(name, pos, file, SHARED, fill);
+  const TABLE = { __rl: true, mode: "name", value: "editor_threads" };
+  const byThread = { matchType: "allConditions", filters: { conditions: [{ keyName: "thread_ts", condition: "eq", keyValue: "={{ $json.thread_ts }}" }] } };
+  const column = (name) => ({ id: name, displayName: name, required: false, defaultMatch: false, display: true, type: "string", canBeUsedToMatch: true });
+  const slackPost = (name, pos, body, extra = {}) => http(name, pos, {
+    method: "POST",
+    url: "https://slack.com/api/chat.postMessage",
+    authentication: "predefinedCredentialType",
+    nodeCredentialType: "slackApi",
+    sendBody: true,
+    specifyBody: "json",
+    jsonBody: body,
+  }, { ...SLACK, ...extra });
+  const routes = ["revise", "approve_script", "approve_video", "reject"];
+  const n = [
+    calledBy([0, 0]), testRun([0, 200]),
+    jsonNode("Sample run", [220, 200], { ok: true, story: sampleStory, spec: sampleSpec, chart_kind: "by_area", blurb: sampleBlurb, script_words: 47 }),
+    chatCode("Start review", [440, 100], "chat-start.js"),
+    node("Slack event", "n8n-nodes-base.webhook", 2, [0, 600], { httpMethod: "POST", path: "slack-events", responseMode: "onReceived", options: {} }, { webhookId: id("slack-events webhook") }),
+    chatCode("Read Slack event", [220, 600], "chat-read-event.js"),
+    node("Find thread", "n8n-nodes-base.dataTable", 1.1, [440, 600], { resource: "row", operation: "get", dataTableId: TABLE, ...byThread, limit: 1 }),
+    chatCode("Decide", [660, 600], "chat-decide.js"),
+    node("Route", "n8n-nodes-base.switch", 3.2, [880, 600], {
+      rules: {
+        values: routes.map((r) => ({
+          conditions: {
+            options: { caseSensitive: true, leftValue: "", typeValidation: "strict", version: 2 },
+            conditions: [{ id: id(`Route ${r}`), leftValue: "={{ $json.route }}", rightValue: r, operator: { type: "string", operation: "equals" } }],
+            combinator: "and",
+          },
+          renameOutput: true,
+          outputKey: r,
+        })),
+      },
+      options: {},
+    }),
+    http("Revise with Claude", [1100, 400], {
+      method: "POST",
+      url: "https://api.anthropic.com/v1/messages",
+      authentication: "predefinedCredentialType",
+      nodeCredentialType: "anthropicApi",
+      sendHeaders: true,
+      headerParameters: { parameters: [{ name: "anthropic-version", value: "2023-06-01" }] },
+      sendBody: true,
+      specifyBody: "json",
+      jsonBody: "={{ JSON.stringify($json.claude_body) }}",
+      options: { timeout: 60000 },
+    }, { maxTries: 2, ...creds("anthropicApi", "Anthropic") }),
+    chatCode("Check revision", [1320, 400], "chat-check.js"),
+    ifOk("Needs video?", [1540, 400], "={{ $json.render === true }}"),
+    slackPost("Say working on it", [1760, 760], "={{ JSON.stringify({ channel: '" + SLACK_CHANNELS.editor + "', thread_ts: $json.chat.thread_ts, text: $json.working_note }) }}", { onError: "continueRegularOutput" }),
+    execWf("Make voice", [1760, 600], "4 Voice"),
+    ifOk("Voice ok?", [1980, 600]),
+    execWf("Make video", [2200, 600], "5 Render"),
+    ifOk("Video ok?", [2420, 600]),
+    http("Download video", [2640, 600], {
+      url: "={{ $json.video_url }}",
+      sendHeaders: true,
+      headerParameters: { parameters: [{ name: "ngrok-skip-browser-warning", value: "1" }] },
+      options: { timeout: 60000, response: { response: { responseFormat: "file" } } },
+    }),
+    node("Upload to thread", "n8n-nodes-base.slack", 2.3, [2860, 600], {
+      resource: "file",
+      binaryData: true,
+      binaryPropertyName: "data",
+      options: {
+        channelId: SLACK_CHANNELS.editor,
+        threadTs: "={{ $('Make video').first().json.chat.thread_ts }}",
+        fileName: "={{ $('Make video').first().json.story.topic }}.mp4",
+        initialComment: "=Video: {{ $('Make video').first().json.spec.headline }}",
+      },
+    }, { onError: "continueErrorOutput", ...SLACK }),
+    chatCode("Video card", [3080, 600], "chat-video-card.js"),
+    chatCode("Video failed", [2640, 880], "chat-video-failed.js"),
+    execWf("Publish it", [1100, 1000], "6 Publish"),
+    ifOk("Published?", [1320, 1000]),
+    chatCode("Published note", [1540, 940], "chat-published.js"),
+    chatCode("Publish failed note", [1540, 1100], "chat-publish-failed.js"),
+    chatCode("Rejected note", [1100, 1220], "chat-rejected.js"),
+    noop("Reply ready", [3300, 300]),
+    slackPost("Post to Slack", [3520, 300], "={{ JSON.stringify($json.post) }}", { retryOnFail: true, onError: "stopWorkflow" }),
+    chatCode("Check Slack", [3740, 300], "chat-saved.js"),
+    node("Save thread", "n8n-nodes-base.dataTable", 1.1, [3960, 300], {
+      resource: "row", operation: "upsert", dataTableId: TABLE, ...byThread,
+      columns: { mappingMode: "autoMapInputData", value: {}, matchingColumns: [], schema: ["thread_ts", "stage", "state"].map(column) },
+      options: {},
+    }),
+    sticky("About Chat", [-40, -420], "## 7 Chat\nThe editor's review, as a conversation in one Slack thread per story.\n\n**Start review** posts the headline, script, the data behind it and what goes on screen, with Approve script and Reject. Replies in the thread go to Claude (**Revise with Claude**), and every change passes the same number guard as Write. **Approve script** makes the voice and video and posts them in the thread; replies can still change it, which remakes the video. **Approve and publish** runs 6 Publish.\n\nEach thread's draft and history are saved in the data table `editor_threads`. Slack reaches **Slack event** through the router, which checks Slack's signature.", 400, 520),
+  ];
+  const c = {};
+  link(c, "When Executed by Another Workflow", [["Start review"]]);
+  link(c, "Test run", [["Sample run"]]);
+  link(c, "Sample run", [["Start review"]]);
+  link(c, "Start review", [["Reply ready"]]);
+  link(c, "Slack event", [["Read Slack event"]]);
+  link(c, "Read Slack event", [["Find thread"]]);
+  link(c, "Find thread", [["Decide"]]);
+  link(c, "Decide", [["Route"]]);
+  link(c, "Route", [["Revise with Claude"], ["Say working on it", "Make voice"], ["Publish it"], ["Rejected note"]]);
+  link(c, "Revise with Claude", [["Check revision"], ["Check revision"]]);
+  link(c, "Check revision", [["Needs video?"]]);
+  link(c, "Needs video?", [["Say working on it", "Make voice"], ["Reply ready"]]);
+  link(c, "Make voice", [["Voice ok?"], ["Video failed"]]);
+  link(c, "Voice ok?", [["Make video"], ["Video failed"]]);
+  link(c, "Make video", [["Video ok?"], ["Video failed"]]);
+  link(c, "Video ok?", [["Download video"], ["Video failed"]]);
+  link(c, "Download video", [["Upload to thread"], ["Video failed"]]);
+  link(c, "Upload to thread", [["Video card"], ["Video failed"]]);
+  link(c, "Video card", [["Reply ready"]]);
+  link(c, "Video failed", [["Reply ready"]]);
+  link(c, "Publish it", [["Published?"], ["Publish failed note"]]);
+  link(c, "Published?", [["Published note"], ["Publish failed note"]]);
+  link(c, "Published note", [["Reply ready"]]);
+  link(c, "Publish failed note", [["Reply ready"]]);
+  link(c, "Rejected note", [["Reply ready"]]);
+  link(c, "Reply ready", [["Post to Slack"]]);
+  link(c, "Post to Slack", [["Check Slack"]]);
+  link(c, "Check Slack", [["Save thread"]]);
+  out["7-chat"] = workflow("7 Chat", n, c);
 }
 
 // ---------- 0 Orchestrator ----------
@@ -346,14 +466,10 @@ const out = {};
     codeNode("Run options", [1100, 0], "run-options.js"),
     execWf("3 Write", [1320, 0], "3 Write"),
     ifOk("Numbers check out?", [1540, 0]),
-    execWf("4 Voice", [1760, 0], "4 Voice"),
-    ifOk("Voice ok?", [1980, 0]),
-    execWf("5 Render", [2200, 0], "5 Render"),
-    ifOk("Video ok?", [2420, 0]),
-    execWf("6 Publish", [2640, 0], "6 Publish"),
+    execWf("7 Chat", [1760, 0], "7 Chat"),
     codeNode("Why it stopped", [1760, 400], "why-stopped.js"),
     node("No story today", "n8n-nodes-base.slack", 2.3, [1980, 400], { select: "channel", channelId: channel("editor"), text: "={{ $json.text }}", otherOptions: { includeLinkToWorkflow: false } }, SLACK),
-    sticky("About the newsroom", [-40, -460], "## 0 Orchestrator\n**Vancouver sources** lists the datasets to watch. **1 Collect** runs once per source, **2 Score** picks the week's strongest change, then Write, Voice, Render and Publish.\n\nIf any step says `ok: false`, or errors, **No story today** tells the editor why in Slack.\n\n**Every morning** stays off while building.\n\nTo test the guard, set `test_tamper` to true in **Run options**.", 360),
+    sticky("About the newsroom", [-40, -460], "## 0 Orchestrator\n**Vancouver sources** lists the datasets to watch. **1 Collect** runs once per source, **2 Score** picks the week's strongest change, **3 Write** drafts it, and **7 Chat** posts the draft and its data to the editor in Slack. From there the editor's thread drives Voice, Render and Publish.\n\nIf any step says `ok: false`, or errors, **No story today** tells the editor why in Slack.\n\n**Every morning** stays off while building.\n\nTo test the guard, set `test_tamper` to true in **Run options**.", 380),
   ];
   const c = {};
   link(c, "Test run", [["Vancouver sources"]]);
@@ -364,12 +480,8 @@ const out = {};
   link(c, "Story found?", [["Run options"], ["Why it stopped"]]);
   link(c, "Run options", [["3 Write"]]);
   link(c, "3 Write", [["Numbers check out?"], ["Why it stopped"]]);
-  link(c, "Numbers check out?", [["4 Voice"], ["Why it stopped"]]);
-  link(c, "4 Voice", [["Voice ok?"], ["Why it stopped"]]);
-  link(c, "Voice ok?", [["5 Render"], ["Why it stopped"]]);
-  link(c, "5 Render", [["Video ok?"], ["Why it stopped"]]);
-  link(c, "Video ok?", [["6 Publish"], ["Why it stopped"]]);
-  link(c, "6 Publish", [[], ["Why it stopped"]]);
+  link(c, "Numbers check out?", [["7 Chat"], ["Why it stopped"]]);
+  link(c, "7 Chat", [[], ["Why it stopped"]]);
   link(c, "Why it stopped", [["No story today"]]);
   out["0-orchestrator"] = workflow("0 Orchestrator", n, c);
 }

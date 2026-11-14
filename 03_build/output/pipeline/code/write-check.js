@@ -1,5 +1,6 @@
 // "Build spec and check numbers": parses the model's JSON, builds the chart from the story itself,
 // and stops the run if any number in the text is not in the story (must-work row 9).
+// buildSpec and the guard are in spec-build.js, shared with "7 Chat".
 const input = $("Input").first().json;
 const story = input.story;
 const res = $input.first().json;
@@ -21,39 +22,8 @@ if (input.test_tamper) {
   w.script = w.script.includes(n) ? w.script.replace(n, String(story.this_week + 1)) : w.script.replace(/\d+/, (m) => String(Number(m) + 1));
 }
 
-const numbers = (text) => (String(text).match(/\d[\d,]*(?:\.\d+)?/g) || []).map((m) => Number(m.replace(/,/g, "")));
-const allowed = new Set([7, 8, 9]); // the window lengths: 7 days, 8 weeks, 9 weeks
-for (const n of numbers(JSON.stringify(story))) { allowed.add(n); allowed.add(Math.abs(n)); }
-
-const callout = {
-  value: story.direction === "up" ? `${story.ratio}×` : `${Math.abs(story.pct_change)}%`,
-  label: w.callout_label,
-};
-const checked = { headline: w.headline, script: w.script, callout_value: callout.value, callout_label: w.callout_label, chart_title: w.chart_title, blurb: w.blurb };
-const unknown = [];
-for (const [field, text] of Object.entries(checked)) {
-  for (const n of numbers(text)) if (!allowed.has(n)) unknown.push(`${n} in ${field}`);
+const built = buildSpec(story, { ...w, chart_kind: story.chart_kind });
+if (built.problems.length) {
+  return [{ json: { ok: false, step: "Write", reason: `Blocked: ${built.problems[0]}.`, spec: built.spec } }];
 }
-const words = w.script.trim().split(/\s+/).length;
-
-const spec = {
-  headline: w.headline,
-  script: w.script,
-  callout,
-  chart: {
-    kind: "bar",
-    title: w.chart_title,
-    data: story.chart_kind === "weekly"
-      ? story.weekly.slice(-6).map((w) => ({ label: new Date(w.week_ending + "T12:00:00Z").toLocaleDateString("en-CA", { month: "short", day: "numeric", timeZone: "UTC" }), value: w.count }))
-      : story.by_area.slice(0, 6).map((a) => ({ label: a.area, value: a.count })),
-    source_note: story.source_note,
-  },
-  duration_s: 20,
-};
-if (unknown.length) {
-  return [{ json: { ok: false, step: "Write", reason: `Blocked: ${unknown.join(", ")} is not in the story.`, spec } }];
-}
-if (words < 25 || words > 50) {
-  return [{ json: { ok: false, step: "Write", reason: `Blocked: the script is ${words} words; it needs 25 to 50.`, spec } }];
-}
-return [{ json: { ...input, ok: true, spec, blurb: w.blurb, script_words: words } }];
+return [{ json: { ...input, ok: true, spec: built.spec, chart_kind: built.chart_kind, blurb: w.blurb, script_words: built.words } }];

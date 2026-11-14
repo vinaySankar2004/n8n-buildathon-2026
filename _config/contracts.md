@@ -101,8 +101,25 @@ Score gets every `collected` and returns `{ "ok": true, "story": …, "runners_u
 
 | After | Adds |
 | --- | --- |
-| Write | `spec`, `blurb`, `script_words` |
+| Write | `spec`, `blurb`, `script_words`, `chart_kind` (`by_area` or `weekly`, which the editor can change) |
 | Voice | `audio_base64`, `audio_seconds` |
 | Render | `video_url`, `video_seconds`, `render_seconds` (and drops `audio_base64`) |
+| Publish | `published: true` |
+
+Inside 7 Chat the run also carries `chat`: `{ "thread_ts", "stage", "history", "user", "text" }`. Voice and Render pass it through untouched.
 
 Render service: `POST /render` with `{ "spec": …, "audio_base64": … }` or `{ "spec": …, "audio_url": … }` returns `{ "video_url", "duration_s", "render_seconds" }`.
+
+## 7 Chat
+
+The orchestrator hands 7 Chat the run from Write. 7 Chat posts it to the editor channel and keeps one row per review thread in the n8n data table `editor_threads`:
+
+| Column | Holds |
+| --- | --- |
+| `thread_ts` | The Slack timestamp of the thread's first message |
+| `stage` | `script` (no voice or video yet), `video` (video posted), `published` or `rejected` |
+| `state` | JSON text: `{ "run": the run without audio, "history": [{ "editor": "..." } or { "bot": "..." }, last 12] }` |
+
+The router on the host laptop checks Slack's signature and posts to n8n's `/webhook/slack-events` either `{ "source": "events", "body": Slack's event_callback }` for a message, or `{ "source": "interactivity", "payload": Slack's block_actions }` for a tap on a button whose `action_id` starts with `newsroom_` (`newsroom_approve_script`, `newsroom_approve_video`, `newsroom_reject`).
+
+Revise with Claude returns `{ "reply": "...", "draft": { "headline", "script", "callout_label", "chart_title", "chart_kind", "blurb" } or null }`. The draft passes the same number guard as Write before it is used.

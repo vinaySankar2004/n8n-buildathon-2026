@@ -1,0 +1,54 @@
+// Shared by the "7 Chat" Code nodes (build.mjs puts it at the top of each): the Slack messages the bot
+// posts, and the row it keeps for each review thread in the "editor_threads" data table.
+const EDITOR = "__EDITOR_CHANNEL__";
+const OUTLET = "__OUTLET_CHANNEL__";
+
+const section = (text) => ({ type: "section", text: { type: "mrkdwn", text: String(text).slice(0, 2900) } });
+const context = (text) => ({ type: "context", elements: [{ type: "mrkdwn", text: String(text).slice(0, 2900) }] });
+const button = (text, action, style) => ({ type: "button", text: { type: "plain_text", text }, action_id: `newsroom_${action}`, value: action, ...(style ? { style } : {}) });
+
+function numbersLine(story) {
+  const change = story.direction === "up"
+    ? `${story.ratio}× the usual level`
+    : `down ${Math.abs(story.pct_change)}% from the usual level`;
+  return `${story.this_week} ${story.unit} in the week ${story.week_start} to ${story.week_ending}, against an average of ${story.avg_prev_8_weeks} a week over the 8 weeks before (${change}).`;
+}
+
+function scriptBlocks(run) {
+  const s = run.story;
+  const spec = run.spec;
+  const areas = (s.by_area || []).slice(0, 6).map((a) => `${a.area} ${a.count}`).join(", ");
+  const weeks = (s.weekly || []).slice(-6).map((w) => w.count).join(", ");
+  const chart = spec.chart.data.map((d) => `${d.label} ${d.value}`).join(", ");
+  return [
+    section(`*${spec.headline}*`),
+    section(`*Script* (${run.script_words || String(spec.script).split(/\s+/).length} words)\n>${spec.script}`),
+    section(
+      `*The data*\n• ${s.dataset}: ${s.type}\n• ${numbersLine(s)}` +
+        (areas ? `\n• This week by neighbourhood: ${areas}` : "") +
+        (weeks ? `\n• Last 6 weeks: ${weeks}` : "") +
+        `\n• Source: <${s.source_url}|${s.source_note}>`,
+    ),
+    section(`*On screen*\n• Big number: ${spec.callout.value}, "${spec.callout.label}"\n• Chart: ${spec.chart.title}\n• Bars: ${chart}`),
+    section(`*Newsletter blurb*\n${run.blurb}`),
+  ];
+}
+
+const scriptButtons = () => ({ type: "actions", elements: [button("Approve script", "approve_script", "primary"), button("Reject", "reject", "danger")] });
+const videoButtons = () => ({ type: "actions", elements: [button("Approve and publish", "approve_video", "primary"), button("Reject", "reject", "danger")] });
+const HOW_TO_REPLY = "Reply in this thread to change anything: the script, headline, big number label, chart or blurb. Every number has to come from the city data.";
+
+// The run without the parts that are large or only for this message.
+function keep(run) {
+  const { audio_base64, chat, route, working_note, claude_body, post, row, render, ...rest } = run;
+  return rest;
+}
+const rowFor = (threadTs, stage, run, history) => ({ thread_ts: threadTs || "", stage, state: JSON.stringify({ run: keep(run), history: (history || []).slice(-12) }) });
+
+// What every branch hands to "Reply ready": the Slack message to post and the row to save.
+const reply = (threadTs, text, blocks, stage, run, history) => ({
+  json: {
+    post: { channel: EDITOR, ...(threadTs ? { thread_ts: threadTs } : {}), text: String(text).slice(0, 3000), ...(blocks ? { blocks } : {}), unfurl_links: false },
+    row: rowFor(threadTs, stage, run, history),
+  },
+});
