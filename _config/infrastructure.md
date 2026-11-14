@@ -37,4 +37,6 @@ It returns `{ "video_url", "duration_s", "render_seconds" }`, where `video_url` 
 
 ## Secrets
 
+`.env.example` lists every value and who fills it in. Only two things are shared between people: the tunnel address, which is in the example, and `N8N_API_KEY`, sent by direct message. Each service key (Anthropic, ElevenLabs, Slack, render token) is loaded once by its owner with `npm run credentials` and then lives inside n8n, so nobody else needs it.
+
 Keys and tokens live only in n8n credentials and in local `.env` files. Git ignores `.env`, and `npm run check` blocks any commit that contains one.

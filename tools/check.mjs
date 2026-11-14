@@ -39,7 +39,10 @@ for (const envFile of [".env", "03_build/output/render-service/.env"]) {
 }
 const binary = /\.(png|jpe?g|gif|webp|mp4|mp3|wav|heic|pdf|ico|woff2?)$/i;
 for (const f of files) {
-  if (/(^|\/)\.env(\.|$)/.test(f)) add(f, "an .env file is tracked; remove it from git");
+  if (/(^|\/)\.env(\.|$)/.test(f) && !f.endsWith(".env.example")) add(f, "an .env file is tracked; remove it from git");
+  if (f.endsWith(".env.example") && /^[A-Z0-9_]*(KEY|TOKEN|SECRET|PASSWORD)[A-Z0-9_]*=\S/m.test(readFileSync(path.join(root, f), "utf8"))) {
+    add(f, "an example env file has a value for a key or token; leave those blank");
+  }
   if (binary.test(f) || f.endsWith("package-lock.json")) continue;
   const text = readFileSync(path.join(root, f), "utf8");
   for (const s of localSecrets) if (text.includes(s)) add(f, "contains a value from a local .env file");

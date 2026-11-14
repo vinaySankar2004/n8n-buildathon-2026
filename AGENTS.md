@@ -31,7 +31,7 @@ Workflows are built as code. Nobody on the team works in the n8n editor; you wri
 4. `npm run invoke -- <step> [input.json]` runs a step and prints the result. Fix and repeat until the step's test in `must-work.md` passes.
 5. `npm run sync` rebuilds the test log from n8n's run history, then commit.
 
-The scripts need `N8N_URL` and `N8N_API_KEY` in `.env`; if they are missing, write and commit the JSON anyway and say once that it needs the key from the repository owner to deploy. Never ask someone to open the editor, download or export a workflow.
+The scripts need `N8N_URL` and `N8N_API_KEY` in `.env` (copy `.env.example`); if they are missing, write and commit the JSON anyway and say once that it needs the key from the repository owner to deploy. Never ask someone to open the editor, download or export a workflow.
 
 ## Stay current
 
