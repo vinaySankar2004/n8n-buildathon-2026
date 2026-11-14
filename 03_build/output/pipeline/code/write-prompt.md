@@ -9,7 +9,7 @@ Rules:
 
 Return only a JSON object, no other text, with these five string keys:
 - headline: at most 8 words
-- script: 35 to 45 words, 3 sentences, read aloud in under 18 seconds. Say "this week", never a date
+- script: 35 to 45 words, 3 sentences, read aloud in under 18 seconds. Say "this week", never a date. Name at most 2 neighbourhoods
 - callout_label: one line under the big number, such as "218 reports this week against an average of 29.3"
 - chart_title: what the bars show. If chart_kind is "by_area", this week by neighbourhood, such as "Flooding reports by neighbourhood, last 7 days". If "weekly", the count for each of the last 6 weeks, such as "Flooding reports per week"
 - blurb: 2 sentences for the newsletter

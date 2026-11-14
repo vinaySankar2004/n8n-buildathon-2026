@@ -53,7 +53,7 @@ const spec = {
 if (unknown.length) {
   return [{ json: { ok: false, step: "Write", reason: `Blocked: ${unknown.join(", ")} is not in the story.`, spec } }];
 }
-if (words < 30 || words > 70) {
-  return [{ json: { ok: false, step: "Write", reason: `Blocked: the script is ${words} words; it needs 30 to 70.`, spec } }];
+if (words < 25 || words > 50) {
+  return [{ json: { ok: false, step: "Write", reason: `Blocked: the script is ${words} words; it needs 25 to 50.`, spec } }];
 }
 return [{ json: { ...input, ok: true, spec, blurb: w.blurb, script_words: words } }];
