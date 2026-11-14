@@ -4,7 +4,7 @@ Every step the storyboard shows, in order. Each one is the build scope and has a
 
 | # | Step | Beat | Test | Owner |
 | --- | --- | --- | --- | --- |
-| 1 | **Collect.** An n8n workflow pulls 3-1-1 requests for the last 9 weeks, grouped by type and by week, from the Vancouver API | B3 | Output has 9 weeks of counts per type | |
+| 1 | **Collect.** An n8n workflow pulls 3-1-1 requests for the last 9 weeks, grouped by type and by week, from the Vancouver API | B3 | Output has 9 weeks of counts per type | Arman |
 | 2 | **Score.** A code step ranks types by this week against the 8-week average and picks the top story, with its neighbourhood breakdown | B4 | Top story matches a hand check of the API | |
 | 3 | **Write.** An agent turns the story into a headline, a script of about 50 words, and a chart spec, using only numbers from step 2 | B5 | Every number in the script appears in the story | |
 | 4 | **Voice.** ElevenLabs reads the script | B5, B6 | Audio file returns, under 22 seconds | |

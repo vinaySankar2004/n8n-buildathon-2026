@@ -2,6 +2,33 @@
 
 The JSON each workflow hands to the next. Agree a change here before building on it, so four people can build in parallel.
 
+`collected` (Collect to Score), draft of 2026-11-14:
+
+```json
+{
+  "ok": true,
+  "dataset": "3-1-1 service requests",
+  "source": "City of Vancouver open data, 3-1-1 service requests",
+  "source_url": "https://opendata.vancouver.ca/explore/dataset/3-1-1-service-requests/",
+  "newest_record": "2026-11-14T04:51:59+00:00",
+  "week_ending": "2026-11-13",
+  "weeks": ["2026-09-18", "...", "2026-11-13"],
+  "types": [
+    {
+      "type": "Street Surface Water Flooding Case",
+      "weekly": [{ "week_ending": "2026-09-18", "count": 18 }],
+      "by_area": [{ "area": "Mount Pleasant", "count": 33 }],
+      "unknown_area": 4
+    }
+  ]
+}
+```
+
+- `weeks` and each `weekly` hold 9 entries, oldest first. The last one is this week.
+- Weeks are 7 days ending on `week_ending`, the Vancouver date of the newest record.
+- `by_area` covers this week only, sorted by count. Requests with no neighbourhood are counted in `unknown_area` and left out of `by_area`.
+- On failure Collect returns `{ "ok": false, "dataset": "...", "reason": "..." }` and nothing else. Score passes that on so Publish can send the "no story today" note.
+
 `story` (Score to Write):
 
 ```json
