@@ -25,6 +25,6 @@ Get the Devpost page and this repository submitted, complete, before the deadlin
 
 ## Output
 
-`output/devpost.md`, the page text as submitted, and `output/checklist.md`.
+`output/pitch.md`, the spoken pitch and answers for the judges' visit; `output/devpost.md`, the page text as submitted; and `output/checklist.md`.
 
 Stop: submitted by Sunday 14:30. After 15:00 nobody edits Devpost or pushes here.

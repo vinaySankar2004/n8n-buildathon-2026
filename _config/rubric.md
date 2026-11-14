@@ -12,3 +12,18 @@ Source: [rules.md](rules.md) and the judging slide. The panel looks mainly at th
 ## Using it
 
 At each stage's human check, rate the stage output 1 to 5 on each criterion and write one line on the weakest. Fix the weakest before polishing the strongest.
+
+## The event page's rubric
+
+The event page weights things differently. It rewards trust and workflow design, which the opening slide did not name.
+
+| Criterion | Weight | Question |
+| --- | --- | --- |
+| User value | 25% | Does it solve a specific problem for a real person or team? |
+| Execution | 25% | Does the workflow run and produce the result you show? |
+| Workflow design | 15% | Are the steps, connections, and error paths sensible? |
+| Trust | 15% | Are limits, privacy, approvals, and human oversight handled properly? |
+| Track fit | 10% | Does the project answer the track you chose? |
+| Demo | 10% | Are the problem, the solution, and the result clear in the time you have? |
+
+Answers for each live in [05_submit/output/pitch.md](../05_submit/output/pitch.md).

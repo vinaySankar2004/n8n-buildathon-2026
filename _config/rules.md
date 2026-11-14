@@ -33,3 +33,13 @@ Sponsor perks from the slide only, not in the written rules:
 - Lovable: 100 credits for every participant.
 - ElevenLabs: 1 month Creator for everyone, 3 months Pro per overall winner, 3 months Scale per winner of Best Project Built with ElevenLabs. Whether that award exists and who judges it is open in [judges.md](judges.md).
 - Red Bull drinks; Bon Macaron gift cards for 5 winners; Progression Bouldering first-visit passes for 5.
+
+## The event page says something different
+
+The eProjects event page (eprojectsubc.com/event-registration/loop, read on the afternoon of 14 November) differs from the rules handed out at the opening. Until an organizer settles it, plan for both.
+
+- Tracks: AI-enabled workflows, Integrations that remove friction, and Human-in-the-loop. One winner in each track and one overall winner.
+- Teams of three to five.
+- What you submit: a working n8n workflow, a short demo, and the problem, safeguards and next step.
+- Sunday: feature freeze 14:00, submissions lock 14:45, judges visit each team for a short working demo and questions from 15:00, finalists present to the room at 16:05, awards at 17:10.
+- Staying after 18:00 is optional and remote; the room closes.

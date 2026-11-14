@@ -12,6 +12,8 @@ Every step the storyboard shows, in order. Each one is the build scope and has a
 | 6 | **Approve.** Slack sends the editor the video with approve and reject, and waits | B7 | Tapping approve on a phone resumes the run | |
 | 7 | **Publish.** Approval posts the video to the outlet page and drafts a newsletter blurb | B7 | The post is visible; the blurb exists | |
 | 8 | **Canvas.** Five named workflows with sticky notes, joined by Execute Workflow nodes | B8 | A cold viewer can name each stage | |
+| 9 | **Guard.** Before voicing, a check compares every number in the script with the story and stops the run on a mismatch. A story needs at least 20 reports and at least twice the usual weekly level | B5 | A script with one changed number is blocked | |
+| 10 | **Quiet.** If the city API fails or no change passes the bar, the editor gets a short "no story today" note in Slack instead of a video | B7 | Pointing Collect at a dead URL produces the note, not an error | |
 
 ## Contracts between workflows
 

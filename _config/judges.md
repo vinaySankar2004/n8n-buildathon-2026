@@ -10,6 +10,13 @@ Ask early. Each track has one judge, so their answer is the real rubric for that
 - Where does the video go: a YouTube link, or an upload to Devpost? Answer: pending.
 - Is a GitHub repo required, or only allowed? Answer: pending.
 
+- Which rules apply: the opening slides (two sponsor tracks, four criteria at 25%, Devpost and a video) or the event page (three tracks, six weighted criteria, live judging visits)? Answer: pending.
+- When do submissions lock: 14:45 (event page) or 15:00 (written rules)? Answer: pending. Until settled, submit by 14:30.
+
+## Judges at our table
+
+- Saturday afternoon, judges walking the room told the team the vision for technical execution is strong, and asked for clear answers on what problem it solves (reported by Vinayak). Answers: [pitch.md](../05_submit/output/pitch.md).
+
 ## Investly delegate
 
 Not pursued: the team is not entering the Investly track (2026-11-14). Kept for reference.
