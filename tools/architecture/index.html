@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LOOP Newsroom Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;650;750&display=swap">
+<style>
+:root {
+  --ink: #173332; --muted: #61716c; --paper: #fffdf7; --cream: #f4f0e7; --line: #d9d7ca;
+  --teal: #0c7069; --teal-dark: #0d4d49; --lime: #d9f16f; --coral: #ef755e; --yellow: #f4cf64;
+  --live-bg: #e2f0ec; --built-bg: #f1f8cf; --down-bg: #fde4de; --shadow: 0 24px 70px rgba(21, 51, 50, 0.11);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--ink);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; min-width: 320px;
+  background: radial-gradient(circle at 18% 4%, rgba(217, 241, 111, 0.22), transparent 26rem), linear-gradient(180deg, #f8f5ed 0%, var(--cream) 100%);
+  min-height: 100vh;
+}
+.wrap { width: min(1280px, calc(100% - 32px)); margin: 0 auto; padding: 20px 0 48px; }
+header.top { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid rgba(23,51,50,0.14); padding-bottom: 16px; }
+.kicker { font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 650; }
+h1 { font-size: clamp(26px, 4vw, 40px); letter-spacing: -0.03em; margin: 4px 0 6px; line-height: 1.05; }
+.lede { margin: 0; color: var(--muted); max-width: 62ch; line-height: 1.45; }
+.clock { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 12px 16px; min-width: 260px; box-shadow: var(--shadow); }
+.clock .big { font-size: 28px; font-weight: 750; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.clock .small { font-size: 13px; color: var(--muted); line-height: 1.4; }
+h2 { font-size: 20px; letter-spacing: -0.02em; margin: 32px 0 12px; }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
+.stages { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 20px; }
+.stage { padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--paper); }
+.stage .name { font-weight: 650; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.stage .note { font-size: 13px; color: var(--muted); margin-top: 4px; line-height: 1.35; }
+.stage.done { background: var(--live-bg); border-color: rgba(12,112,105,0.35); }
+.stage.review, .stage.active { background: var(--built-bg); border-color: #b9cf4a; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; background: var(--line); }
+.s-live .dot, .dot.s-live, .dot.s-done { background: var(--teal); }
+.dot.s-built, .dot.s-review, .dot.s-active { background: #9bb52a; }
+.dot.s-down { background: var(--coral); }
+.dot.s-planned { background: var(--yellow); }
+.board { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; margin-top: 16px; }
+.diagram { padding: 12px; overflow: hidden; }
+.walk { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 6px 6px 12px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.walk p { margin: 0; flex: 1 1 260px; font-size: 15px; line-height: 1.45; min-height: 44px; }
+.walk .step { font-size: 12px; color: var(--muted); font-weight: 650; }
+button { font: inherit; cursor: pointer; border-radius: 999px; border: 1px solid var(--teal); background: var(--paper); color: var(--teal-dark); padding: 7px 14px; font-weight: 650; font-size: 14px; }
+button.primary { background: var(--teal); color: var(--paper); }
+button:focus-visible, .node:focus-visible, .flow-item:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+svg { width: 100%; height: auto; display: block; }
+.group-box { fill: rgba(255,253,247,0.6); stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 6 5; }
+.group-label { font-size: 12px; font-weight: 650; fill: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
+.node { cursor: pointer; }
+.node rect.box { fill: var(--paper); stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 5 4; transition: none; }
+.node.s-live rect.box { fill: var(--live-bg); stroke: var(--teal); stroke-dasharray: none; }
+.node.s-built rect.box { fill: var(--built-bg); stroke: #9bb52a; stroke-dasharray: none; }
+.node.s-down rect.box { fill: var(--down-bg); stroke: var(--coral); stroke-dasharray: none; }
+.node.s-planned rect.box { fill: var(--cream); stroke: var(--yellow); }
+.node .t { font-size: 14.5px; font-weight: 650; fill: var(--ink); }
+.node .u { font-size: 11.5px; fill: var(--muted); }
+.node .o { font-size: 10.5px; fill: var(--teal-dark); font-weight: 650; }
+.node.sel rect.box { stroke: var(--ink); stroke-width: 2.5; }
+.node.hot rect.box { stroke: var(--teal); stroke-width: 3; }
+.edge { fill: none; stroke: #9aa7a2; stroke-width: 1.6; }
+.edge.dash { stroke-dasharray: 4 4; }
+.edge.hot { stroke: var(--teal); stroke-width: 3; stroke-dasharray: 8 6; animation: flow 0.9s linear infinite; }
+.elabel { font-size: 11px; fill: var(--muted); font-weight: 650; paint-order: stroke; stroke: var(--cream); stroke-width: 4px; }
+@keyframes flow { to { stroke-dashoffset: -28; } }
+@media (prefers-reduced-motion: reduce) { .edge.hot { animation: none; stroke-dasharray: none; } }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--muted); padding: 8px 6px 2px; }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+.detail { padding: 18px; align-self: start; position: sticky; top: 12px; }
+.detail h3 { margin: 0 0 6px; font-size: 19px; letter-spacing: -0.02em; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 650; padding: 4px 10px; border-radius: 999px; background: var(--cream); border: 1px solid var(--line); }
+.detail dl { margin: 14px 0 0; display: grid; gap: 10px; }
+.detail dt { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 650; }
+.detail dd { margin: 2px 0 0; font-size: 14.5px; line-height: 1.45; }
+.flowlist { display: none; list-style: none; padding: 0; margin: 8px 0 0; }
+.flow-item { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; margin-bottom: 8px; background: var(--paper); cursor: pointer; }
+.flow-item.hot { border-color: var(--teal); background: var(--live-bg); }
+.flow-item .ft { font-weight: 650; font-size: 15px; }
+.flow-item .fu { font-size: 13px; color: var(--muted); }
+.cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.pad { padding: 6px 4px; }
+.stops { list-style: none; margin: 0; padding: 6px 14px; }
+.stops li { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.stops li:last-child { border-bottom: none; }
+.stops .when { width: 104px; flex: none; color: var(--muted); font-variant-numeric: tabular-nums; }
+.stops li.past { color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(97,113,108,0.5); }
+.stops li.next { font-weight: 750; color: var(--teal-dark); }
+.stops li.hard .what { color: #b2412b; font-weight: 750; }
+pre { margin: 0; padding: 14px; font-size: 12.5px; line-height: 1.5; overflow-x: auto; background: #f7f4ea; border-radius: 12px; border: 1px solid var(--line); }
+.contract { padding: 14px; }
+.contract h3 { margin: 0 0 4px; font-size: 16px; }
+.contract p { margin: 0 0 10px; color: var(--muted); font-size: 13.5px; }
+.open { margin: 0; padding: 14px 18px 14px 34px; line-height: 1.5; font-size: 15px; }
+footer { margin-top: 28px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.err { color: #b2412b; }
+@media (max-width: 1020px) { .board { grid-template-columns: minmax(0, 1fr); } .detail { position: static; } }
+@media (max-width: 760px) {
+  .stages { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .cols { grid-template-columns: minmax(0, 1fr); }
+  td, th { padding: 8px 6px; }
+  td { overflow-wrap: anywhere; }
+  svg#arch { display: none; }
+  .flowlist { display: block; }
+  .clock { width: 100%; }
+  th:nth-child(3), td:nth-child(3) { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="kicker">LOOP n8n Buildathon 2026</div>
+      <h1>Local data newsroom</h1>
+      <p class="lede">City data in, a 20 second narrated video out, approved by an editor in one tap. This page shows every piece, where it runs, who owns it and its state right now. Proposed architecture; the team decides.</p>
+    </div>
+    <div class="clock" aria-live="polite">
+      <div class="small">Submissions close</div>
+      <div class="big" id="countdown">loading</div>
+      <div class="small" id="nextstop"></div>
+    </div>
+  </header>
+
+  <div class="stages" id="stages" aria-label="Pipeline stages"></div>
+
+  <div class="board">
+    <section class="card diagram" aria-label="Architecture">
+      <div class="walk">
+        <div style="flex:1 1 260px">
+          <div class="step" id="walkstep">How one run works</div>
+          <p id="walktext">Press Play to follow one story from city data to a published video, or pick any box.</p>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button id="prev" aria-label="Previous step">Back</button>
+          <button id="next" class="primary" aria-label="Next step">Play</button>
+        </div>
+      </div>
+      <svg id="arch" viewBox="0 0 1200 530" role="img" aria-label="Architecture diagram">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#9aa7a2"/></marker>
+          <marker id="arrowhot" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#0c7069"/></marker>
+        </defs>
+        <g id="groups"></g>
+        <g id="edges"></g>
+        <g id="nodes"></g>
+      </svg>
+      <ol class="flowlist" id="flowlist" aria-label="Architecture as a list"></ol>
+      <div class="legend">
+        <span><i class="dot s-live"></i>Live, answering now</span>
+        <span><i class="dot s-built"></i>Built or connected</span>
+        <span><i class="dot"></i>To do</span>
+        <span><i class="dot s-planned"></i>Later</span>
+        <span><i class="dot s-down"></i>Down</span>
+      </div>
+    </section>
+    <aside class="card detail" id="detail" aria-live="polite"></aside>
+  </div>
+
+  <div class="cols">
+    <section>
+      <h2>Infrastructure</h2>
+      <div class="card pad"><table><thead><tr><th>Piece</th><th>Runs on</th><th>Limits</th><th>Now</th></tr></thead><tbody id="infra"></tbody></table></div>
+    </section>
+    <section>
+      <h2>Clock</h2>
+      <div class="card"><ol class="stops" id="stops"></ol></div>
+    </section>
+  </div>
+
+  <h2>Data contracts between workflows</h2>
+  <div class="cols" id="contracts"></div>
+
+  <h2>Open for the team</h2>
+  <div class="card"><ul class="open" id="open"></ul></div>
+
+  <footer><span id="updated">Waiting for the first check</span><span>Reads the ICM space and live checks every 5 seconds</span></footer>
+</div>
+
+<script>
+const NODES = {
+  src_van: { x: 20, y: 140, w: 200, h: 64, t: "Vancouver open data", u: "311, permits, licences", keys: [],
+    does: "Public city data, refreshed once a day. The first version uses 3-1-1 service requests; building permits and business licences come next.",
+    takes: "A query from Collect", gives: "Rows of requests with type, neighbourhood and time", where: "City of Vancouver servers, no key needed", beat: "B1, B3" },
+  src_sc: { x: 20, y: 250, w: 200, h: 64, t: "Statistics Canada", u: "context numbers, later", keys: [],
+    does: "Optional context such as population, to turn counts into rates. Not in the first version.",
+    takes: "A series id", gives: "Monthly values", where: "Statistics Canada Web Data Service", beat: "None yet" },
+  orch: { x: 265, y: 58, w: 610, h: 44, t: "Orchestrator", u: "schedule trigger, calls each step with Execute Workflow", keys: ["canvas"], wide: true,
+    does: "One workflow that runs on a schedule and calls the six step workflows in order. Each person owns one step workflow, so nobody edits the same canvas.",
+    takes: "A schedule, or a manual run for the demo", gives: "One finished run", where: "n8n Cloud", beat: "B3, B8" },
+  collect: { x: 265, y: 140, w: 130, h: 64, t: "1 Collect", u: "HTTP Request", keys: ["collect"],
+    does: "Pulls the last nine weeks of 3-1-1 requests from the city API, counted by type and by week.",
+    takes: "Nothing but the schedule", gives: "Weekly counts per request type", where: "n8n Cloud", beat: "B3" },
+  score: { x: 425, y: 140, w: 130, h: 64, t: "2 Score", u: "Code node", keys: ["score"],
+    does: "Compares this week with the eight before, ranks the biggest real jumps and picks the top story with its neighbourhood breakdown. On 14 Nov the top story was flooding reports at 7.3 times normal.",
+    takes: "Weekly counts", gives: "The story contract", where: "n8n Cloud", beat: "B4" },
+  write: { x: 585, y: 140, w: 130, h: 64, t: "3 Write", u: "AI Agent", keys: ["write"],
+    does: "Turns the story into a headline, a script of about 50 words and a chart spec. It may only use numbers that are in the story.",
+    takes: "The story contract", gives: "The spec contract", where: "n8n Cloud, with an LLM", beat: "B5" },
+  voice: { x: 745, y: 140, w: 130, h: 64, t: "4 Voice", u: "HTTP to ElevenLabs", keys: ["voice"],
+    does: "Sends the script to ElevenLabs and gets the narration back as audio.",
+    takes: "The script from the spec", gives: "An MP3 voice track", where: "n8n Cloud calling ElevenLabs", beat: "B5, B6" },
+  render: { x: 745, y: 280, w: 130, h: 64, t: "5 Render", u: "HTTP to the laptop", keys: ["render"],
+    does: "Sends the spec and the audio through the tunnel to the render service and gets a video link back.",
+    takes: "Spec and audio", gives: "A link to a vertical MP4", where: "n8n Cloud calling a team laptop", beat: "B5, B6" },
+  publish: { x: 585, y: 280, w: 130, h: 64, t: "6 Publish", u: "Slack, send and wait", keys: ["approve", "publish"],
+    does: "Posts the video to the editor in Slack with approve and reject, then waits. Approval publishes to the outlet page and drafts a newsletter blurb.",
+    takes: "The video link and headline", gives: "A published story", where: "n8n Cloud", beat: "B7" },
+  eleven: { x: 940, y: 140, w: 240, h: 64, t: "ElevenLabs", u: "text to speech", keys: ["voice"],
+    does: "Reads the script aloud. The key lives only in n8n credentials, never in a doc.",
+    takes: "Text", gives: "Audio", where: "ElevenLabs cloud", beat: "B6" },
+  tunnel: { x: 940, y: 264, w: 240, h: 64, t: "ngrok tunnel", u: "public https address for the laptop", keys: ["render"],
+    does: "Gives the laptop a public address so n8n Cloud can reach it. Every request must carry the secret render token.",
+    takes: "Requests from n8n", gives: "The same requests, on the laptop", where: "ngrok on the render laptop", beat: "B8" },
+  rsvc: { x: 940, y: 342, w: 240, h: 74, t: "Render service", u: "Express and Remotion, port 8787", keys: ["render"],
+    does: "Bundles the video template once, renders each request to MP4 with headless Chrome, and serves the file back.",
+    takes: "Spec and audio", gives: "A 1080 by 1920 MP4 and its link", where: "A team laptop that stays awake and online", beat: "B5, B6" },
+  slack: { x: 585, y: 440, w: 130, h: 64, t: "Editor", u: "approves in Slack", keys: ["approve"],
+    does: "The editor sees the video on a phone and taps approve or reject. n8n waits for the answer.",
+    takes: "A message with the video", gives: "A yes or no", where: "The team's Slack workspace", beat: "B7" },
+  outlet: { x: 425, y: 440, w: 130, h: 64, t: "Outlet page", u: "post and blurb", keys: ["publish"],
+    does: "Where approved stories appear, for a made-up outlet. Still an open decision.",
+    takes: "An approved video and headline", gives: "A public post", where: "To decide, likely a page the team controls", beat: "B7" },
+};
+const GROUPS = [
+  { x: 10, y: 24, w: 222, h: 310, label: "Public data" },
+  { x: 250, y: 24, w: 640, h: 345, label: "n8n Cloud · vsa91" },
+  { x: 925, y: 236, w: 268, h: 196, label: "A team laptop" },
+  { x: 410, y: 408, w: 320, h: 112, label: "People and publishing" },
+];
+const EDGES = [
+  ["src_van", "collect", ""], ["src_sc", "collect", "", { dash: true }],
+  ["collect", "score", ""], ["score", "write", ""], ["write", "voice", ""],
+  ["voice", "eleven", "script", { off: -9 }], ["eleven", "voice", "audio", { off: 9 }],
+  ["voice", "render", ""], ["render", "tunnel", "request", { off: -9 }], ["tunnel", "rsvc", ""],
+  ["rsvc", "render", "video link", { off: 9, via: "tunnel" }],
+  ["render", "publish", ""], ["publish", "slack", "video", { off: -14 }], ["slack", "publish", "approve", { off: 14 }],
+  ["publish", "outlet", ""],
+];
+const STEPS = [
+  { n: ["orch"], e: [], t: "The schedule fires. The orchestrator starts the run and calls each step workflow in order." },
+  { n: ["src_van", "collect"], e: ["src_van>collect"], t: "Collect pulls nine weeks of 3-1-1 counts from the City of Vancouver API." },
+  { n: ["score"], e: ["collect>score"], t: "Score compares this week with the eight before. On 14 Nov, flooding reports were 7.3 times normal, highest in Mount Pleasant. That is the story." },
+  { n: ["write"], e: ["score>write"], t: "Write hands the story to an AI agent, which returns a headline, a 50 word script and a chart spec, using only numbers from the story." },
+  { n: ["voice", "eleven"], e: ["write>voice", "voice>eleven", "eleven>voice"], t: "Voice sends the script to ElevenLabs and gets the narration back." },
+  { n: ["render", "tunnel", "rsvc"], e: ["voice>render", "render>tunnel", "tunnel>rsvc", "rsvc>render"], t: "Render sends the spec and audio through the tunnel. The laptop renders a 20 second vertical video and returns its link." },
+  { n: ["publish", "slack"], e: ["render>publish", "publish>slack", "slack>publish"], t: "Publish sends the video to the editor in Slack and waits. The editor taps approve on a phone." },
+  { n: ["outlet"], e: ["publish>outlet"], t: "Approval puts the video on the outlet page and drafts a newsletter blurb. One run, done." },
+];
+const ORDER = ["orch", "src_van", "collect", "score", "write", "voice", "eleven", "render", "tunnel", "rsvc", "publish", "slack", "outlet", "src_sc"];
+const STATE_WORD = { live: "Live", built: "Built", todo: "To do", down: "Down", planned: "Later", done: "Done", review: "Waiting for review", active: "In progress" };
+
+let status = null, selected = "score", step = -1;
+const $ = (id) => document.getElementById(id);
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs = {}, parent) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (parent) parent.appendChild(n); return n; };
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function anchor(n, side) {
+  const cx = n.x + n.w / 2, cy = n.y + n.h / 2;
+  return side === "r" ? [n.x + n.w, cy] : side === "l" ? [n.x, cy] : side === "b" ? [cx, n.y + n.h] : [cx, n.y];
+}
+function edgePath(a, b, off = 0) {
+  const A = NODES[a], B = NODES[b];
+  const dx = (B.x + B.w / 2) - (A.x + A.w / 2), dy = (B.y + B.h / 2) - (A.y + A.h / 2);
+  let p, q;
+  if (Math.abs(dx) >= Math.abs(dy)) { p = anchor(A, dx > 0 ? "r" : "l"); q = anchor(B, dx > 0 ? "l" : "r"); p[1] += off; q[1] += off; }
+  else { p = anchor(A, dy > 0 ? "b" : "t"); q = anchor(B, dy > 0 ? "t" : "b"); p[0] += off; q[0] += off; }
+  const horiz = Math.abs(dx) >= Math.abs(dy);
+  const mx = (p[0] + q[0]) / 2, my = (p[1] + q[1]) / 2;
+  const d = horiz ? `M${p[0]} ${p[1]} C${mx} ${p[1]}, ${mx} ${q[1]}, ${q[0] - Math.sign(dx) * 2} ${q[1]}` : `M${p[0]} ${p[1]} C${p[0]} ${my}, ${q[0]} ${my}, ${q[0]} ${q[1] - Math.sign(dy) * 2}`;
+  return { d, lx: mx, ly: my, horiz };
+}
+function edgeLabel(g, e, label, off) {
+  const a = e.horiz
+    ? { x: e.lx, y: off > 0 ? e.ly + 16 : e.ly - 7, "text-anchor": "middle" }
+    : { x: e.lx + (off < 0 ? -7 : 7), y: e.ly + 4, "text-anchor": off < 0 ? "end" : "start" };
+  el("text", { ...a, class: "elabel" }, g).textContent = label;
+}
+
+function drawStatic() {
+  const g = $("groups");
+  for (const G of GROUPS) {
+    el("rect", { x: G.x, y: G.y, width: G.w, height: G.h, rx: 18, class: "group-box" }, g);
+    el("text", { x: G.x + 14, y: G.y + 20, class: "group-label" }, g).textContent = G.label;
+  }
+  const ge = $("edges");
+  for (const [a, b, label, o = {}] of EDGES) {
+    if (o.via) continue;
+    const e = edgePath(a, b, o.off || 0);
+    el("path", { d: e.d, class: "edge" + (o.dash ? " dash" : ""), "data-id": `${a}>${b}`, "marker-end": "url(#arrow)" }, ge);
+    if (label) edgeLabel(ge, e, label, o.off || 0);
+  }
+  // The video link returns from the render service through the tunnel to Render.
+  const back = edgePath("tunnel", "render", 9);
+  el("path", { d: back.d, class: "edge", "data-id": "rsvc>render", "marker-end": "url(#arrow)" }, ge);
+  edgeLabel(ge, back, "video", 9);
+
+  const gn = $("nodes");
+  for (const id of Object.keys(NODES)) {
+    const n = NODES[id];
+    const grp = el("g", { class: "node", "data-id": id, tabindex: 0, role: "button", "aria-label": `${n.t}. ${n.u}` }, gn);
+    el("rect", { x: n.x, y: n.y, width: n.w, height: n.h, rx: 12, class: "box" }, grp);
+    el("text", { x: n.x + 12, y: n.y + (n.wide ? 19 : 23), class: "t" }, grp).textContent = n.t;
+    el("text", { x: n.x + 12, y: n.y + (n.wide ? 35 : 40), class: "u" }, grp).textContent = n.u;
+    if (!n.wide) el("text", { x: n.x + 12, y: n.y + n.h - 9, class: "o", "data-owner": id }, grp).textContent = "";
+    el("circle", { cx: n.x + n.w - 13, cy: n.y + 13, r: 5.5, class: "sdot", fill: "#d9d7ca" }, grp);
+    grp.addEventListener("click", () => select(id));
+    grp.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(id); } });
+  }
+  const fl = $("flowlist");
+  for (const id of ORDER) {
+    const n = NODES[id];
+    const li = document.createElement("li");
+    li.className = "flow-item"; li.tabIndex = 0; li.dataset.id = id;
+    li.innerHTML = `<i class="dot"></i><div><div class="ft">${esc(n.t)}</div><div class="fu">${esc(n.u)}</div></div>`;
+    li.addEventListener("click", () => select(id));
+    li.addEventListener("keydown", (e) => { if (e.key === "Enter") select(id); });
+    fl.appendChild(li);
+  }
+}
+
+const compState = (id) => status?.components?.[id]?.state || "todo";
+const ownerOf = (id) => status?.components?.[id]?.owner || "";
+const fill = { live: "#0c7069", built: "#9bb52a", todo: "#d9d7ca", down: "#ef755e", planned: "#f4cf64" };
+
+function paint() {
+  const hotN = step >= 0 ? STEPS[step].n : [], hotE = step >= 0 ? STEPS[step].e : [];
+  document.querySelectorAll(".node").forEach((g) => {
+    const id = g.dataset.id, s = compState(id);
+    g.setAttribute("class", `node s-${s}${id === selected ? " sel" : ""}${hotN.includes(id) ? " hot" : ""}`);
+    g.querySelector(".sdot").setAttribute("fill", fill[s] || fill.todo);
+    const o = g.querySelector(".o");
+    if (o) o.textContent = ownerOf(id) ? `Owner ${ownerOf(id)}` : "Unassigned";
+  });
+  document.querySelectorAll(".edge").forEach((p) => {
+    const hot = hotE.includes(p.dataset.id);
+    p.classList.toggle("hot", hot);
+    p.setAttribute("marker-end", hot ? "url(#arrowhot)" : "url(#arrow)");
+  });
+  document.querySelectorAll(".flow-item").forEach((li) => {
+    li.classList.toggle("hot", hotN.includes(li.dataset.id) || li.dataset.id === selected);
+    li.querySelector(".dot").className = `dot s-${compState(li.dataset.id)}`;
+  });
+  renderDetail();
+}
+
+function renderDetail() {
+  const n = NODES[selected], c = status?.components?.[selected] || {}, s = c.state || "todo";
+  const tests = (status?.must || []).filter((r) => n.keys.includes(r.key));
+  $("detail").innerHTML = `
+    <div class="kicker">Selected</div>
+    <h3>${esc(n.t)}</h3>
+    <span class="chip"><i class="dot s-${s}"></i>${STATE_WORD[s] || s}${c.note ? " · " + esc(c.note) : ""}</span>
+    <dl>
+      <div><dt>What it does</dt><dd>${esc(n.does)}</dd></div>
+      <div><dt>Takes in</dt><dd>${esc(n.takes)}</dd></div>
+      <div><dt>Gives out</dt><dd>${esc(n.gives)}</dd></div>
+      <div><dt>Runs on</dt><dd>${esc(n.where)}</dd></div>
+      <div><dt>Owner</dt><dd>${esc(c.owner || "Unassigned. Add a name in the Owner column of must-work.md.")}</dd></div>
+      <div><dt>Video beat</dt><dd>${esc(n.beat)}</dd></div>
+      ${tests.length ? `<div><dt>Test</dt><dd>${tests.map((r) => esc(r.test)).join("<br>")}</dd></div>` : ""}
+    </dl>`;
+}
+
+function select(id) { selected = id; paint(); }
+function go(i) {
+  step = Math.max(-1, Math.min(STEPS.length - 1, i));
+  if (step < 0) { $("walkstep").textContent = "How one run works"; $("walktext").textContent = "Press Play to follow one story from city data to a published video, or pick any box."; $("next").textContent = "Play"; }
+  else {
+    $("walkstep").textContent = `Step ${step + 1} of ${STEPS.length}`;
+    $("walktext").textContent = STEPS[step].t;
+    $("next").textContent = step === STEPS.length - 1 ? "Start over" : "Next";
+    selected = STEPS[step].n[STEPS[step].n.length - 1] === "eleven" ? "voice" : STEPS[step].n[0] === "src_van" ? "collect" : STEPS[step].n[0];
+  }
+  paint();
+}
+$("next").addEventListener("click", () => go(step === STEPS.length - 1 ? -1 : step + 1));
+$("prev").addEventListener("click", () => go(step - 1));
+document.addEventListener("keydown", (e) => {
+  if (e.target.closest && e.target.closest("button, .node, .flow-item")) return;
+  if (e.key === "ArrowRight") go(step === STEPS.length - 1 ? STEPS.length - 1 : step + 1);
+  if (e.key === "ArrowLeft") go(step - 1);
+});
+
+const fmtTime = (iso) => new Date(iso).toLocaleString([], { weekday: "short", hour: "numeric", minute: "2-digit" });
+function dur(ms) {
+  if (ms <= 0) return "now";
+  const m = Math.floor(ms / 60000), h = Math.floor(m / 60), d = m % 60;
+  return h ? `${h} h ${String(d).padStart(2, "0")} min` : `${d} min`;
+}
+function tick() {
+  if (!status) return;
+  const now = Date.now();
+  const close = status.stops.find((s) => s.hard);
+  $("countdown").textContent = close ? (now >= new Date(close.at) ? "Closed" : dur(new Date(close.at) - now)) : "";
+  const next = status.stops.find((s) => new Date(s.at) > now);
+  $("nextstop").textContent = next ? `Next stop ${fmtTime(next.at)}, ${next.label.toLowerCase()}, in ${dur(new Date(next.at) - now)}` : "";
+  $("stops").innerHTML = status.stops.map((s) => {
+    const t = new Date(s.at).getTime(), cls = [t <= now ? "past" : "", next && s.at === next.at ? "next" : "", s.hard ? "hard" : ""].join(" ");
+    return `<li class="${cls}"><span class="when">${esc(fmtTime(s.at))}</span><span class="what">${esc(s.label)}</span></li>`;
+  }).join("");
+}
+
+function renderStatus() {
+  $("stages").innerHTML = status.stages.map((s) => `<div class="stage ${s.state}"><div class="name"><i class="dot s-${s.state}"></i>${esc(s.label)}</div><div class="note">${esc(s.note)}</div></div>`).join("");
+  const P = status.probes, C = status.components;
+  const row = (name, runs, limits, s, note) => `<tr><td><b>${esc(name)}</b></td><td>${esc(runs)}</td><td>${esc(limits)}</td><td><span class="chip"><i class="dot s-${s}"></i>${STATE_WORD[s] || s}</span>${note ? `<div class="u" style="font-size:12.5px;color:var(--muted);margin-top:4px">${esc(note)}</div>` : ""}</td></tr>`;
+  $("infra").innerHTML = [
+    row("n8n Cloud", "n8n's servers, instance vsa91", "Trial, 1,000 executions", C.n8n.state, P.n8n.note),
+    row("Render service", "A team laptop, port 8787", "Laptop must stay awake", C.rsvc.state, C.rsvc.note),
+    row("Tunnel", "ngrok on the same laptop", "Free plan", C.tunnel.state, P.tunnel.note),
+    row("City data", "City of Vancouver API", "Public, no key", C.src_van.state, P.vancouver.note),
+    row("ElevenLabs", "ElevenLabs cloud", "Creator month from the event", C.eleven.state, ""),
+    row("Slack", "Team workspace", "Free plan", C.slack.state, ""),
+    row("Outlet page", "To decide", "", C.outlet.state, ""),
+  ].join("");
+  $("contracts").innerHTML = status.contracts.length ? status.contracts.map((c) => `<section class="card contract"><h3>${esc(c.name)}</h3><p>${esc(c.between)}</p><pre>${esc(c.json)}</pre></section>`).join("") : `<div class="card contract"><p>No contracts found in must-work.md yet.</p></div>`;
+  $("open").innerHTML = status.open.length ? status.open.map((o) => `<li>${esc(o)}</li>`).join("") : "<li>Nothing open.</li>";
+  $("updated").textContent = "Updated " + new Date(status.generated).toLocaleTimeString([], { hour: "numeric", minute: "2-digit", second: "2-digit" });
+  tick(); paint();
+}
+
+async function poll() {
+  try {
+    const r = await fetch("/status.json", { cache: "no-store" });
+    status = await r.json();
+    renderStatus();
+  } catch (e) {
+    $("updated").innerHTML = `<span class="err">Live checks failed. Is server.mjs running?</span>`;
+  }
+}
+drawStatic(); paint(); poll();
+setInterval(poll, 5000); setInterval(tick, 15000);
+</script>
+</body>
+</html>
