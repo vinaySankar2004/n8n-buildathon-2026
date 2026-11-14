@@ -7,6 +7,7 @@
     "setup": "git config core.hooksPath .githooks",
     "check": "node tools/check.mjs",
     "sync": "node tools/sync-n8n.mjs",
-    "architecture": "node tools/architecture/server.mjs"
+    "architecture": "node tools/architecture/server.mjs",
+    "update": "node tools/stay-current.mjs"
   }
 }

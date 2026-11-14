@@ -27,6 +27,10 @@ Workflows live in n8n, not in files people edit. To bring them into the reposito
 
 A workflow is picked up when its name contains its step: orchestrator, collect, score, write, voice, render or publish, ideally with its number first, like "2 Score".
 
+## Stay current
+
+Teammates push all weekend. Run `npm run update` before starting any task and again right before committing. It fetches, pulls when the clone is clean, and otherwise says what is waiting and why. Claude Code runs it on its own at session start and on every message. Commit and push each piece as soon as it works and the check passes, so the others get it quickly.
+
 ## Before every commit
 
 Run `npm run check` and fix everything it reports. In a fresh clone, run `npm run setup` once so git runs the same check on every commit and push. Claude Code does this on its own at session start. GitHub runs the check again on every push.

@@ -7,6 +7,22 @@
             "type": "command",
             "command": "cd \"$CLAUDE_PROJECT_DIR\" && git config core.hooksPath .githooks",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/tools/stay-current.mjs\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/tools/stay-current.mjs\"",
+            "timeout": 30
           }
         ]
       }

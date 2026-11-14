@@ -27,6 +27,7 @@ Read only the current stage, its declared inputs, and the configuration it names
 - `tools/architecture/`: a live page showing every piece and its state.
 - `tools/check.mjs`: the check run on every commit, push and GitHub build.
 - `tools/sync-n8n.mjs`: pulls workflows and run history from n8n.
+- `tools/stay-current.mjs`: pulls teammates' pushes before work starts (`npm run update`).
 
 ## Stop times
 
