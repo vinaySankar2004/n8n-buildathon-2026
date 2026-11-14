@@ -349,7 +349,7 @@ const out = {};
     ifOk("Voice ok?", [1980, 0]),
     execWf("5 Render", [2200, 0], "5 Render"),
     ifOk("Video ok?", [2420, 0]),
-    execWf("6 Publish", [2640, 0], "6 Publish", "once", false),
+    execWf("6 Publish", [2640, 0], "6 Publish"),
     codeNode("Why it stopped", [1760, 400], "why-stopped.js"),
     node("No story today", "n8n-nodes-base.slack", 2.3, [1980, 400], { select: "channel", channelId: channel("editor"), text: "={{ $json.text }}", otherOptions: { includeLinkToWorkflow: false } }, SLACK),
     sticky("About the newsroom", [-40, -460], "## 0 Orchestrator\n**Vancouver sources** lists the datasets to watch. **1 Collect** runs once per source, **2 Score** picks the week's strongest change, then Write, Voice, Render and Publish.\n\nIf any step says `ok: false`, or errors, **No story today** tells the editor why in Slack.\n\n**Every morning** stays off while building.\n\nTo test the guard, set `test_tamper` to true in **Run options**.", 360),

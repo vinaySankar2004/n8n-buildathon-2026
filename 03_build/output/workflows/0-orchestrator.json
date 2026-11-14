@@ -319,7 +319,7 @@
         },
         "mode": "once",
         "options": {
-          "waitForSubWorkflow": false
+          "waitForSubWorkflow": true
         }
       },
       "type": "n8n-nodes-base.executeWorkflow",
