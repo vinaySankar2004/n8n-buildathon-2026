@@ -16,6 +16,18 @@ The source for all seven workflows. Written 2026-11-14 by Arman with Claude Code
 | 5 Render | The Remotion service beside n8n makes the 9:16 video |
 | 6 Publish | Slack approval; Approve posts to the outlet channel with the newsletter blurb |
 
+## See the workflows
+
+On our self-hosted n8n, a member account sees only the workflows it made (sharing is a paid n8n feature), so `npm run pipeline` draws each canvas from the same JSON it deploys. These pictures are always current. Vinayak, as owner, can also show the live editor on the host laptop.
+
+![0 Orchestrator](../workflows/0-orchestrator.svg)
+![1 Collect](../workflows/1-collect.svg)
+![2 Score](../workflows/2-score.svg)
+![3 Write](../workflows/3-write.svg)
+![4 Voice](../workflows/4-voice.svg)
+![5 Render](../workflows/5-render.svg)
+![6 Publish](../workflows/6-publish.svg)
+
 ## Getting it into n8n
 
 1. Change code in `code/` or `build.mjs`, never the JSON in `workflows/`. Then `npm run pipeline` and `npm run test:pipeline`.

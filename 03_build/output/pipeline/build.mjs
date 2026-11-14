@@ -5,6 +5,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { toSvg } from "./canvas.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const code = (f) => readFileSync(path.join(here, "code", f), "utf8");
@@ -376,5 +377,6 @@ const out = {};
 mkdirSync(OUT, { recursive: true });
 for (const [file, wf] of Object.entries(out)) {
   writeFileSync(path.join(OUT, `${file}.json`), JSON.stringify(wf, null, 2) + "\n");
+  writeFileSync(path.join(OUT, `${file}.svg`), toSvg(wf)); // the canvas picture shown in README.md
   console.log(`${file}.json: ${wf.nodes.length} nodes`);
 }

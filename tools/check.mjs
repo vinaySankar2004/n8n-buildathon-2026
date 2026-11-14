@@ -82,9 +82,10 @@ const names = ["orchestrator", "collect", "score", "write", "voice", "render", "
 for (const f of files.filter((f) => f.startsWith("03_build/output/workflows/"))) {
   const base = path.basename(f);
   if (base === "README.md") continue;
-  if (!/^\d-[a-z-]+\.json$/.test(base) || !names.some((n) => base.includes(n))) {
-    add(f, `name it <n>-<step>.json with a step from: ${names.join(", ")}`);
+  if (!/^\d[a-z]?-[a-z-]+\.(json|svg)$/.test(base) || !names.some((n) => base.includes(n))) {
+    add(f, `name it <n>-<step>.json (or .svg for its picture) with a step from: ${names.join(", ")}`);
   }
+  if (base.endsWith(".svg")) continue;
   try {
     const wf = JSON.parse(readFileSync(path.join(root, f), "utf8"));
     if (wf.pinData && Object.keys(wf.pinData).length) add(f, "has pinned test data; run npm run sync, which strips it");
