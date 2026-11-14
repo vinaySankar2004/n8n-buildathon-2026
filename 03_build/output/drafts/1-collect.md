@@ -1,21 +1,20 @@
-# 1 Collect: draft
+# 1 Collect
 
-Step 1 in [must-work.md](../../../02_storyboard/output/must-work.md). Owner: Arman. The workflow is [1-collect.json](1-collect.json), ready to import. Once it is in n8n, `npm run sync` saves the live copy to `workflows/1-collect.json` and this draft can go.
+Step 1 in [must-work.md](../../../02_storyboard/output/must-work.md). Owner: Arman. The workflow is [workflows/1-collect.json](../workflows/1-collect.json), deployed to the self-hosted n8n on 2026-11-14.
 
-## Putting it into n8n
+## Running it
 
-1. Open the LOOP newsroom project in n8n and create a workflow.
-2. Open the three-dot menu, choose Import from File, and pick `03_build/output/drafts/1-collect.json`. You can also paste the file's contents onto the empty canvas.
-3. Keep the name "1 Collect" so sync and the orchestrator find it.
-4. Click Test workflow. It needs no credentials: the city API is public.
-5. Open "Build collected". It should show one item with `ok: true`, 9 `weeks` and about 220 `types`.
+1. `npm run deploy -- collect` pushes the JSON into n8n.
+2. `npm run invoke -- collect` runs it through its "Test webhook" trigger and prints the `collected` JSON. It needs no credentials: the city API is public.
+3. Expect `ok: true`, 9 `weeks` and about 220 `types`. On 14 November it returned 222 types in under 3 seconds.
 
 ## What each node does
 
 | Node | Does |
 | --- | --- |
 | When called by orchestrator | Starts the workflow from the orchestrator's Execute Workflow node |
-| Test run | Starts it by hand while building |
+| Test run | Starts it by hand in the editor |
+| Test webhook | Starts it from `npm run invoke -- collect` and returns the result |
 | Newest record | Asks the city when its newest 3-1-1 record was logged |
 | Set window | Sets 9 weeks of 7 days ending on that day, Vancouver time. Fails if the data is over 48 hours old |
 | Data fresh? | Sends a stale or empty answer to "No data today" |
