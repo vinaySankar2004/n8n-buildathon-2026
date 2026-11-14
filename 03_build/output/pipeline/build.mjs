@@ -62,8 +62,8 @@ const execWf = (name, pos, label, mode = "once", wait = true) =>
 // Deploy sets every Slack node from these, so nobody picks a channel in the editor.
 // Channel IDs are not secret; the bot token lives only in the n8n "Slack" credential.
 const SLACK_CHANNELS = {
-  editor: "", // review, approval and "No story today" notes
-  outlet: "", // stands in for the outlet page: approved videos and newsletter drafts
+  editor: "C0CHNAKERA9", // review, approval and "No story today" notes
+  outlet: "C0CHVG02PJM", // stands in for the outlet page: approved videos and newsletter drafts
 };
 const channel = (which) => {
   const value = SLACK_CHANNELS[which];
