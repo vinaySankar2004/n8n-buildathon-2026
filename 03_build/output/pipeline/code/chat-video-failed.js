@@ -7,6 +7,7 @@ try {
   base = $("Decide").first().json;
 }
 const failed = $input.first().json;
-const why = failed.reason || failed.error?.message || failed.message || "a step stopped without saying why";
+const err = typeof failed.error === "string" ? failed.error : failed.error?.message;
+const why = failed.reason || err || failed.message || "a step stopped without saying why";
 const text = `I could not make the video: ${why}. Reply with a change, such as a shorter script, and I will try again.`;
 return [reply(base.chat.thread_ts, text, null, base.chat.stage, base, [...base.chat.history, { bot: text }])];

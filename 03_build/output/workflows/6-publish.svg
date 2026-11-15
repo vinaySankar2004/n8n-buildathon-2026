@@ -1,34 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2296" height="912" viewBox="0 0 2296 912" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
-<rect x="0" y="0" width="2296" height="912" fill="#f6f7f9"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1636" height="912" viewBox="0 0 1636 912" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+<rect x="0" y="0" width="1636" height="912" fill="#f6f7f9"/>
 <text x="40" y="44" font-size="20" font-weight="700" fill="#1c2430">6 Publish</text>
 <text x="40" y="892" font-size="12" fill="#667085">Grey line: the run goes on. Red dashed line: the error or "no" path. Drawn from 03_build/output/workflows/, the JSON deployed to n8n.</text>
 <rect x="40" y="74" width="460" height="192" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
 <text x="54" y="100" font-size="16" font-weight="700" fill="#4a3f12">6 Publish</text>
-<text x="54" y="122" font-size="12" font-weight="400" fill="#4a3f12">Sends the editor the video in Slack with Approve and Reject, and</text>
-<text x="54" y="138" font-size="12" font-weight="400" fill="#4a3f12">waits up to 3 hours. Approve posts it to the outlet channel and</text>
-<text x="54" y="154" font-size="12" font-weight="400" fill="#4a3f12">drafts the newsletter blurb. Reject sends a short note.</text>
+<text x="54" y="122" font-size="12" font-weight="400" fill="#4a3f12">Posts an approved video to the outlet channel with its headline,</text>
+<text x="54" y="138" font-size="12" font-weight="400" fill="#4a3f12">blurb and source, then the newsletter draft. The editor approves</text>
+<text x="54" y="154" font-size="12" font-weight="400" fill="#4a3f12">it in the Slack thread run by 7 Chat.</text>
 <text x="54" y="170" font-size="12" font-weight="400" fill="#4a3f12"></text>
 <text x="54" y="186" font-size="12" font-weight="400" fill="#4a3f12">Credential: Slack. Channels come from SLACK_CHANNELS in the</text>
 <text x="54" y="202" font-size="12" font-weight="400" fill="#4a3f12">pipeline's build.mjs.</text>
 <text x="54" y="218" font-size="12" font-weight="400" fill="#4a3f12"></text>
-<text x="54" y="234" font-size="12" font-weight="400" fill="#4a3f12">Its test webhook needs a run with a real video_url, such as 5</text>
-<text x="54" y="250" font-size="12" font-weight="400" fill="#4a3f12">Render's output.</text>
+<text x="54" y="234" font-size="12" font-weight="400" fill="#4a3f12">Its test webhook posts straight to the outlet channel, so it</text>
+<text x="54" y="250" font-size="12" font-weight="400" fill="#4a3f12">needs a run with a real video_url, such as 5 Render's output.</text>
 <path d="M276,511 C398,511 398,611 520,611" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M496,711 C536,711 480,611 520,611" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M716,611 C756,611 700,611 740,611" fill="none" stroke="#7d8796" stroke-width="2" />
-<path d="M936,596 C976,596 920,611 960,611" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M936,596 C976,596 920,511 960,511" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M936,626 C1058,626 1058,811 1180,811" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
-<path d="M1156,596 C1196,596 1140,511 1180,511" fill="none" stroke="#7d8796" stroke-width="2" />
-<path d="M1156,626 C1196,626 1140,811 1180,811" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
-<path d="M1376,496 C1416,496 1360,511 1400,511" fill="none" stroke="#7d8796" stroke-width="2" />
-<path d="M1376,526 C1436,526 1120,811 1180,811" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
-<path d="M1596,496 C1636,496 1580,411 1620,411" fill="none" stroke="#7d8796" stroke-width="2" />
-<path d="M1596,526 C1636,526 1580,651 1620,651" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
-<path d="M1816,396 C1856,396 1800,411 1840,411" fill="none" stroke="#7d8796" stroke-width="2" />
-<path d="M1816,426 C1876,426 1120,811 1180,811" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
-<path d="M2036,396 C2076,396 2020,411 2060,411" fill="none" stroke="#7d8796" stroke-width="2" />
-<path d="M2036,426 C2096,426 1120,811 1180,811" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
-<path d="M1376,811 C1416,811 1360,811 1400,811" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1156,496 C1196,496 1140,411 1180,411" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1156,526 C1196,526 1140,811 1180,811" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M1376,396 C1416,396 1360,411 1400,411" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1376,426 C1436,426 1120,811 1180,811" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
 <path d="M276,711 C316,711 260,711 300,711" fill="none" stroke="#7d8796" stroke-width="2" />
 <rect x="80" y="474" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
 <rect x="80" y="474" width="7" height="74" rx="3" fill="#5a6578"/>
@@ -51,41 +44,20 @@
 <rect x="740" y="574" width="7" height="74" rx="3" fill="#0f8bd8"/>
 <text x="758" y="598" font-size="13.5" font-weight="700" fill="#1c2430">Download video</text>
 <text x="758" y="636" font-size="11" fill="#667085">HTTP Request</text>
-<rect x="960" y="574" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
-<rect x="960" y="574" width="7" height="74" rx="3" fill="#7a3f8f"/>
-<text x="978" y="598" font-size="13.5" font-weight="700" fill="#1c2430">Send video to editor</text>
-<text x="978" y="636" font-size="11" fill="#667085">Slack</text>
-<rect x="1180" y="474" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
-<rect x="1180" y="474" width="7" height="74" rx="3" fill="#7a3f8f"/>
-<text x="1198" y="498" font-size="13.5" font-weight="700" fill="#1c2430">Ask editor</text>
-<text x="1198" y="536" font-size="11" fill="#667085">Slack</text>
-<rect x="1400" y="474" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
-<rect x="1400" y="474" width="7" height="74" rx="3" fill="#2c9a4b"/>
-<text x="1418" y="498" font-size="13.5" font-weight="700" fill="#1c2430">Approved?</text>
-<text x="1418" y="536" font-size="11" fill="#667085">If</text>
-<rect x="1620" y="374" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
-<rect x="1620" y="374" width="7" height="74" rx="3" fill="#0f8bd8"/>
-<text x="1638" y="398" font-size="13.5" font-weight="700" fill="#1c2430">Download for outlet</text>
-<text x="1638" y="436" font-size="11" fill="#667085">HTTP Request</text>
-<rect x="1840" y="374" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
-<rect x="1840" y="374" width="7" height="74" rx="3" fill="#7a3f8f"/>
-<text x="1858" y="398" font-size="13.5" font-weight="700" fill="#1c2430">Post to outlet</text>
-<text x="1858" y="436" font-size="11" fill="#667085">Slack</text>
-<rect x="2060" y="374" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
-<rect x="2060" y="374" width="7" height="74" rx="3" fill="#7a3f8f"/>
-<text x="2078" y="398" font-size="13.5" font-weight="700" fill="#1c2430">Newsletter draft</text>
-<text x="2078" y="436" font-size="11" fill="#667085">Slack</text>
-<rect x="1620" y="614" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
-<rect x="1620" y="614" width="7" height="74" rx="3" fill="#7a3f8f"/>
-<text x="1638" y="638" font-size="13.5" font-weight="700" fill="#1c2430">Tell editor it was</text>
-<text x="1638" y="655" font-size="13.5" font-weight="700" fill="#1c2430">rejected</text>
-<text x="1638" y="676" font-size="11" fill="#667085">Slack</text>
+<rect x="960" y="474" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="960" y="474" width="7" height="74" rx="3" fill="#7a3f8f"/>
+<text x="978" y="498" font-size="13.5" font-weight="700" fill="#1c2430">Post to outlet</text>
+<text x="978" y="536" font-size="11" fill="#667085">Slack</text>
+<rect x="1180" y="374" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="1180" y="374" width="7" height="74" rx="3" fill="#7a3f8f"/>
+<text x="1198" y="398" font-size="13.5" font-weight="700" fill="#1c2430">Newsletter draft</text>
+<text x="1198" y="436" font-size="11" fill="#667085">Slack</text>
+<rect x="1400" y="374" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="1400" y="374" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="1418" y="398" font-size="13.5" font-weight="700" fill="#1c2430">Published</text>
+<text x="1418" y="436" font-size="11" fill="#667085">Code</text>
 <rect x="1180" y="774" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
 <rect x="1180" y="774" width="7" height="74" rx="3" fill="#ff6d5a"/>
 <text x="1198" y="798" font-size="13.5" font-weight="700" fill="#1c2430">Failed</text>
 <text x="1198" y="836" font-size="11" fill="#667085">Code</text>
-<rect x="1400" y="774" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
-<rect x="1400" y="774" width="7" height="74" rx="3" fill="#7a3f8f"/>
-<text x="1418" y="798" font-size="13.5" font-weight="700" fill="#1c2430">Tell editor it failed</text>
-<text x="1418" y="836" font-size="11" fill="#667085">Slack</text>
 </svg>

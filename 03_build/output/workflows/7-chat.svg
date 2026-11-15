@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="4276" height="1852" viewBox="0 0 4276 1852" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+<rect x="0" y="0" width="4276" height="1852" fill="#f6f7f9"/>
+<text x="40" y="44" font-size="20" font-weight="700" fill="#1c2430">7 Chat</text>
+<text x="40" y="1832" font-size="12" fill="#667085">Grey line: the run goes on. Red dashed line: the error or "no" path. Drawn from 03_build/output/workflows/, the JSON deployed to n8n.</text>
+<rect x="40" y="74" width="520" height="240" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
+<text x="54" y="100" font-size="16" font-weight="700" fill="#4a3f12">7 Chat</text>
+<text x="54" y="122" font-size="12" font-weight="400" fill="#4a3f12">The editor's review, as a conversation in one Slack thread per story.</text>
+<text x="54" y="138" font-size="12" font-weight="400" fill="#4a3f12"></text>
+<text x="54" y="154" font-size="12" font-weight="400" fill="#4a3f12">Start review posts the headline, script, the data behind it and what goes</text>
+<text x="54" y="170" font-size="12" font-weight="400" fill="#4a3f12">on screen, with Approve script and Reject. Replies in the thread go to</text>
+<text x="54" y="186" font-size="12" font-weight="400" fill="#4a3f12">Claude (Revise with Claude), and every change passes the same number guard</text>
+<text x="54" y="202" font-size="12" font-weight="400" fill="#4a3f12">as Write. Approve script makes the voice and video and posts them in the</text>
+<text x="54" y="218" font-size="12" font-weight="400" fill="#4a3f12">thread; replies can still change it, which remakes the video. Approve and</text>
+<text x="54" y="234" font-size="12" font-weight="400" fill="#4a3f12">publish runs 6 Publish.</text>
+<text x="54" y="250" font-size="12" font-weight="400" fill="#4a3f12"></text>
+<text x="54" y="266" font-size="12" font-weight="400" fill="#4a3f12">Each thread's draft and history are saved in the data table</text>
+<text x="54" y="282" font-size="12" font-weight="400" fill="#4a3f12">editor_threads. Slack reaches Slack event through the router, which checks</text>
+<text x="54" y="298" font-size="12" font-weight="400" fill="#4a3f12">Slack's signature.</text>
+<path d="M276,531 C398,531 398,631 520,631" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M496,731 C536,731 480,631 520,631" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M716,631 C2048,631 2048,831 3380,831" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M276,1131 C316,1131 260,1131 300,1131" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M496,1131 C536,1131 480,1131 520,1131" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M716,1131 C756,1131 700,1131 740,1131" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M936,1131 C976,1131 920,1131 960,1131" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1156,1116 C1196,1116 1140,931 1180,931" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1156,1146 C1498,1146 1498,1291 1840,1291" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M1156,1146 C1498,1146 1498,1131 1840,1131" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M1156,1146 C1196,1146 1140,1531 1180,1531" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1156,1146 C1196,1146 1140,1751 1180,1751" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1376,916 C1416,916 1360,931 1400,931" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1376,946 C1416,946 1360,931 1400,931" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M1596,931 C1636,931 1580,931 1620,931" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1816,916 C1856,916 1800,1291 1840,1291" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1816,916 C1856,916 1800,1131 1840,1131" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1816,946 C2598,946 2598,831 3380,831" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M2036,1116 C2076,1116 2020,1131 2060,1131" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M2036,1146 C2378,1146 2378,1411 2720,1411" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M2256,1116 C2296,1116 2240,1131 2280,1131" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M2256,1146 C2488,1146 2488,1411 2720,1411" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M2476,1116 C2516,1116 2460,1131 2500,1131" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M2476,1146 C2598,1146 2598,1411 2720,1411" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M2696,1116 C2736,1116 2680,1131 2720,1131" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M2696,1146 C2736,1146 2680,1411 2720,1411" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M2916,1116 C2956,1116 2900,1131 2940,1131" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M2916,1146 C2976,1146 2660,1411 2720,1411" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M3136,1116 C3176,1116 3120,1131 3160,1131" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M3136,1146 C3196,1146 2660,1411 2720,1411" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M3356,1131 C3396,1131 3340,831 3380,831" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M2916,1411 C3148,1411 3148,831 3380,831" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1376,1516 C1416,1516 1360,1531 1400,1531" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1376,1546 C1498,1546 1498,1631 1620,1631" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M1596,1516 C1636,1516 1580,1471 1620,1471" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1596,1546 C1636,1546 1580,1631 1620,1631" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M1816,1471 C2598,1471 2598,831 3380,831" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1816,1631 C2598,1631 2598,831 3380,831" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1376,1751 C2378,1751 2378,831 3380,831" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M3576,831 C3616,831 3560,831 3600,831" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M3796,831 C3836,831 3780,831 3820,831" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M4016,831 C4056,831 4000,831 4040,831" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M276,731 C316,731 260,731 300,731" fill="none" stroke="#7d8796" stroke-width="2" />
+<rect x="80" y="494" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="80" y="494" width="7" height="74" rx="3" fill="#5a6578"/>
+<text x="98" y="518" font-size="13.5" font-weight="700" fill="#1c2430">When Executed by Another</text>
+<text x="98" y="535" font-size="13.5" font-weight="700" fill="#1c2430">Workflow</text>
+<text x="98" y="556" font-size="11" fill="#667085">Trigger: called by a workflow</text>
+<rect x="80" y="694" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="80" y="694" width="7" height="74" rx="3" fill="#5a6578"/>
+<text x="98" y="718" font-size="13.5" font-weight="700" fill="#1c2430">Test webhook</text>
+<text x="98" y="756" font-size="11" fill="#667085">Trigger: test webhook</text>
+<rect x="300" y="694" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="300" y="694" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="318" y="718" font-size="13.5" font-weight="700" fill="#1c2430">Sample run</text>
+<text x="318" y="756" font-size="11" fill="#667085">Code</text>
+<rect x="520" y="594" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="520" y="594" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="538" y="618" font-size="13.5" font-weight="700" fill="#1c2430">Start review</text>
+<text x="538" y="656" font-size="11" fill="#667085">Code</text>
+<rect x="80" y="1094" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="80" y="1094" width="7" height="74" rx="3" fill="#5a6578"/>
+<text x="98" y="1118" font-size="13.5" font-weight="700" fill="#1c2430">Slack event</text>
+<text x="98" y="1156" font-size="11" fill="#667085">Trigger: test webhook</text>
+<rect x="300" y="1094" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="300" y="1094" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="318" y="1118" font-size="13.5" font-weight="700" fill="#1c2430">Read Slack event</text>
+<text x="318" y="1156" font-size="11" fill="#667085">Code</text>
+<rect x="520" y="1094" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="520" y="1094" width="7" height="74" rx="3" fill="#9aa3b2"/>
+<text x="538" y="1118" font-size="13.5" font-weight="700" fill="#1c2430">Find thread</text>
+<text x="538" y="1156" font-size="11" fill="#667085">dataTable</text>
+<rect x="740" y="1094" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="740" y="1094" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="758" y="1118" font-size="13.5" font-weight="700" fill="#1c2430">Decide</text>
+<text x="758" y="1156" font-size="11" fill="#667085">Code</text>
+<rect x="960" y="1094" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="960" y="1094" width="7" height="74" rx="3" fill="#9aa3b2"/>
+<text x="978" y="1118" font-size="13.5" font-weight="700" fill="#1c2430">Route</text>
+<text x="978" y="1156" font-size="11" fill="#667085">switch</text>
+<rect x="1180" y="894" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="1180" y="894" width="7" height="74" rx="3" fill="#0f8bd8"/>
+<text x="1198" y="918" font-size="13.5" font-weight="700" fill="#1c2430">Revise with Claude</text>
+<text x="1198" y="956" font-size="11" fill="#667085">HTTP Request</text>
+<rect x="1400" y="894" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="1400" y="894" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="1418" y="918" font-size="13.5" font-weight="700" fill="#1c2430">Check revision</text>
+<text x="1418" y="956" font-size="11" fill="#667085">Code</text>
+<rect x="1620" y="894" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="1620" y="894" width="7" height="74" rx="3" fill="#2c9a4b"/>
+<text x="1638" y="918" font-size="13.5" font-weight="700" fill="#1c2430">Needs video?</text>
+<text x="1638" y="956" font-size="11" fill="#667085">If</text>
+<rect x="1840" y="1254" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="1840" y="1254" width="7" height="74" rx="3" fill="#0f8bd8"/>
+<text x="1858" y="1278" font-size="13.5" font-weight="700" fill="#1c2430">Say working on it</text>
+<text x="1858" y="1316" font-size="11" fill="#667085">HTTP Request</text>
+<rect x="1840" y="1094" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="1840" y="1094" width="7" height="74" rx="3" fill="#c27b0e"/>
+<text x="1858" y="1118" font-size="13.5" font-weight="700" fill="#1c2430">Make voice</text>
+<text x="1858" y="1156" font-size="11" fill="#667085">Runs 4 Voice</text>
+<rect x="2060" y="1094" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="2060" y="1094" width="7" height="74" rx="3" fill="#2c9a4b"/>
+<text x="2078" y="1118" font-size="13.5" font-weight="700" fill="#1c2430">Voice ok?</text>
+<text x="2078" y="1156" font-size="11" fill="#667085">If</text>
+<rect x="2280" y="1094" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="2280" y="1094" width="7" height="74" rx="3" fill="#c27b0e"/>
+<text x="2298" y="1118" font-size="13.5" font-weight="700" fill="#1c2430">Make video</text>
+<text x="2298" y="1156" font-size="11" fill="#667085">Runs 5 Render</text>
+<rect x="2500" y="1094" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="2500" y="1094" width="7" height="74" rx="3" fill="#2c9a4b"/>
+<text x="2518" y="1118" font-size="13.5" font-weight="700" fill="#1c2430">Video ok?</text>
+<text x="2518" y="1156" font-size="11" fill="#667085">If</text>
+<rect x="2720" y="1094" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="2720" y="1094" width="7" height="74" rx="3" fill="#0f8bd8"/>
+<text x="2738" y="1118" font-size="13.5" font-weight="700" fill="#1c2430">Download video</text>
+<text x="2738" y="1156" font-size="11" fill="#667085">HTTP Request</text>
+<rect x="2940" y="1094" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="2940" y="1094" width="7" height="74" rx="3" fill="#7a3f8f"/>
+<text x="2958" y="1118" font-size="13.5" font-weight="700" fill="#1c2430">Upload to thread</text>
+<text x="2958" y="1156" font-size="11" fill="#667085">Slack</text>
+<rect x="3160" y="1094" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="3160" y="1094" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="3178" y="1118" font-size="13.5" font-weight="700" fill="#1c2430">Video card</text>
+<text x="3178" y="1156" font-size="11" fill="#667085">Code</text>
+<rect x="2720" y="1374" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="2720" y="1374" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="2738" y="1398" font-size="13.5" font-weight="700" fill="#1c2430">Video failed</text>
+<text x="2738" y="1436" font-size="11" fill="#667085">Code</text>
+<rect x="1180" y="1494" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="1180" y="1494" width="7" height="74" rx="3" fill="#c27b0e"/>
+<text x="1198" y="1518" font-size="13.5" font-weight="700" fill="#1c2430">Publish it</text>
+<text x="1198" y="1556" font-size="11" fill="#667085">Runs 6 Publish</text>
+<rect x="1400" y="1494" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="1400" y="1494" width="7" height="74" rx="3" fill="#2c9a4b"/>
+<text x="1418" y="1518" font-size="13.5" font-weight="700" fill="#1c2430">Published?</text>
+<text x="1418" y="1556" font-size="11" fill="#667085">If</text>
+<rect x="1620" y="1434" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="1620" y="1434" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="1638" y="1458" font-size="13.5" font-weight="700" fill="#1c2430">Published note</text>
+<text x="1638" y="1496" font-size="11" fill="#667085">Code</text>
+<rect x="1620" y="1594" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="1620" y="1594" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="1638" y="1618" font-size="13.5" font-weight="700" fill="#1c2430">Publish failed note</text>
+<text x="1638" y="1656" font-size="11" fill="#667085">Code</text>
+<rect x="1180" y="1714" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="1180" y="1714" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="1198" y="1738" font-size="13.5" font-weight="700" fill="#1c2430">Rejected note</text>
+<text x="1198" y="1776" font-size="11" fill="#667085">Code</text>
+<rect x="3380" y="794" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="3380" y="794" width="7" height="74" rx="3" fill="#9aa3b2"/>
+<text x="3398" y="818" font-size="13.5" font-weight="700" fill="#1c2430">Reply ready</text>
+<text x="3398" y="856" font-size="11" fill="#667085">Pass-through</text>
+<rect x="3600" y="794" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="3600" y="794" width="7" height="74" rx="3" fill="#0f8bd8"/>
+<text x="3618" y="818" font-size="13.5" font-weight="700" fill="#1c2430">Post to Slack</text>
+<text x="3618" y="856" font-size="11" fill="#667085">HTTP Request</text>
+<rect x="3820" y="794" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="3820" y="794" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="3838" y="818" font-size="13.5" font-weight="700" fill="#1c2430">Check Slack</text>
+<text x="3838" y="856" font-size="11" fill="#667085">Code</text>
+<rect x="4040" y="794" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="4040" y="794" width="7" height="74" rx="3" fill="#9aa3b2"/>
+<text x="4058" y="818" font-size="13.5" font-weight="700" fill="#1c2430">Save thread</text>
+<text x="4058" y="856" font-size="11" fill="#667085">dataTable</text>
+</svg>

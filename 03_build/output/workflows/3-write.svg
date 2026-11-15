@@ -5,7 +5,7 @@
 <rect x="40" y="74" width="460" height="208" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
 <text x="54" y="100" font-size="16" font-weight="700" fill="#4a3f12">3 Write</text>
 <text x="54" y="122" font-size="12" font-weight="400" fill="#4a3f12">Claude (Anthropic API, credential &quot;Anthropic&quot;) turns the story</text>
-<text x="54" y="138" font-size="12" font-weight="400" fill="#4a3f12">into a headline, a script of about 50 words, a chart title and a</text>
+<text x="54" y="138" font-size="12" font-weight="400" fill="#4a3f12">into a headline, a script of 35 to 45 words, a chart title and a</text>
 <text x="54" y="154" font-size="12" font-weight="400" fill="#4a3f12">newsletter blurb.</text>
 <text x="54" y="170" font-size="12" font-weight="400" fill="#4a3f12"></text>
 <text x="54" y="186" font-size="12" font-weight="400" fill="#4a3f12">Build spec and check numbers builds the chart from the story</text>
