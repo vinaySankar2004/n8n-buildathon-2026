@@ -11,7 +11,7 @@ The disclosure list for Devpost. Add each one the moment it enters the build.
 | BC Government News RSS (news.gov.bc.ca) | News context for Rain City Ledger (2b Context); terms of use not yet checked | 2026-11-14 |
 | Environment Canada weather alerts API (api.weather.gc.ca) | Live weather alerts for Vancouver (2b Context); terms of use not yet checked | 2026-11-14 |
 | DriveBC Open511 API | Live road events in Vancouver (2b Context); terms of use not yet checked | 2026-11-14 |
-| Remotion 4.0.543 | Rendering the story video (open-source library; its free licence covers individuals and small teams, and the team is two people) | 2026-11-14 |
+| Remotion 4.0.543 | Rendering the story video. Its free licence covers "individuals and companies of up to 3 people" (remotion.dev/docs/license/pricing, read 2026-11-15); the team is two | 2026-11-14 |
 | Express 5.3.0 | The render service's web server | 2026-11-14 |
 | FFmpeg (ffprobe) | Measuring the narration's length in the render service | 2026-11-14 |
 | ngrok, free plan | One public address for n8n, the render service's links and pages, and Slack's events, through the router (D11) | 2026-11-14 |
