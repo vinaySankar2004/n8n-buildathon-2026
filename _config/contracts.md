@@ -106,17 +106,21 @@ Score gets every `collected` and returns `{ "ok": true, "story": …, "runners_u
 
 | After | Adds |
 | --- | --- |
-| Run options | `client` (the client file without `data_sources`), `started_at`, `test_tamper` |
+| Run options | `client` (the client file without `data_sources`), `run_id`, `trigger`, `started_at`, `test_tamper` |
 | Context | `reports` (up to 12, newest first: `{ "id": "r1", "source", "feed", "title", "summary", "url", "published" }`), `feeds_checked` (`{ "feed", "ok", "items", "recent" }` or `{ "feed", "ok": false, "reason" }`) |
 | Write | `spec`, `blurb`, `script_words`, `chart_kind` (`by_area` or `weekly`, which the editor can change), `reports_used` (the reports the script cites), `write` (`model`, `usage`, `stop_reason`, `answer`, `number_checks`: `{ "field", "number", "from" }` for every number) |
 | Add trace link | `trace_id`, `trace_url` (editor page), `story_page_url` (public page), all null if the save failed |
-| Voice | `audio_base64`, `audio_seconds` |
+| Voice | `audio_base64`, `audio_seconds`, and one entry in `voice_calls` per narration: `{ "at", "characters", "tier", "used_this_period", "limit", "usd_per_credit" }` |
 | Render | `video_url`, `video_seconds`, `render_seconds` (and drops `audio_base64`) |
 | Publish | `published: true` |
 
 Inside 7 Chat the run also carries `chat`: `{ "thread_ts", "stage", "history", "user", "text" }`. Voice and Render pass it through untouched. For the trace, 7 Chat adds `revisions` (`{ "at", "editor", "model", "usage" }` per Claude call) and `approvals` (`{ "action": "approve_script" | "approve_video" | "reject", "user", "at" }`), and Publish adds `approved_at` when it saves the final trace.
 
-Render service: `POST /render` with `{ "spec": …, "audio_base64": … }` or `{ "spec": …, "audio_url": … }` returns `{ "video_url", "duration_s", "render_seconds" }`. `POST /trace` with `{ "run": …, "prompt": … }` returns `{ "trace_id", "trace_url", "story_url" }`.
+## 8 Request
+
+7 Chat hands 8 Request a mention of the bot: `{ "kind": "request", "text", "user", "ts", "channel", "at" }`. Read request (Claude Haiku) returns `{ "kind": "video" | "answer" | "unclear", "source_id", "categories": [...], "topic", "area", "reply" }`; Plan keeps only categories and neighbourhoods that are in the data. Requested story returns a run like Score's, with `story.area`, `story.direction` (`up`, `down` or `flat`), `run_id` (`request-<ts>`), `trigger: "Slack request"`, `request` (the event plus `parse` and `matched`), `answer` (Slack text) and `answer_line`. A video request then goes through Context and Write like any run, and its review opens in the request's thread.
+
+Render service: `POST /render` with `{ "spec": …, "audio_base64": … }` or `{ "spec": …, "audio_url": … }` returns `{ "video_url", "duration_s", "render_seconds" }`. `POST /trace` with `{ "run": …, "prompt": … }` returns `{ "trace_id", "trace_url", "story_url", "ledger_url" }` and updates the run's ledger row. `POST /ledger` with `{ "run", "stage" }` (7 Chat) or `{ "run", "status" }` (anywhere else) updates the row keyed by `run_id`.
 
 ## 7 Chat
 

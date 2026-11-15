@@ -53,7 +53,12 @@ const existing = new Map((await listAll("/workflows")).map((w) => [w.name, w]));
 // workflow deployed before its credential existed picks it up as soon as it is deployed again.
 const credentialIds = new Map((await listAll("/credentials")).map((c) => [`${c.type}/${c.name}`, c.id]));
 
-for (const file of files) {
+// Workflows can call each other (7 Chat and 8 Request do), so a link to one created later in this
+// deploy is made on a second pass.
+const relink = new Set();
+const inactiveFiles = new Set(); // a workflow that calls one not yet switched on fails to switch on; retried below
+let secondPass = false;
+async function deployFile(file) {
   const wf = JSON.parse(readFileSync(path.join(WORKFLOW_DIR, file), "utf8"));
   for (const n of wf.nodes) {
     for (const [type, ref] of Object.entries(n.credentials || {})) {
@@ -68,7 +73,8 @@ for (const file of files) {
     if (!ref?.cachedResultName) continue;
     const target = existing.get(ref.cachedResultName);
     if (target) Object.assign(ref, { __rl: true, mode: "list", value: target.id });
-    else console.warn(`"${wf.name}": no workflow named "${ref.cachedResultName}" yet for node "${n.name}"; deploy it first.`);
+    else if (secondPass) console.warn(`"${wf.name}": no workflow named "${ref.cachedResultName}" for node "${n.name}".`);
+    else relink.add(file);
   }
   const settings = Object.fromEntries(Object.entries(wf.settings || {}).filter(([k]) => SETTINGS.includes(k)));
   const body = { name: wf.name, nodes: wf.nodes, connections: wf.connections, settings: { executionOrder: "v1", ...settings } };
@@ -95,6 +101,7 @@ for (const file of files) {
         inactive = e.message;
       }
       notActive.push(wf.name);
+      inactiveFiles.add(file);
     }
   }
   const step = stepOf(wf.name);
@@ -104,6 +111,14 @@ for (const file of files) {
       (inactive ? `, saved but not active: ${inactive}` : "") +
       ` (${N8N_URL}/workflow/${saved.id})`,
   );
+}
+for (const file of files) await deployFile(file);
+secondPass = true;
+const retry = files.filter((f) => relink.has(f) || inactiveFiles.has(f));
+if (retry.length) {
+  notActive.length = 0;
+  inactiveFiles.clear();
+  for (const file of retry) await deployFile(file);
 }
 if (notActive.length) {
   console.log(`Not active yet: ${notActive.join(", ")}. Add the missing keys to .env, run npm run credentials, then deploy again.`);

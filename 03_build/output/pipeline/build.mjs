@@ -20,6 +20,7 @@ const OUT = path.join(here, "..", "workflows");
 const RENDER_URL = "http://127.0.0.1:8787/render";
 const MODEL = "claude-sonnet-5-5"; // writes each story
 const CHAT_MODEL = "claude-haiku-5-5"; // revises drafts in the review thread: many small edits, so the low-cost model
+const REQUEST_MODEL = "claude-haiku-5-5"; // matches Slack requests to the data
 const VOICE_ID = "JBFqnCBsd6RMkjVDRZzb"; // an ElevenLabs premade voice; change in "Speak script"
 
 // The client this build serves (D13): name, look, Slack channels, data sources, news feeds and style card.
@@ -170,6 +171,31 @@ const saveTrace = (name, pos, runExpr) => http(name, pos, {
   options: { timeout: 20000 },
 }, { maxTries: 2, onError: "continueRegularOutput", ...creds("httpHeaderAuth", "Render token") });
 
+// The run ledger (render service, POST /ledger): one row per run, updated at every step.
+const LEDGER_URL = RENDER_URL.replace(/\/render$/, "/ledger");
+const logLedger = (name, pos, bodyExpr) => http(name, pos, {
+  method: "POST",
+  url: LEDGER_URL,
+  authentication: "genericCredentialType",
+  genericAuthType: "httpHeaderAuth",
+  sendBody: true,
+  specifyBody: "json",
+  jsonBody: `={{ JSON.stringify(${bodyExpr}) }}`,
+  options: { timeout: 15000 },
+}, { maxTries: 2, onError: "continueRegularOutput", ...creds("httpHeaderAuth", "Render token") });
+// Slack's chat.postMessage, for replies in a thread.
+const postSlack = (name, pos, bodyExpr, extra = {}) => http(name, pos, {
+  method: "POST",
+  url: "https://slack.com/api/chat.postMessage",
+  authentication: "predefinedCredentialType",
+  nodeCredentialType: "slackApi",
+  sendBody: true,
+  specifyBody: "json",
+  jsonBody: `={{ JSON.stringify(${bodyExpr}) }}`,
+}, { ...SLACK, onError: "continueRegularOutput", ...extra });
+// The client's config as a Code node, so a run carries it without reading files.
+const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCode: `// The client this run serves, from 03_build/output/clients/${CLIENT_ID}.json. Change the file, not this node.\nreturn [{ json: ${JSON.stringify(client, null, 2)} }];\n` });
+
 // ---------- 1 Collect ----------
 {
   const n = [
@@ -249,7 +275,8 @@ const saveTrace = (name, pos, runExpr) => http(name, pos, {
   // What Claude is given: the client's name and style card, the story, and the recent reports.
   const request = "'Client: ' + JSON.stringify({ name: $('Input').first().json.client?.name, style: $('Input').first().json.client?.style }, null, 2)"
     + " + '\\n\\nStory JSON:\\n' + JSON.stringify($('Input').first().json.story, null, 2)"
-    + " + '\\n\\nReports from the client news feeds, newest first:\\n' + JSON.stringify(($('Input').first().json.reports || []).map(r => ({ id: r.id, source: r.source, published: r.published, title: r.title, summary: r.summary })), null, 2)";
+    + " + '\\n\\nReports from the client news feeds, newest first:\\n' + JSON.stringify(($('Input').first().json.reports || []).map(r => ({ id: r.id, source: r.source, published: r.published, title: r.title, summary: r.summary })), null, 2)"
+    + " + ($('Input').first().json.request ? '\\n\\nAsked for in Slack: ' + $('Input').first().json.request.text : '')";
   const write = http("Write script", [660, 100], {
     method: "POST",
     url: "https://api.anthropic.com/v1/messages",
@@ -297,8 +324,15 @@ const saveTrace = (name, pos, runExpr) => http(name, pos, {
       options: { timeout: 60000, response: { response: { responseFormat: "file" } } },
     }, creds("httpHeaderAuth", "ElevenLabs")),
     codeNode("Package audio", [900, 0], "voice-package.js"),
+    http("Check credits", [1120, 0], {
+      url: "https://api.elevenlabs.io/v1/user/subscription",
+      authentication: "genericCredentialType",
+      genericAuthType: "httpHeaderAuth",
+      options: { timeout: 15000 },
+    }, { maxTries: 2, onError: "continueRegularOutput", ...creds("httpHeaderAuth", "ElevenLabs") }),
+    codeNode("Add voice cost", [1340, 0], "voice-cost.js"),
     codeNode("Failed", [900, 240], "voice-failed.js"),
-    sticky("About Voice", [-40, -340], "## 4 Voice\nElevenLabs reads the script. **Package audio** turns the MP3 into base64 for the render service and stops the run if it is 22 seconds or longer.\n\nCredential: Header Auth named \"ElevenLabs\", header `xi-api-key`.\n\nAn empty test body uses **Sample spec**.", 280),
+    sticky("About Voice", [-40, -340], "## 4 Voice\nElevenLabs reads the script. **Package audio** turns the MP3 into base64 for the render service and stops the run if it is 22 seconds or longer. **Check credits** reads the ElevenLabs plan, so the trace and ledger show the credits used and what they cost.\n\nCredential: Header Auth named \"ElevenLabs\", header `xi-api-key`.\n\nAn empty test body uses **Sample spec**.", 280),
   ];
   const c = {};
   link(c, "When Executed by Another Workflow", [["Input"]]);
@@ -306,6 +340,8 @@ const saveTrace = (name, pos, runExpr) => http(name, pos, {
   link(c, "Sample spec", [["Input"]]);
   link(c, "Input", [["Speak script"]]);
   link(c, "Speak script", [["Package audio"], ["Failed"]]);
+  link(c, "Package audio", [["Check credits"]]);
+  link(c, "Check credits", [["Add voice cost"]]);
   out["4-voice"] = workflow("4 Voice", n, c);
 }
 
@@ -409,6 +445,8 @@ const saveTrace = (name, pos, runExpr) => http(name, pos, {
     chatCode("Start review", [440, 100], "chat-start.js"),
     node("Slack event", "n8n-nodes-base.webhook", 2, [0, 600], { httpMethod: "POST", path: "slack-events", responseMode: "onReceived", options: {} }, { webhookId: id("slack-events webhook") }),
     chatCode("Read Slack event", [220, 600], "chat-read-event.js"),
+    ifOk("Request?", [330, 800], "={{ $json.kind === 'request' }}"),
+    { ...execWf("8 Request", [550, 860], "8 Request"), onError: "continueRegularOutput" },
     node("Find thread", "n8n-nodes-base.dataTable", 1.1, [440, 600], { resource: "row", operation: "get", dataTableId: TABLE, ...byThread, limit: 1 }),
     chatCode("Decide", [660, 600], "chat-decide.js"),
     node("Route", "n8n-nodes-base.switch", 3.2, [880, 600], {
@@ -476,7 +514,8 @@ const saveTrace = (name, pos, runExpr) => http(name, pos, {
       columns: { mappingMode: "autoMapInputData", value: {}, matchingColumns: [], schema: ["thread_ts", "stage", "state"].map(column) },
       options: {},
     }),
-    sticky("About Chat", [-40, -420], "## 7 Chat\nThe editor's review, as a conversation in one Slack thread per story.\n\n**Start review** posts the headline, script, the data behind it and what goes on screen, with Approve script and Reject. Replies in the thread go to Claude (**Revise with Claude**), and every change passes the same number guard as Write. **Approve script** makes the voice and video and posts them in the thread; replies can still change it, which remakes the video. **Approve and publish** runs 6 Publish.\n\nEach thread's draft and history are saved in the data table `editor_threads`. Slack reaches **Slack event** through the router, which checks Slack's signature.", 400, 520),
+    logLedger("Update ledger", [4180, 300], "{ stage: $json.stage, run: JSON.parse($json.state || '{}').run }"),
+    sticky("About Chat", [-40, -420], "## 7 Chat\nThe editor's review, as a conversation in one Slack thread per story.\n\n**Start review** posts the headline, script, the data behind it and what goes on screen, with Approve script and Reject. Replies in the thread go to Claude (**Revise with Claude**), and every change passes the same number guard as Write. **Approve script** makes the voice and video and posts them in the thread; replies can still change it, which remakes the video. **Approve and publish** runs 6 Publish.\n\nEach thread's draft and history are saved in the data table `editor_threads`. Slack reaches **Slack event** through the router, which checks Slack's signature. A new message that mentions the bot goes to **8 Request**. **Update ledger** records every step in the run ledger.", 400, 520),
   ];
   const c = {};
   link(c, "When Executed by Another Workflow", [["Start review"]]);
@@ -484,7 +523,8 @@ const saveTrace = (name, pos, runExpr) => http(name, pos, {
   link(c, "Sample run", [["Start review"]]);
   link(c, "Start review", [["Reply ready"]]);
   link(c, "Slack event", [["Read Slack event"]]);
-  link(c, "Read Slack event", [["Find thread"]]);
+  link(c, "Read Slack event", [["Request?"]]);
+  link(c, "Request?", [["8 Request"], ["Find thread"]]);
   link(c, "Find thread", [["Decide"]]);
   link(c, "Decide", [["Route"]]);
   link(c, "Route", [["Revise with Claude"], ["Say working on it", "Make voice"], ["Publish it"], ["Rejected note"]]);
@@ -507,7 +547,90 @@ const saveTrace = (name, pos, runExpr) => http(name, pos, {
   link(c, "Reply ready", [["Post to Slack"]]);
   link(c, "Post to Slack", [["Check Slack"]]);
   link(c, "Check Slack", [["Save thread"]]);
+  link(c, "Save thread", [["Update ledger"]]);
   out["7-chat"] = workflow("7 Chat", n, c);
+}
+
+// ---------- 8 Request ----------
+// Anyone in the editor channel can mention the bot to ask for a video or a quick answer. 7 Chat hands
+// the request here. Claude Haiku matches it to a real dataset, category and neighbourhood; code
+// builds the story and the answer, so every number comes from the data.
+{
+  const fill = { __REQUEST_MODEL__: REQUEST_MODEL, __REQUEST_PROMPT__: JSON.stringify(code("request-prompt.md")) };
+  const reqCode = (name, pos, file) => codeWith(name, pos, file, [], fill);
+  const thread = (textExpr, tsExpr = "$('Input').first().json.ts") =>
+    `{ channel: ${tsExpr} ? '${SLACK_CHANNELS.editor}' : '', thread_ts: ${tsExpr}, text: ${textExpr}, unfurl_links: false }`;
+  const n = [
+    calledBy([0, 0]), testRun([0, 200]),
+    jsonNode("Sample request", [220, 200], { kind: "request", text: "make a video about graffiti in Mount Pleasant", user: "U0TEST", ts: "", channel: SLACK_CHANNELS.editor, at: "2026-11-14T20:00:00.000Z" }),
+    noop("Input", [440, 100]),
+    postSlack("Say looking", [660, -120], thread("'Looking through the data now.'")),
+    clientNode([660, 100]),
+    node("Data sources", "n8n-nodes-base.code", 2, [880, 100], { jsCode: "// One item per dataset in the client's config, for 1 Collect.\nreturn $('Client').first().json.data_sources.map((json) => ({ json }));\n" }),
+    { ...execWf("1 Collect", [1100, 100], "1 Collect", "each"), onError: "continueRegularOutput" },
+    reqCode("Menu", [1320, 100], "request-menu.js"),
+    http("Read request", [1540, 100], {
+      method: "POST",
+      url: "https://api.anthropic.com/v1/messages",
+      authentication: "predefinedCredentialType",
+      nodeCredentialType: "anthropicApi",
+      sendHeaders: true,
+      headerParameters: { parameters: [{ name: "anthropic-version", value: "2023-06-01" }] },
+      sendBody: true,
+      specifyBody: "json",
+      jsonBody: "={{ JSON.stringify($json.claude_body) }}",
+      options: { timeout: 60000 },
+    }, { maxTries: 2, onError: "continueRegularOutput", ...creds("anthropicApi", "Anthropic") }),
+    codeNode("Plan", [1760, 100], "request-plan.js"),
+    ifOk("Understood?", [1980, 100]),
+    ifOk("Neighbourhood?", [2200, 0], "={{ !!$json.filtered }}"),
+    node("Neighbourhood source", "n8n-nodes-base.code", 2, [2420, -120], { jsCode: "// The source with a filter for the one neighbourhood asked about, for 1 Collect.\nreturn [{ json: $json.filtered }];\n" }),
+    { ...execWf("Collect neighbourhood", [2640, -120], "1 Collect"), onError: "continueRegularOutput" },
+    codeNode("Requested story", [2860, 0], "request-story.js"),
+    ifOk("Story ok?", [3080, 0]),
+    ifOk("Answer only?", [3300, 0], "={{ $json.kind === 'answer' }}"),
+    postSlack("Post answer", [3520, -120], thread("$json.answer + '\\n_Want a video? Ask \"@Newsroom make a video about\" the same thing._'", "$json.request.ts")),
+    logLedger("Log answer", [3740, -120], "{ status: 'Answered in Slack', run: $('Requested story').first().json }"),
+    execWf("2b Context", [3520, 100], "2b Context"),
+    execWf("3 Write", [3740, 100], "3 Write"),
+    ifOk("Numbers check out?", [3960, 100]),
+    saveTrace("Save trace", [4180, 100], "$json"),
+    codeNode("Add trace link", [4400, 100], "trace-link.js"),
+    // Through 7 Chat's webhook, not Execute Workflow: n8n will not switch on two workflows that call each other.
+    http("Start review", [4620, 100], { method: "POST", url: "http://127.0.0.1:5678/webhook/step-chat", sendBody: true, specifyBody: "json", jsonBody: "={{ JSON.stringify($json) }}", options: { timeout: 60000 } }, { onError: "continueRegularOutput" }),
+    postSlack("Say it stopped", [4180, 320], thread("'I could not write that one: ' + ($json.reason || 'a step failed') + ' Try asking another way.'", "$('Requested story').first().json.request.ts")),
+    logLedger("Log stopped", [4400, 320], "{ status: 'Stopped: ' + ($('3 Write').first().json.reason || $('3 Write').first().json.error?.message || 'a step failed'), run: $('Requested story').first().json }"),
+    postSlack("Ask again", [2200, 380], thread("$json.reply", "$json.request.ts")),
+    logLedger("Log not understood", [2420, 380], "{ status: 'Not understood; asked again', run: { request: $('Plan').first().json.request, run_id: 'request-' + $('Input').first().json.ts, client: { name: $('Client').first().json.name }, reason: $('Plan').first().json.ok === false ? $('Plan').first().json.reply : $('Requested story').first().json.reply } }"),
+    sticky("About Request", [-40, -460], "## 8 Request\nAnyone in the editor channel can write \"@Newsroom make a video about graffiti in Mount Pleasant\" or ask \"@Newsroom how many noise complaints this week?\". **7 Chat** hands the message here.\n\n**Collect** gets every data source; **Read request** (Claude Haiku) matches the ask to a real category and neighbourhood; **Plan** checks the match. A neighbourhood gets its own 9 weeks of data. **Requested story** builds the story and a one-line answer from the numbers.\n\nA question gets the answer in the thread. A video request runs Context and Write, then **Start review** opens the usual review in the same thread through 7 Chat's webhook. Every outcome goes to the run ledger.", 400, 560),
+  ];
+  const c = {};
+  link(c, "When Executed by Another Workflow", [["Input"]]);
+  link(c, "Test run", [["Sample request"]]);
+  link(c, "Sample request", [["Input"]]);
+  link(c, "Input", [["Say looking", "Client"]]);
+  link(c, "Client", [["Data sources"]]);
+  link(c, "Data sources", [["1 Collect"]]);
+  link(c, "1 Collect", [["Menu"]]);
+  link(c, "Menu", [["Read request"]]);
+  link(c, "Read request", [["Plan"]]);
+  link(c, "Plan", [["Understood?"]]);
+  link(c, "Understood?", [["Neighbourhood?"], ["Ask again"]]);
+  link(c, "Neighbourhood?", [["Neighbourhood source"], ["Requested story"]]);
+  link(c, "Neighbourhood source", [["Collect neighbourhood"]]);
+  link(c, "Collect neighbourhood", [["Requested story"]]);
+  link(c, "Requested story", [["Story ok?"]]);
+  link(c, "Story ok?", [["Answer only?"], ["Ask again"]]);
+  link(c, "Answer only?", [["Post answer"], ["2b Context"]]);
+  link(c, "Post answer", [["Log answer"]]);
+  link(c, "2b Context", [["3 Write"]]);
+  link(c, "3 Write", [["Numbers check out?"], ["Say it stopped"]]);
+  link(c, "Numbers check out?", [["Save trace"], ["Say it stopped"]]);
+  link(c, "Save trace", [["Add trace link"]]);
+  link(c, "Add trace link", [["Start review"]]);
+  link(c, "Say it stopped", [["Log stopped"]]);
+  link(c, "Ask again", [["Log not understood"]]);
+  out["8-request"] = workflow("8 Request", n, c);
 }
 
 // ---------- 0 Orchestrator ----------
@@ -515,7 +638,7 @@ const saveTrace = (name, pos, runExpr) => http(name, pos, {
   const n = [
     testRun([0, 200]),
     node("Every morning", "n8n-nodes-base.scheduleTrigger", 1.2, [0, 0], { rule: { interval: [{ triggerAtHour: 7 }] } }, { disabled: true }),
-    node("Client", "n8n-nodes-base.code", 2, [220, 100], { jsCode: `// The client this run serves, from 03_build/output/clients/${CLIENT_ID}.json. Change the file, not this node.\nreturn [{ json: ${JSON.stringify(client, null, 2)} }];\n` }),
+    clientNode([220, 100]),
     node("Data sources", "n8n-nodes-base.code", 2, [440, 100], { jsCode: "// One item per dataset in the client's config, for 1 Collect.\nreturn $('Client').first().json.data_sources.map((json) => ({ json }));\n" }),
     { ...execWf("1 Collect", [660, 100], "1 Collect", "each"), onError: "continueRegularOutput" },
     execWf("2 Score", [880, 100], "2 Score", "once"),
@@ -529,6 +652,7 @@ const saveTrace = (name, pos, runExpr) => http(name, pos, {
     execWf("7 Chat", [2640, 0], "7 Chat"),
     codeNode("Why it stopped", [1980, 400], "why-stopped.js"),
     node("No story today", "n8n-nodes-base.slack", 2.3, [2200, 400], { select: "channel", channelId: channel("editor"), text: "={{ $json.text }}", otherOptions: { includeLinkToWorkflow: false } }, SLACK),
+    logLedger("Log no story", [2420, 400], "{ status: 'No story', run: { run_id: 'run-' + $execution.id, trigger: $('Every morning').isExecuted ? 'Daily run' : 'Test run', client: { name: $('Client').first().json.name }, reason: $('Why it stopped').first().json.text } }"),
     sticky("About the newsroom", [-40, -460], `## 0 Orchestrator\nRuns newsReels for one client, **${client.name}**. **Client** holds its config; **Data sources** lists its datasets. **1 Collect** runs once per dataset, **2 Score** picks the week's strongest change, **2b Context** adds recent reports from the client's news feeds, **3 Write** drafts it, **Save trace** writes the run trace pages, and **7 Chat** posts the draft, its data and the trace link to the editor in Slack. From there the editor's thread drives Voice, Render and Publish.\n\nIf any step says \`ok: false\`, or errors, **No story today** tells the editor why in Slack.\n\n**Every morning** stays off while building. To test the guard, set \`test_tamper\` to true in **Run options**.`, 400, 540),
   ];
   const c = {};
@@ -547,6 +671,7 @@ const saveTrace = (name, pos, runExpr) => http(name, pos, {
   link(c, "Add trace link", [["7 Chat"]]);
   link(c, "7 Chat", [[], ["Why it stopped"]]);
   link(c, "Why it stopped", [["No story today"]]);
+  link(c, "No story today", [["Log no story"]]);
   out["0-orchestrator"] = workflow("0 Orchestrator", n, c);
 }
 

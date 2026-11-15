@@ -17,6 +17,7 @@ The disclosure list for Devpost. Add each one the moment it enters the build.
 | create-video blank template | Starting point for the render service | 2026-11-14 |
 | Claude Code (Anthropic) | Writing code, workflow JSON, docs and the repository's checks, directed by the team | 2026-11-14 |
 | Anthropic API, Claude Sonnet 5.5 | Writing the headline, script, chart title and newsletter blurb (draft) | 2026-11-14 |
-| Anthropic API, Claude Haiku 5.5 | Revising drafts from the editor's replies in the review thread (7 Chat) | 2026-11-14 |
+| Anthropic API, Claude Haiku 5.5 | Revising drafts from the editor's replies (7 Chat) and matching Slack requests to the data (8 Request) | 2026-11-14 |
+| ElevenLabs subscription API | Reading the plan's credits and price per credit for the ledger (4 Voice) | 2026-11-14 |
 | ElevenLabs text to speech | Reading the script (draft) | 2026-11-14 |
 | Slack | Editor review threads (Events API and interactivity through the router, D14), the outlet channel, and "no story today" notes | 2026-11-14 |

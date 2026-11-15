@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="4276" height="1852" viewBox="0 0 4276 1852" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
-<rect x="0" y="0" width="4276" height="1852" fill="#f6f7f9"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="4496" height="1852" viewBox="0 0 4496 1852" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+<rect x="0" y="0" width="4496" height="1852" fill="#f6f7f9"/>
 <text x="40" y="44" font-size="20" font-weight="700" fill="#1c2430">7 Chat</text>
 <text x="40" y="1832" font-size="12" fill="#667085">Grey line: the run goes on. Red dashed line: the error or "no" path. Drawn from 03_build/output/workflows/, the JSON deployed to n8n.</text>
-<rect x="40" y="74" width="520" height="240" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
+<rect x="40" y="74" width="520" height="256" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
 <text x="54" y="100" font-size="16" font-weight="700" fill="#4a3f12">7 Chat</text>
 <text x="54" y="122" font-size="12" font-weight="400" fill="#4a3f12">The editor's review, as a conversation in one Slack thread per story.</text>
 <text x="54" y="138" font-size="12" font-weight="400" fill="#4a3f12"></text>
@@ -15,12 +15,15 @@
 <text x="54" y="250" font-size="12" font-weight="400" fill="#4a3f12"></text>
 <text x="54" y="266" font-size="12" font-weight="400" fill="#4a3f12">Each thread's draft and history are saved in the data table</text>
 <text x="54" y="282" font-size="12" font-weight="400" fill="#4a3f12">editor_threads. Slack reaches Slack event through the router, which checks</text>
-<text x="54" y="298" font-size="12" font-weight="400" fill="#4a3f12">Slack's signature.</text>
+<text x="54" y="298" font-size="12" font-weight="400" fill="#4a3f12">Slack's signature. A new message that mentions the bot goes to 8 Request.</text>
+<text x="54" y="314" font-size="12" font-weight="400" fill="#4a3f12">Update ledger records every step in the run ledger.</text>
 <path d="M276,531 C398,531 398,631 520,631" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M496,731 C536,731 480,631 520,631" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M716,631 C2048,631 2048,831 3380,831" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M276,1131 C316,1131 260,1131 300,1131" fill="none" stroke="#7d8796" stroke-width="2" />
-<path d="M496,1131 C536,1131 480,1131 520,1131" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M496,1131 C556,1131 350,1331 410,1331" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M606,1316 C646,1316 590,1391 630,1391" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M606,1346 C666,1346 460,1131 520,1131" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
 <path d="M716,1131 C756,1131 700,1131 740,1131" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M936,1131 C976,1131 920,1131 960,1131" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M1156,1116 C1196,1116 1140,931 1180,931" fill="none" stroke="#7d8796" stroke-width="2" />
@@ -58,6 +61,7 @@
 <path d="M3576,831 C3616,831 3560,831 3600,831" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M3796,831 C3836,831 3780,831 3820,831" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M4016,831 C4056,831 4000,831 4040,831" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M4236,831 C4276,831 4220,831 4260,831" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M276,731 C316,731 260,731 300,731" fill="none" stroke="#7d8796" stroke-width="2" />
 <rect x="80" y="494" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
 <rect x="80" y="494" width="7" height="74" rx="3" fill="#5a6578"/>
@@ -84,6 +88,14 @@
 <rect x="300" y="1094" width="7" height="74" rx="3" fill="#ff6d5a"/>
 <text x="318" y="1118" font-size="13.5" font-weight="700" fill="#1c2430">Read Slack event</text>
 <text x="318" y="1156" font-size="11" fill="#667085">Code</text>
+<rect x="410" y="1294" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="410" y="1294" width="7" height="74" rx="3" fill="#2c9a4b"/>
+<text x="428" y="1318" font-size="13.5" font-weight="700" fill="#1c2430">Request?</text>
+<text x="428" y="1356" font-size="11" fill="#667085">If</text>
+<rect x="630" y="1354" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="630" y="1354" width="7" height="74" rx="3" fill="#c27b0e"/>
+<text x="648" y="1378" font-size="13.5" font-weight="700" fill="#1c2430">8 Request</text>
+<text x="648" y="1416" font-size="11" fill="#667085">Runs 8 Request</text>
 <rect x="520" y="1094" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
 <rect x="520" y="1094" width="7" height="74" rx="3" fill="#9aa3b2"/>
 <text x="538" y="1118" font-size="13.5" font-weight="700" fill="#1c2430">Find thread</text>
@@ -180,4 +192,8 @@
 <rect x="4040" y="794" width="7" height="74" rx="3" fill="#9aa3b2"/>
 <text x="4058" y="818" font-size="13.5" font-weight="700" fill="#1c2430">Save thread</text>
 <text x="4058" y="856" font-size="11" fill="#667085">dataTable</text>
+<rect x="4260" y="794" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="4260" y="794" width="7" height="74" rx="3" fill="#0f8bd8"/>
+<text x="4278" y="818" font-size="13.5" font-weight="700" fill="#1c2430">Update ledger</text>
+<text x="4278" y="856" font-size="11" fill="#667085">HTTP Request</text>
 </svg>

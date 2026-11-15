@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="4936" height="1052" viewBox="0 0 4936 1052" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+<rect x="0" y="0" width="4936" height="1052" fill="#f6f7f9"/>
+<text x="40" y="44" font-size="20" font-weight="700" fill="#1c2430">8 Request</text>
+<text x="40" y="1032" font-size="12" fill="#667085">Grey line: the run goes on. Red dashed line: the error or "no" path. Drawn from 03_build/output/workflows/, the JSON deployed to n8n.</text>
+<rect x="40" y="74" width="560" height="240" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
+<text x="54" y="100" font-size="16" font-weight="700" fill="#4a3f12">8 Request</text>
+<text x="54" y="122" font-size="12" font-weight="400" fill="#4a3f12">Anyone in the editor channel can write &quot;@Newsroom make a video about graffiti in</text>
+<text x="54" y="138" font-size="12" font-weight="400" fill="#4a3f12">Mount Pleasant&quot; or ask &quot;@Newsroom how many noise complaints this week?&quot;. 7 Chat</text>
+<text x="54" y="154" font-size="12" font-weight="400" fill="#4a3f12">hands the message here.</text>
+<text x="54" y="170" font-size="12" font-weight="400" fill="#4a3f12"></text>
+<text x="54" y="186" font-size="12" font-weight="400" fill="#4a3f12">Collect gets every data source; Read request (Claude Haiku) matches the ask to a</text>
+<text x="54" y="202" font-size="12" font-weight="400" fill="#4a3f12">real category and neighbourhood; Plan checks the match. A neighbourhood gets its</text>
+<text x="54" y="218" font-size="12" font-weight="400" fill="#4a3f12">own 9 weeks of data. Requested story builds the story and a one-line answer from</text>
+<text x="54" y="234" font-size="12" font-weight="400" fill="#4a3f12">the numbers.</text>
+<text x="54" y="250" font-size="12" font-weight="400" fill="#4a3f12"></text>
+<text x="54" y="266" font-size="12" font-weight="400" fill="#4a3f12">A question gets the answer in the thread. A video request runs Context and</text>
+<text x="54" y="282" font-size="12" font-weight="400" fill="#4a3f12">Write, then Start review opens the usual review in the same thread through 7</text>
+<text x="54" y="298" font-size="12" font-weight="400" fill="#4a3f12">Chat's webhook. Every outcome goes to the run ledger.</text>
+<path d="M276,571 C398,571 398,671 520,671" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M496,771 C536,771 480,671 520,671" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M716,671 C756,671 700,451 740,451" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M716,671 C756,671 700,671 740,671" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M936,671 C976,671 920,671 960,671" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1156,671 C1196,671 1140,671 1180,671" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1376,671 C1416,671 1360,671 1400,671" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1596,671 C1636,671 1580,671 1620,671" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1816,671 C1856,671 1800,671 1840,671" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M2036,671 C2076,671 2020,671 2060,671" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M2256,656 C2296,656 2240,571 2280,571" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M2256,686 C2296,686 2240,951 2280,951" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M2476,556 C2516,556 2460,451 2500,451" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M2476,586 C2708,586 2708,571 2940,571" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M2696,451 C2736,451 2680,451 2720,451" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M2916,451 C2956,451 2900,571 2940,571" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M3136,571 C3176,571 3120,571 3160,571" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M3356,556 C3396,556 3340,571 3380,571" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M3356,586 C3416,586 2220,951 2280,951" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M3576,556 C3616,556 3560,451 3600,451" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M3576,586 C3616,586 3560,671 3600,671" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M3796,451 C3836,451 3780,451 3820,451" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M3796,671 C3836,671 3780,671 3820,671" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M4016,656 C4056,656 4000,671 4040,671" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M4016,686 C4138,686 4138,891 4260,891" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M4236,656 C4276,656 4220,671 4260,671" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M4236,686 C4276,686 4220,891 4260,891" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M4456,671 C4496,671 4440,671 4480,671" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M4676,671 C4716,671 4660,671 4700,671" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M4456,891 C4496,891 4440,891 4480,891" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M2476,951 C2516,951 2460,951 2500,951" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M276,771 C316,771 260,771 300,771" fill="none" stroke="#7d8796" stroke-width="2" />
+<rect x="80" y="534" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="80" y="534" width="7" height="74" rx="3" fill="#5a6578"/>
+<text x="98" y="558" font-size="13.5" font-weight="700" fill="#1c2430">When Executed by Another</text>
+<text x="98" y="575" font-size="13.5" font-weight="700" fill="#1c2430">Workflow</text>
+<text x="98" y="596" font-size="11" fill="#667085">Trigger: called by a workflow</text>
+<rect x="80" y="734" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="80" y="734" width="7" height="74" rx="3" fill="#5a6578"/>
+<text x="98" y="758" font-size="13.5" font-weight="700" fill="#1c2430">Test webhook</text>
+<text x="98" y="796" font-size="11" fill="#667085">Trigger: test webhook</text>
+<rect x="300" y="734" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="300" y="734" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="318" y="758" font-size="13.5" font-weight="700" fill="#1c2430">Sample request</text>
+<text x="318" y="796" font-size="11" fill="#667085">Code</text>
+<rect x="520" y="634" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="520" y="634" width="7" height="74" rx="3" fill="#9aa3b2"/>
+<text x="538" y="658" font-size="13.5" font-weight="700" fill="#1c2430">Input</text>
+<text x="538" y="696" font-size="11" fill="#667085">Pass-through</text>
+<rect x="740" y="414" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="740" y="414" width="7" height="74" rx="3" fill="#0f8bd8"/>
+<text x="758" y="438" font-size="13.5" font-weight="700" fill="#1c2430">Say looking</text>
+<text x="758" y="476" font-size="11" fill="#667085">HTTP Request</text>
+<rect x="740" y="634" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="740" y="634" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="758" y="658" font-size="13.5" font-weight="700" fill="#1c2430">Client</text>
+<text x="758" y="696" font-size="11" fill="#667085">Code</text>
+<rect x="960" y="634" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="960" y="634" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="978" y="658" font-size="13.5" font-weight="700" fill="#1c2430">Data sources</text>
+<text x="978" y="696" font-size="11" fill="#667085">Code</text>
+<rect x="1180" y="634" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="1180" y="634" width="7" height="74" rx="3" fill="#c27b0e"/>
+<text x="1198" y="658" font-size="13.5" font-weight="700" fill="#1c2430">1 Collect</text>
+<text x="1198" y="696" font-size="11" fill="#667085">Runs 1 Collect</text>
+<rect x="1400" y="634" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="1400" y="634" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="1418" y="658" font-size="13.5" font-weight="700" fill="#1c2430">Menu</text>
+<text x="1418" y="696" font-size="11" fill="#667085">Code</text>
+<rect x="1620" y="634" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="1620" y="634" width="7" height="74" rx="3" fill="#0f8bd8"/>
+<text x="1638" y="658" font-size="13.5" font-weight="700" fill="#1c2430">Read request</text>
+<text x="1638" y="696" font-size="11" fill="#667085">HTTP Request</text>
+<rect x="1840" y="634" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="1840" y="634" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="1858" y="658" font-size="13.5" font-weight="700" fill="#1c2430">Plan</text>
+<text x="1858" y="696" font-size="11" fill="#667085">Code</text>
+<rect x="2060" y="634" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="2060" y="634" width="7" height="74" rx="3" fill="#2c9a4b"/>
+<text x="2078" y="658" font-size="13.5" font-weight="700" fill="#1c2430">Understood?</text>
+<text x="2078" y="696" font-size="11" fill="#667085">If</text>
+<rect x="2280" y="534" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="2280" y="534" width="7" height="74" rx="3" fill="#2c9a4b"/>
+<text x="2298" y="558" font-size="13.5" font-weight="700" fill="#1c2430">Neighbourhood?</text>
+<text x="2298" y="596" font-size="11" fill="#667085">If</text>
+<rect x="2500" y="414" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="2500" y="414" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="2518" y="438" font-size="13.5" font-weight="700" fill="#1c2430">Neighbourhood source</text>
+<text x="2518" y="476" font-size="11" fill="#667085">Code</text>
+<rect x="2720" y="414" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="2720" y="414" width="7" height="74" rx="3" fill="#c27b0e"/>
+<text x="2738" y="438" font-size="13.5" font-weight="700" fill="#1c2430">Collect neighbourhood</text>
+<text x="2738" y="476" font-size="11" fill="#667085">Runs 1 Collect</text>
+<rect x="2940" y="534" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="2940" y="534" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="2958" y="558" font-size="13.5" font-weight="700" fill="#1c2430">Requested story</text>
+<text x="2958" y="596" font-size="11" fill="#667085">Code</text>
+<rect x="3160" y="534" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="3160" y="534" width="7" height="74" rx="3" fill="#2c9a4b"/>
+<text x="3178" y="558" font-size="13.5" font-weight="700" fill="#1c2430">Story ok?</text>
+<text x="3178" y="596" font-size="11" fill="#667085">If</text>
+<rect x="3380" y="534" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="3380" y="534" width="7" height="74" rx="3" fill="#2c9a4b"/>
+<text x="3398" y="558" font-size="13.5" font-weight="700" fill="#1c2430">Answer only?</text>
+<text x="3398" y="596" font-size="11" fill="#667085">If</text>
+<rect x="3600" y="414" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="3600" y="414" width="7" height="74" rx="3" fill="#0f8bd8"/>
+<text x="3618" y="438" font-size="13.5" font-weight="700" fill="#1c2430">Post answer</text>
+<text x="3618" y="476" font-size="11" fill="#667085">HTTP Request</text>
+<rect x="3820" y="414" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="3820" y="414" width="7" height="74" rx="3" fill="#0f8bd8"/>
+<text x="3838" y="438" font-size="13.5" font-weight="700" fill="#1c2430">Log answer</text>
+<text x="3838" y="476" font-size="11" fill="#667085">HTTP Request</text>
+<rect x="3600" y="634" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="3600" y="634" width="7" height="74" rx="3" fill="#c27b0e"/>
+<text x="3618" y="658" font-size="13.5" font-weight="700" fill="#1c2430">2b Context</text>
+<text x="3618" y="696" font-size="11" fill="#667085">Runs 2b Context</text>
+<rect x="3820" y="634" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="3820" y="634" width="7" height="74" rx="3" fill="#c27b0e"/>
+<text x="3838" y="658" font-size="13.5" font-weight="700" fill="#1c2430">3 Write</text>
+<text x="3838" y="696" font-size="11" fill="#667085">Runs 3 Write</text>
+<rect x="4040" y="634" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="4040" y="634" width="7" height="74" rx="3" fill="#2c9a4b"/>
+<text x="4058" y="658" font-size="13.5" font-weight="700" fill="#1c2430">Numbers check out?</text>
+<text x="4058" y="696" font-size="11" fill="#667085">If</text>
+<rect x="4260" y="634" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="4260" y="634" width="7" height="74" rx="3" fill="#0f8bd8"/>
+<text x="4278" y="658" font-size="13.5" font-weight="700" fill="#1c2430">Save trace</text>
+<text x="4278" y="696" font-size="11" fill="#667085">HTTP Request</text>
+<rect x="4480" y="634" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="4480" y="634" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="4498" y="658" font-size="13.5" font-weight="700" fill="#1c2430">Add trace link</text>
+<text x="4498" y="696" font-size="11" fill="#667085">Code</text>
+<rect x="4700" y="634" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="4700" y="634" width="7" height="74" rx="3" fill="#0f8bd8"/>
+<text x="4718" y="658" font-size="13.5" font-weight="700" fill="#1c2430">Start review</text>
+<text x="4718" y="696" font-size="11" fill="#667085">HTTP Request</text>
+<rect x="4260" y="854" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="4260" y="854" width="7" height="74" rx="3" fill="#0f8bd8"/>
+<text x="4278" y="878" font-size="13.5" font-weight="700" fill="#1c2430">Say it stopped</text>
+<text x="4278" y="916" font-size="11" fill="#667085">HTTP Request</text>
+<rect x="4480" y="854" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="4480" y="854" width="7" height="74" rx="3" fill="#0f8bd8"/>
+<text x="4498" y="878" font-size="13.5" font-weight="700" fill="#1c2430">Log stopped</text>
+<text x="4498" y="916" font-size="11" fill="#667085">HTTP Request</text>
+<rect x="2280" y="914" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="2280" y="914" width="7" height="74" rx="3" fill="#0f8bd8"/>
+<text x="2298" y="938" font-size="13.5" font-weight="700" fill="#1c2430">Ask again</text>
+<text x="2298" y="976" font-size="11" fill="#667085">HTTP Request</text>
+<rect x="2500" y="914" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="2500" y="914" width="7" height="74" rx="3" fill="#0f8bd8"/>
+<text x="2518" y="938" font-size="13.5" font-weight="700" fill="#1c2430">Log not understood</text>
+<text x="2518" y="976" font-size="11" fill="#667085">HTTP Request</text>
+</svg>

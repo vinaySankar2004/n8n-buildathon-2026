@@ -1,21 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1216" height="792" viewBox="0 0 1216 792" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
-<rect x="0" y="0" width="1216" height="792" fill="#f6f7f9"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1656" height="792" viewBox="0 0 1656 792" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+<rect x="0" y="0" width="1656" height="792" fill="#f6f7f9"/>
 <text x="40" y="44" font-size="20" font-weight="700" fill="#1c2430">4 Voice</text>
 <text x="40" y="772" font-size="12" fill="#667085">Grey line: the run goes on. Red dashed line: the error or "no" path. Drawn from 03_build/output/workflows/, the JSON deployed to n8n.</text>
-<rect x="40" y="74" width="460" height="160" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
+<rect x="40" y="74" width="460" height="176" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
 <text x="54" y="100" font-size="16" font-weight="700" fill="#4a3f12">4 Voice</text>
 <text x="54" y="122" font-size="12" font-weight="400" fill="#4a3f12">ElevenLabs reads the script. Package audio turns the MP3 into</text>
 <text x="54" y="138" font-size="12" font-weight="400" fill="#4a3f12">base64 for the render service and stops the run if it is 22</text>
-<text x="54" y="154" font-size="12" font-weight="400" fill="#4a3f12">seconds or longer.</text>
-<text x="54" y="170" font-size="12" font-weight="400" fill="#4a3f12"></text>
-<text x="54" y="186" font-size="12" font-weight="400" fill="#4a3f12">Credential: Header Auth named &quot;ElevenLabs&quot;, header xi-api-key.</text>
-<text x="54" y="202" font-size="12" font-weight="400" fill="#4a3f12"></text>
-<text x="54" y="218" font-size="12" font-weight="400" fill="#4a3f12">An empty test body uses Sample spec.</text>
+<text x="54" y="154" font-size="12" font-weight="400" fill="#4a3f12">seconds or longer. Check credits reads the ElevenLabs plan, so</text>
+<text x="54" y="170" font-size="12" font-weight="400" fill="#4a3f12">the trace and ledger show the credits used and what they cost.</text>
+<text x="54" y="186" font-size="12" font-weight="400" fill="#4a3f12"></text>
+<text x="54" y="202" font-size="12" font-weight="400" fill="#4a3f12">Credential: Header Auth named &quot;ElevenLabs&quot;, header xi-api-key.</text>
+<text x="54" y="218" font-size="12" font-weight="400" fill="#4a3f12"></text>
+<text x="54" y="234" font-size="12" font-weight="400" fill="#4a3f12">An empty test body uses Sample spec.</text>
 <path d="M276,451 C398,451 398,551 520,551" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M496,651 C536,651 480,551 520,551" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M716,551 C756,551 700,551 740,551" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M936,536 C976,536 940,451 980,451" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M936,566 C976,566 940,691 980,691" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M1176,451 C1216,451 1160,451 1200,451" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1396,451 C1436,451 1380,451 1420,451" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M276,651 C316,651 260,651 300,651" fill="none" stroke="#7d8796" stroke-width="2" />
 <rect x="80" y="414" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
 <rect x="80" y="414" width="7" height="74" rx="3" fill="#5a6578"/>
@@ -42,6 +45,14 @@
 <rect x="980" y="414" width="7" height="74" rx="3" fill="#ff6d5a"/>
 <text x="998" y="438" font-size="13.5" font-weight="700" fill="#1c2430">Package audio</text>
 <text x="998" y="476" font-size="11" fill="#667085">Code</text>
+<rect x="1200" y="414" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="1200" y="414" width="7" height="74" rx="3" fill="#0f8bd8"/>
+<text x="1218" y="438" font-size="13.5" font-weight="700" fill="#1c2430">Check credits</text>
+<text x="1218" y="476" font-size="11" fill="#667085">HTTP Request</text>
+<rect x="1420" y="414" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="1420" y="414" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="1438" y="438" font-size="13.5" font-weight="700" fill="#1c2430">Add voice cost</text>
+<text x="1438" y="476" font-size="11" fill="#667085">Code</text>
 <rect x="980" y="654" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
 <rect x="980" y="654" width="7" height="74" rx="3" fill="#ff6d5a"/>
 <text x="998" y="678" font-size="13.5" font-weight="700" fill="#1c2430">Failed</text>

@@ -106,6 +106,46 @@
     },
     {
       "parameters": {
+        "options": {
+          "timeout": 15000
+        },
+        "url": "https://api.elevenlabs.io/v1/user/subscription",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "d36f8886-2fcc-5abf-adff-188d406ad698",
+      "name": "Check credits",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "ElevenLabs"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// \"Add voice cost\": what this narration used, for the trace and the ledger. Multilingual v2 bills\n// about one credit per character. The plan's price per credit is the account's own: its next\n// invoice divided by its monthly credits, from \"Check credits\". A failed check leaves it unknown.\nconst pkg = $(\"Package audio\").first().json;\nconst input = $(\"Input\").first().json;\nconst sub = $input.first().json || {};\nconst limit = Number(sub.character_limit) || null;\nconst due = Number(sub.next_invoice?.amount_due_cents);\nconst call = {\n  at: new Date().toISOString(),\n  characters: String(input.spec?.script || \"\").length,\n  tier: sub.tier ?? null,\n  used_this_period: Number.isFinite(Number(sub.character_count)) ? Number(sub.character_count) : null,\n  limit,\n  usd_per_credit: limit && Number.isFinite(due) ? due / 100 / limit : null,\n};\nreturn [{ json: { ...pkg, voice_calls: [...(input.voice_calls || []), call] } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        0
+      ],
+      "id": "c0d5db61-9fd4-5dc6-a950-0248a6c4c907",
+      "name": "Add voice cost"
+    },
+    {
+      "parameters": {
         "jsCode": "// \"Failed\": every error in Voice ends here, so the orchestrator sends a short note instead of crashing.\nconst j = $input.first().json;\nconst reason = j.reason || `Voice failed: ${j.error?.message || j.message || \"unknown error\"}`;\nreturn [{ json: { ok: false, step: \"Voice\", reason } }];\n"
       },
       "type": "n8n-nodes-base.code",
@@ -119,7 +159,7 @@
     },
     {
       "parameters": {
-        "content": "## 4 Voice\nElevenLabs reads the script. **Package audio** turns the MP3 into base64 for the render service and stops the run if it is 22 seconds or longer.\n\nCredential: Header Auth named \"ElevenLabs\", header `xi-api-key`.\n\nAn empty test body uses **Sample spec**.",
+        "content": "## 4 Voice\nElevenLabs reads the script. **Package audio** turns the MP3 into base64 for the render service and stops the run if it is 22 seconds or longer. **Check credits** reads the ElevenLabs plan, so the trace and ledger show the credits used and what they cost.\n\nCredential: Header Auth named \"ElevenLabs\", header `xi-api-key`.\n\nAn empty test body uses **Sample spec**.",
         "height": 280,
         "width": 460,
         "color": 5
@@ -180,6 +220,28 @@
         [
           {
             "node": "Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Package audio": {
+      "main": [
+        [
+          {
+            "node": "Check credits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check credits": {
+      "main": [
+        [
+          {
+            "node": "Add voice cost",
             "type": "main",
             "index": 0
           }

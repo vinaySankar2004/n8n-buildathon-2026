@@ -159,5 +159,55 @@ check(!answered.post.text.includes("12345"), "Check revision never posts a numbe
 const [remake] = await run(codeOf(chat, "Check revision"), claude({ reply: "Switched to the weekly chart.", draft }), { Decide: [{ ...revise, chat: { ...revise.chat, stage: "video" } }] });
 check(remake.render === true && remake.chat.thread_ts === "1.0", "Check revision remakes the video when the editor changes it after seeing it");
 
+// 8 Request: a mention of the bot in the editor channel becomes a request.
+const mention = (text) => [{ body: { source: "events", body: { type: "event_callback", authorizations: [{ user_id: "UBOT", is_bot: true }], event: { type: "message", channel: editor, ts: "1794700000.000100", user: "U1", text } } } }];
+const [reqEv] = await run(codeOf(chat, "Read Slack event"), mention("<@UBOT> make a video about graffiti in Mount Pleasant"));
+check(reqEv?.kind === "request" && reqEv.text === "make a video about graffiti in Mount Pleasant" && reqEv.ts === "1794700000.000100", `Read Slack event takes a mention as a request: "${reqEv?.text}"`);
+const noMention = await run(codeOf(chat, "Read Slack event"), mention("make a video about graffiti"));
+check(noMention.length === 0, "Read Slack event ignores a new message that does not mention the bot");
+
+const requestWf = wf("8-request.json");
+const [menu] = await run(codeOf(requestWf, "Menu"), [], { Input: [reqEv], "1 Collect": collected });
+const m311 = menu.menu.find((x) => x.source_id === "311");
+const graffiti = m311?.categories.find((c) => /graffiti/i.test(c));
+check(menu.ok && graffiti && m311.areas.includes("Mount Pleasant"), `Menu lists each source's categories and neighbourhoods (3-1-1: ${m311?.categories.length} categories, ${m311?.areas.length} neighbourhoods), such as "${graffiti}"`);
+const haiku = (a) => [{ model: "claude-haiku-5-5", usage: { input_tokens: 3000, output_tokens: 100 }, content: [{ type: "text", text: JSON.stringify(a) }] }];
+const planWith = (a) => run(codeOf(requestWf, "Plan"), haiku(a), { Input: [reqEv], Menu: [menu], Client: [clientCfg] });
+const graffitiAll = m311.categories.filter((c) => /graffiti/i.test(c));
+const [reqPlan] = await planWith({ kind: "video", source_id: "311", categories: graffitiAll, topic: "graffiti", area: "Mount Pleasant", reply: null });
+check(reqPlan.ok && reqPlan.filtered?.filter.includes("Mount Pleasant"), `Plan checks the match and filters to the neighbourhood: ${reqPlan.filtered?.filter}`);
+const [bogus] = await planWith({ kind: "video", source_id: "311", categories: ["Dragon Sightings"], area: null });
+check(bogus.ok === false && bogus.reply, `Plan refuses a category that is not in the data: ${bogus.reply}`);
+const [areaCollected] = await collectOne(reqPlan.filtered);
+const [reqStory] = await run(codeOf(requestWf, "Requested story"), [areaCollected], { Plan: [reqPlan], Client: [clientCfg], "1 Collect": collected });
+const areaCount = (areaCollected.types || []).filter((t) => graffitiAll.includes(t.type)).reduce((n, t) => n + t.weekly[8].count, 0);
+check(reqStory.ok && reqStory.story.area === "Mount Pleasant" && reqStory.story.weekly.length === 9 && reqStory.story.this_week === areaCount && reqStory.story.topic === "Graffiti",
+  `Requested story matches the city data for that neighbourhood: ${reqStory.answer_line}`);
+const [ansPlan] = await planWith({ kind: "answer", source_id: "311", categories: graffitiAll, topic: "graffiti", area: null });
+const [ans] = await run(codeOf(requestWf, "Requested story"), [ansPlan], { Plan: [ansPlan], Client: [clientCfg], "1 Collect": collected });
+check(ans.kind === "answer" && ans.answer.includes(String(ans.story.this_week)) && ans.answer.includes("Source:"), `Quick answer, built from the numbers: ${ans.answer_line}`);
+const rs = reqStory.story;
+const reqModel = { content: [{ type: "text", text: JSON.stringify({
+  headline: "Graffiti reports in Mount Pleasant",
+  script: `Mount Pleasant logged ${rs.this_week} graffiti reports this week, against a usual ${rs.avg_prev_8_weeks} a week over the 8 weeks before. That is ${rs.direction === "up" ? "a rise" : rs.direction === "down" ? "a drop" : "about the usual level"} for the neighbourhood. The city data does not say why, and crews log each report as it comes in.`,
+  callout_label: `${rs.this_week} reports this week`, chart_title: "Graffiti reports per week", blurb: `Mount Pleasant had ${rs.this_week} graffiti reports this week.`, reports_used: [],
+}) }] };
+const [reqWritten] = await run(codeOf(write, "Build spec and check numbers"), [reqModel], { Input: [{ ...reqStory, test_tamper: false }] });
+check(reqWritten.ok && reqWritten.spec.chart.data.length === 6, `Write takes a requested story (${rs.direction}, callout ${reqWritten.spec?.callout.value})${reqWritten.ok ? "" : ": " + reqWritten.reason}`);
+
+// Costs: ElevenLabs credits at the account's own price, and the ledger row.
+const voiceWf = wf("4-voice.json");
+const script260 = { spec: { script: "x".repeat(260) } };
+const [voiced] = await run(codeOf(voiceWf, "Add voice cost"), [{ tier: "creator", character_count: 4000, character_limit: 100000, next_invoice: { amount_due_cents: 2200 } }], { "Package audio": [{ ok: true, ...script260 }], Input: [script260] });
+check(voiced.voice_calls[0].characters === 260 && Math.abs(voiced.voice_calls[0].usd_per_credit - 0.00022) < 1e-9, "Add voice cost records 260 credits at the plan's $0.00022 a credit");
+const { entryFrom } = await import("../render-service/ledger.mjs");
+const { tracePage } = await import("../render-service/trace-page.mjs");
+const ledgerRun = { ...reqWritten, voice_calls: voiced.voice_calls };
+const ledgerRow = entryFrom(ledgerRun);
+check(ledgerRow.trigger === "Slack request" && ledgerRow.requested_by === "U1" && ledgerRow.voice_credits === 260 && Math.abs(ledgerRow.voice_usd - 0.0572) < 1e-6 && ledgerRow.claude_usd > 0,
+  `Ledger row: ${ledgerRow.trigger} by ${ledgerRow.requested_by}, Claude $${ledgerRow.claude_usd.toFixed(5)}, ElevenLabs ${ledgerRow.voice_credits} credits $${ledgerRow.voice_usd.toFixed(4)}`);
+const tracePageHtml = tracePage(ledgerRun, { editor: true, ledgerUrl: "https://example.test/ledger.html" });
+check(tracePageHtml.includes("asked newsReels") && tracePageHtml.includes("260 credits") && tracePageHtml.includes("run ledger"), "Trace page shows who asked, the ElevenLabs credits and the ledger link");
+
 console.log(failures ? `\n${failures} check(s) failed.` : "\nAll checks passed.");
 process.exit(failures ? 1 : 0);

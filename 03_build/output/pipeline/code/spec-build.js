@@ -34,8 +34,9 @@ function buildSpec(story, d, ctx = {}) {
   const used = (ctx.reports || []).filter((r) => ids.includes(r.id));
   const hasAreas = (story.by_area || []).length > 0;
   const chartKind = d.chart_kind === "weekly" || !hasAreas ? "weekly" : d.chart_kind === "by_area" ? "by_area" : story.chart_kind;
+  // A drop shows its percentage; anything else its ratio, or the plain count when there is no history.
   const callout = {
-    value: story.direction === "up" ? `${story.ratio}×` : `${Math.abs(story.pct_change)}%`,
+    value: story.direction === "down" ? `${Math.abs(story.pct_change)}%` : story.ratio ? `${story.ratio}×` : String(story.this_week),
     label: d.callout_label,
   };
   const spec = {

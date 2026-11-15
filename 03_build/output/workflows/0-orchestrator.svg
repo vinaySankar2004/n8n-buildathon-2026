@@ -36,6 +36,7 @@
 <path d="M2696,571 C2736,571 2680,571 2720,571" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M2916,586 C2976,586 2000,971 2060,971" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
 <path d="M2256,971 C2296,971 2240,971 2280,971" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M2476,971 C2516,971 2460,971 2500,971" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M276,971 C316,971 260,671 300,671" fill="none" stroke="#7d8796" stroke-width="2" />
 <rect x="80" y="734" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
 <rect x="80" y="734" width="7" height="74" rx="3" fill="#5a6578"/>
@@ -101,6 +102,10 @@
 <rect x="2280" y="934" width="7" height="74" rx="3" fill="#7a3f8f"/>
 <text x="2298" y="958" font-size="13.5" font-weight="700" fill="#1c2430">No story today</text>
 <text x="2298" y="996" font-size="11" fill="#667085">Slack</text>
+<rect x="2500" y="934" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="2500" y="934" width="7" height="74" rx="3" fill="#0f8bd8"/>
+<text x="2518" y="958" font-size="13.5" font-weight="700" fill="#1c2430">Log no story</text>
+<text x="2518" y="996" font-size="11" fill="#667085">HTTP Request</text>
 <rect x="80" y="934" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
 <rect x="80" y="934" width="7" height="74" rx="3" fill="#5a6578"/>
 <text x="98" y="958" font-size="13.5" font-weight="700" fill="#1c2430">Test webhook</text>

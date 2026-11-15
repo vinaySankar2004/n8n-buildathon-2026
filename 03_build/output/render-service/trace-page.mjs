@@ -3,11 +3,7 @@
 // where each number came from, the edits and approvals, and the cost.
 // Public page ("How this story was made"): the same story and sources without prompts, costs or messages.
 
-// Prices per million tokens, from Anthropic's model list on 2026-11-14.
-const PRICES = {
-  "claude-sonnet-5-5": { in: 2, out: 10 },
-  "claude-haiku-5-5": { in: 0.1, out: 0.5 },
-};
+import { claudeCalls, voiceCost, usd } from "./costs.mjs";
 
 const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const link = (url, text) => (url ? `<a href="${esc(url)}">${esc(text)}</a>` : esc(text));
@@ -40,20 +36,6 @@ function plainOrigin(from, story, reports) {
   return "the story data";
 }
 
-function cost(run) {
-  const calls = [];
-  if (run.write?.usage) calls.push({ what: "Write the draft", model: run.write.model, usage: run.write.usage });
-  for (const r of run.revisions || []) if (r.usage) calls.push({ what: `Revise: "${r.editor}"`, model: r.model, usage: r.usage });
-  let dollars = 0;
-  const rows = calls.map((c) => {
-    const p = PRICES[c.model] || PRICES["claude-sonnet-5-5"];
-    const usd = (c.usage.input_tokens * p.in + c.usage.output_tokens * p.out) / 1e6;
-    dollars += usd;
-    return `<tr><td>${esc(c.what)}</td><td>${esc(c.model)}</td><td>${c.usage.input_tokens}</td><td>${c.usage.output_tokens}</td><td>$${usd.toFixed(4)}</td></tr>`;
-  });
-  return { rows, dollars };
-}
-
 const STYLE = `
   :root { --bg: #f6f7f9; --card: #fff; --text: #1c2430; --muted: #5b6575; --line: #dde2ea; --ok: #1f7a43; --bad: #b3261e; --accent: #b7791f; }
   @media (prefers-color-scheme: dark) { :root { --bg: #11161d; --card: #1a212b; --text: #eef1f5; --muted: #a3adbb; --line: #2c3542; --ok: #5fcf8e; --bad: #ff8a80; --accent: #f2b33d; } }
@@ -79,7 +61,7 @@ const STYLE = `
   a { color: inherit; }
 `;
 
-export function tracePage(run, { prompt, editor }) {
+export function tracePage(run, { prompt, editor, ledgerUrl }) {
   const s = run.story || {};
   const spec = run.spec || {};
   const client = run.client || {};
@@ -94,6 +76,7 @@ export function tracePage(run, { prompt, editor }) {
   out.push(`<h1>${esc(spec.headline)}</h1>`);
   out.push(`<p>${editor ? `${esc(status)} · run started ${when(run.started_at)} · trace saved ${when(run.trace_saved_at)}` : (published ? `Published ${when(run.approved_at)}` : "Draft: an editor has not approved it yet")}</p></header>`);
 
+  if (editor && run.request) out.push(`<section><h2>The request</h2><p>Slack user ${esc(run.request.user)} asked newsReels: <em>"${esc(run.request.text)}"</em></p><p class="muted">Matched to ${esc(s.dataset)}${(run.request.matched?.categories || []).length ? `, ${esc(run.request.matched.categories.join("; "))}` : ""}${run.request.matched?.area ? `, ${esc(run.request.matched.area)}` : ""}, by ${esc(run.request.parse?.model)}.</p></section>`);
   out.push(`<section><h2>The story</h2><blockquote>${esc(spec.script)}</blockquote>`);
   if (run.video_url) out.push(`<p>${link(run.video_url, "Watch the video")}</p>`);
   out.push(`<p class="muted">${esc(run.blurb)}</p></section>`);
@@ -101,7 +84,9 @@ export function tracePage(run, { prompt, editor }) {
   if (!editor) {
     out.push(`<section><h2>How it was made</h2><ol class="steps">`);
     out.push(`<li>newsReels checked the latest open data: ${esc(run.sources_checked || s.dataset)}.</li>`);
-    out.push(`<li>It compared each category's count this week with its average over the 8 weeks before, and picked the biggest change: ${esc(s.this_week)} ${esc(s.unit)} against ${esc(s.avg_prev_8_weeks)}.</li>`);
+    out.push(run.request
+      ? `<li>Someone at ${esc(client.name || "the outlet")} asked for this story in Slack, and newsReels found it in the data: ${esc(s.this_week)} ${esc(s.unit)} this week against an average of ${esc(s.avg_prev_8_weeks)}.</li>`
+      : `<li>It compared each category's count this week with its average over the 8 weeks before, and picked the biggest change: ${esc(s.this_week)} ${esc(s.unit)} against ${esc(s.avg_prev_8_weeks)}.</li>`);
     if (usedIds.size) out.push(`<li>It added context from ${[...new Set((run.reports_used || []).map((r) => r.source))].map(esc).join(" and ")}.</li>`);
     out.push(`<li>An AI model (Claude, by Anthropic) wrote the script from those numbers only. A check confirmed every number before anything was recorded.</li>`);
     out.push(`<li>An editor at ${esc(client.name || "the outlet")} ${published ? "read the script and the data, then approved the story" : "is reviewing the script and the data"}.</li></ol></section>`);
@@ -129,7 +114,8 @@ export function tracePage(run, { prompt, editor }) {
   if (editor) {
     // Ranking.
     out.push(`<section><h2>How the story was picked</h2><p>Sources checked: ${esc(run.sources_checked)}.${(run.sources_failed || []).length ? ` <span class="bad">Failed: ${esc(run.sources_failed.join(" "))}</span>` : ""}</p>`);
-    out.push(`<p>A story needs at least 20 this week and twice the usual weekly level, or a drop to half a usual level of at least 20. The strongest change wins.</p><div class="scroll"><table><tr><th></th><th>Dataset</th><th>Category</th><th>This week</th><th>8-week average</th><th>Times usual</th></tr>`);
+    out.push(run.request ? `<p>Asked for in Slack, so no ranking: the story is the requested data, whatever its size.</p><div class="scroll"><table>` : `<p>A story needs at least 20 this week and twice the usual weekly level, or a drop to half a usual level of at least 20. The strongest change wins.</p><div class="scroll"><table>`);
+    out.push(`<tr><th></th><th>Dataset</th><th>Category</th><th>This week</th><th>8-week average</th><th>Times usual</th></tr>`);
     out.push(`<tr><td class="ok">Picked</td><td>${esc(s.dataset)}</td><td>${esc(s.type)}</td><td>${esc(s.this_week)}</td><td>${esc(s.avg_prev_8_weeks)}</td><td>${esc(s.ratio)}</td></tr>`);
     for (const r of run.runners_up || []) out.push(`<tr><td class="muted">Runner-up</td><td>${esc(r.dataset)}</td><td>${esc(r.type)}</td><td>${esc(r.this_week)}</td><td>${esc(r.avg_prev_8_weeks)}</td><td>${esc(r.ratio)}</td></tr>`);
     out.push(`</table></div></section>`);
@@ -160,14 +146,18 @@ export function tracePage(run, { prompt, editor }) {
     out.push(`</section>`);
 
     // Voice, video, cost.
-    const { rows, dollars } = cost(run);
+    const calls = claudeCalls(run);
+    const voice = voiceCost(run);
+    const claudeTotal = calls.reduce((t, c) => t + c.usd, 0);
     out.push(`<section><h2>Voice, video and cost</h2><ul>`);
-    if (run.audio_seconds) out.push(`<li>Narration: ${esc(run.audio_seconds)} seconds, ${String(spec.script || "").length} characters sent to ElevenLabs.</li>`);
+    if (run.audio_seconds) out.push(`<li>Narration: ${esc(run.audio_seconds)} seconds.</li>`);
     if (run.render_seconds) out.push(`<li>Video: rendered in ${Math.round(run.render_seconds * 10) / 10} seconds on the host laptop, at no cost.</li>`);
-    out.push(`</ul><div class="scroll"><table><tr><th>Claude call</th><th>Model</th><th>Tokens in</th><th>Tokens out</th><th>Cost</th></tr>${rows.join("")}</table></div>`);
-    out.push(`<p>Claude in total: <strong>$${dollars.toFixed(4)}</strong>.</p></section>`);
+    out.push(`</ul><div class="scroll"><table><tr><th>Call</th><th>Model or service</th><th>Used</th><th>Cost</th></tr>`);
+    for (const c of calls) out.push(`<tr><td>${esc(c.what)}</td><td>${esc(c.model)}</td><td>${c.usage.input_tokens} tokens in, ${c.usage.output_tokens} out</td><td>${usd(c.usd)}</td></tr>`);
+    if (voice.calls) out.push(`<tr><td>Narration${voice.calls > 1 ? ` (${voice.calls} takes)` : ""}</td><td>ElevenLabs${voice.tier ? `, ${esc(voice.tier)} plan` : ""}</td><td>${voice.credits} credits${voice.left !== null ? `; ${voice.left} of ${voice.limit} left this month` : ""}</td><td>${usd(voice.usd)}</td></tr>`);
+    out.push(`</table></div><p>Total: <strong>${usd(claudeTotal + (voice.usd || 0))}</strong>${voice.calls && voice.usd === null ? " plus ElevenLabs, whose price per credit was not available" : ""}. The ElevenLabs price per credit is the account's own: its next invoice divided by its monthly credits.</p></section>`);
   }
 
-  out.push(`<p class="muted" style="margin-top:24px">Made with newsReels, built in n8n for LOOP 2026. ${editor ? "This page is for the editor; the public page leaves out the prompts, messages and costs." : ""}</p>`);
+  out.push(`<p class="muted" style="margin-top:24px">Made with newsReels, built in n8n for LOOP 2026. ${editor ? `This page is for the editor; the public page leaves out the prompts, messages and costs.${ledgerUrl ? ` Every run is in the <a href="${esc(ledgerUrl)}">run ledger</a>.` : ""}` : ""}</p>`);
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>${esc(editor ? "Run trace" : "How this story was made")}: ${esc(spec.headline)}</title><style>${STYLE}</style></head><body><main>${out.join("\n")}</main>${LOCAL_TIMES}</body></html>\n`;
 }
