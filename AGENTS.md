@@ -10,7 +10,7 @@ The team talks to you in plain words and does not know how this repository is or
 
 1. `npm run update` pulls teammates' work, and `npm run doctor` lists what is left to set up. Claude Code runs both at session start; their output is above.
 2. Do every setup step you can. Ask the person only for a key, a channel ID or a click in a provider's console.
-3. Until `product/output/spec.md` exists, the team is deciding what to build next. Once setup is done, open the conversation in `product/questions.md` (contract: `product/CONTEXT.md`) unless the person came with something else.
+3. [product/output/spec.md](product/output/spec.md) says what is built and what is left before the freeze. Start from what the person asks.
 
 ## Where things are
 

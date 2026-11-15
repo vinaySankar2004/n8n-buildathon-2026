@@ -19,7 +19,7 @@ From Collect on 2026-11-14, using whole Vancouver days (7 to 13 November): stree
 | B7 | 1:40 to 1:55 | Approve and publish; the post in the outlet channel with its "How this story was made" link | One more approval, and it is published with a page that shows how it was made. | Demo |
 | B8 | 1:55 to 2:15 | The run trace: follow 218 back to the 3-1-1 data; the news report; what Claude was asked; the cost | AI you can see into: every number traces back to its source, and every run shows what it cost. | Innovation, Trust |
 | B9 | 2:15 to 2:35 | A teammate writes "@NewsReels make a video about graffiti in Mount Pleasant"; the draft arrives in the thread; the run ledger with every run and its cost | Anyone in the newsroom can ask for a story or a number, and every run lands in a ledger. | Impact, Technical |
-| B10 | 2:35 to 2:50 | The ten workflows, then the client config file, then NewsReels | Ten n8n workflows. A new client is one config file. | Technical |
+| B10 | 2:35 to 2:50 | The n8n workflows, then the client config file, then NewsReels | Every step is an n8n workflow. A new client is one config file. | Technical |
 
 ## Open for the team
 

@@ -8,6 +8,7 @@ Screenshots of real pages from 14 November 2026, with Slack user IDs replaced by
 - [Run ledger](run-ledger.png): one row per run, with who asked, the status and the cost.
 - [Chart types](chart-types.png): the same story as a line, a pie with Mount Pleasant in red, and bars, as an editor can ask for from the thread. [thumbnail.png](thumbnail.png) is its 3:2 crop for Devpost.
 - [n8n orchestrator](n8n-orchestrator.png): the orchestrator's canvas, drawn from its workflow JSON.
+- [Video scenes](video-scenes.png): three frames of a 24 second video: the title card, the chart and the closing line.
 
 ![Run trace](run-trace.png)
 ![How this story was made](how-this-story-was-made.png)

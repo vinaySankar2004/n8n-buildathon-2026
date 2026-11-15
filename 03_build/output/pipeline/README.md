@@ -1,6 +1,6 @@
 # NewsReels pipeline
 
-The source for all ten n8n workflows, written by Arman and Vinayak with Claude Code and running end to end since the evening of 14 November. Each run serves one client (D13, D15), set in one file in [../clients/](../clients/): its name and look, Slack channels, data sources, news feeds and style card. The build puts that file into a "Client" node.
+The source for every n8n workflow, written by Arman and Vinayak with Claude Code and running end to end since the evening of 14 November. Each run serves one client (D13, D15), set in one file in [../clients/](../clients/): its name and look, Slack channels, data sources, news feeds and style card. The build puts that file into a "Client" node.
 
 - `code/`: every Code node and the prompts
 - [build.mjs](build.mjs): writes the workflow JSON and a picture of each canvas into [../workflows/](../workflows/) (`npm run pipeline`)
@@ -14,7 +14,7 @@ The source for all ten n8n workflows, written by Arman and Vinayak with Claude C
 | 2b Context | Reads the client's news feeds and adds the newest reports since the story's week began. For a story asked for in Slack, also searches the web and keeps every cited page with the exact words cited, for Write, the editor and the trace (D20) |
 | 2c Reddit | How people are reacting on Reddit, for every story: n8n's Reddit node searches the client's subreddits and reads top comments, and Claude Haiku sums up the mood. Opinion only, never a source for numbers (D23) |
 | 3 Write | Claude Sonnet 5.5 writes the headline, script, chart title and blurb in the client's style, with at most one sentence from a report it names; the guard checks every number and records where it came from |
-| 4 Voice | ElevenLabs reads the script, stops if it runs 22 seconds or longer, and records the credits used |
+| 4 Voice | ElevenLabs reads the script, stops if it runs 48 seconds or longer, and records the credits used |
 | 5 Render | The Remotion service beside n8n makes the 9:16 video |
 | 6 Publish | Saves the final trace, then posts the video, blurb and public "How this story was made" link to the outlet channel |
 | 7 Chat | The editor's review in one Slack thread per story: script and data first, then the video. Replies change either one through Claude Haiku 5.5, and the guard checks every change (D14) |
@@ -40,7 +40,7 @@ A member account on our self-hosted n8n sees only the workflows it made (sharing
 ## Getting it into n8n
 
 1. Change code in `code/`, `build.mjs` or the client file, never the JSON in `workflows/`. Then `npm run pipeline` and `npm run test:pipeline`.
-2. `npm run deploy` pushes all ten, the orchestrator last, creates the data table `editor_threads` that 7 Chat keeps its threads in, and points every Execute Workflow node at its workflow by name. Workflows that call each other are linked on a second pass.
+2. `npm run deploy` pushes them all, the orchestrator last, creates the data table `editor_threads` that 7 Chat keeps its threads in, and points every Execute Workflow node at its workflow by name. Workflows that call each other are linked on a second pass.
 3. These credentials must exist in n8n with exactly these names. Put their values in the git-ignored `.env` (`ANTHROPIC_API_KEY`, `ELEVENLABS_API_KEY`, `RENDER_TOKEN`, `SLACK_BOT_TOKEN`) and run `npm run credentials`, which creates or updates each one and skips blanks. Then deploy again.
 
 | Name | Type | Used by |
@@ -63,7 +63,7 @@ A member account on our self-hosted n8n sees only the workflows it made (sharing
 | `npm run invoke -- collect` | `ok: true`, 9 `weeks`, about 220 `types` (3-1-1) |
 | `npm run invoke -- context` | `ok: true`, `reports`, and three entries in `feeds_checked` |
 | `npm run invoke -- write` | `ok: true` and a `spec`; if `ok: false`, the reason names the number that was not in the data |
-| `npm run invoke -- voice` | `ok: true`, `audio_seconds` under 22, and a `voice_calls` entry |
+| `npm run invoke -- voice` | `ok: true`, `audio_seconds` under 48, and a `voice_calls` entry |
 | `npm run invoke -- render` | `ok: true` and a `video_url` that plays (silent with the sample) |
 | `npm run invoke -- request req.json` | A quick answer or a review thread; `req.json` is `{ "kind": "request", "text": "...", "user": "...", "ts": "" }` |
 | `npm run invoke -- orchestrator` | The whole run, ending with the review message in the editor channel |

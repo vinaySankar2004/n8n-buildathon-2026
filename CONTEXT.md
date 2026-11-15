@@ -31,11 +31,11 @@ Read only the current stage, its declared inputs, and the configuration it names
 | 01_idea | Everyone can say the problem in one sentence | Sat 13:00 |
 | 02_storyboard | The storyboard has a line starting "Approved" | Sat 14:00 |
 | product | The spec is agreed | Sat 21:00 |
-| 03_build | The golden path passes three logged runs in a row | Freeze Sun 11:00 |
-| 04_demo | The video is under 3:00 and uploaded | Sun 13:30 |
-| 05_submit | Devpost is submitted | Sun 14:30 |
+| 03_build | The golden path passes three logged runs in a row | Freeze Sun 13:00 |
+| 04_demo | The video is under 3:00 and uploaded | Sun 14:15 |
+| 05_submit | Devpost is submitted | Sun 14:45 |
 
-Submissions close Sunday 15:00. Nobody pushes to this repository or edits Devpost after that.
+eProjects freezes features at 15:00 and locks submissions at 15:45; the written rules disqualify any edit after 15:00 ([judges.md](_config/judges.md)). Nobody pushes to this repository or edits Devpost after 15:00.
 
 ## Operating rules
 

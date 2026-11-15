@@ -1,10 +1,10 @@
 # Spec
 
-Agreed Saturday 14 November, evening, from the team's discussion and [Vinayak's proposal](../proposals/vinayak.md). Decisions D13 to D17 hold the detail; this page says what is built and what is left.
+Agreed Saturday 14 November, evening, from the team's discussion and [Vinayak's proposal](../proposals/vinayak.md), and kept current since. Decisions D13 to D23 hold the detail; this page says what is built and what is left.
 
 ## Product
 
-NewsReels turns a newsroom's or creator's own sources, open data and news feeds, into short narrated news videos that their editor reviews in Slack (D13). Each client is one config file: name and look, Slack channels, data sources, news feeds and a style card (D15). The demo client is Rain City Ledger, a made-up Vancouver outlet.
+NewsReels turns a newsroom's or creator's own sources, open data and news feeds, into short narrated news videos that their editor reviews in Slack (D13). Each client is one config file: name and look, Slack channels, data sources, time series, news feeds and a style card (D15). The demo client is Rain City Ledger, a made-up Vancouver outlet. Team: Vinayak and Arman (D22).
 
 ## Built and working live
 
@@ -12,24 +12,25 @@ Each row is in [must-work.md](../../02_storyboard/output/must-work.md) with its 
 
 | Feature | Decision | Must-work |
 | --- | --- | --- |
-| Collect, Score, Write with the number guard, Voice, Render, Publish | D12 | 1 to 10 |
+| Collect, Score, Write with the number check, Voice, Render, Publish | D12 | 1 to 10 |
 | Client config, with its name and colour on the video | D15 | 11 |
 | News context from BC Government News, Environment Canada alerts and DriveBC | D15 | 12 |
-| Review in one Slack thread: script first, then video; replies edit the draft | D14 | 6, 7 |
+| Review in one Slack thread: script first, then video | D14 | 6, 7 |
 | Run trace and public "How this story was made" page | D16 | 13 |
 | Slack requests: "@NewsReels make a video about ..." or a question | D17 | 14 |
 | Run ledger: who, what, status, Claude and ElevenLabs cost | D17 | 15 |
-| Chart edits from the thread: bar, line or pie, a colour, a highlight; the video is remade in about 20 seconds | D18 | 16 |
+| Web search for requested stories, every source shown to the editor | D20 | 17 |
+| Vancouver unemployment rate from Statistics Canada, for requests | D21 | 18 |
+| Edits that change anything but the numbers; about 30 second videos in three scenes; bar, line or pie charts | D18, D21 | 16, 19 |
+| Reddit reactions to each story, opinion only (on once the Reddit credential is connected) | D23 | 20 |
 
-## Before the freeze, Sunday 11:00
+## Before the freeze, Sunday 13:00
 
-In order. Each has its test and the stage it touches.
-
-1. **Account settings (Arman).** The ElevenLabs key gets User: Read; the Slack app gets `users:read` and is reinstalled. Test: the ledger shows a dollar figure for ElevenLabs and a name in "Who". Stage: 03_build.
-2. **Three clean runs in a row**, from the orchestrator through publish, logged with `npm run sync`. Test: three consecutive runs in `test-log.md` without a failure. Stage: 03_build.
-3. **Guard test live** (must-work row 9). Test: with `test_tamper` on, the editor gets "Blocked: 219 ...". Stage: 03_build.
-4. **Licence and terms checks** for Remotion and the three news feeds, recorded in `services.md`. Test: no open "check" left in `services.md`. Stage: 05_submit.
-5. **Storyboard approved and recording planned.** Test: `storyboard.md` has a line starting "Approved". Stage: 02_storyboard, 04_demo.
+1. **Reddit credential (Arman):** connect it so 2c Reddit runs. Test: `npm run doctor` shows nothing to do.
+2. **Account settings (Arman):** the ElevenLabs key gets User: Read; the Slack app gets `users:read` and is reinstalled. Test: the ledger shows a dollar figure for ElevenLabs and a name in "Who".
+3. **Three clean runs in a row**, orchestrator through publish, logged with `npm run sync`.
+4. **Guard test live** (must-work row 9): with `test_tamper` on, the editor gets "Blocked: 219 ...".
+5. **Demo setup:** a fresh Slack channel and a fresh run ledger; the storyboard gets its "Approved" line.
 
 ## After the event
 

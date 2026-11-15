@@ -8,7 +8,7 @@ NewsReels turns a newsroom's or creator's own sources into short narrated news v
 
 ## Twenty seconds
 
-Cities publish data every day, and small newsrooms have nobody to read it. NewsReels checks a client's open data and news feeds, finds the week's real change, and drafts a 20 second video in their style. Today that is street flooding reports at 7.4 times their usual level, worst in Mount Pleasant, with Environment Canada's flooding statement as context. The editor reviews the script in Slack, asks for changes in plain words, approves the video, and every number links back to its source.
+Cities publish data every day, and small newsrooms have nobody to read it. NewsReels checks a client's open data and news feeds, finds the week's real change, and drafts a 30 second video in their style. Today that is street flooding reports at 7.4 times their usual level, worst in Mount Pleasant, with Environment Canada's flooding statement as context. The editor reviews the script in Slack, asks for changes in plain words, approves the video, and every number links back to its source.
 
 ## What problem does it solve, and for whom?
 

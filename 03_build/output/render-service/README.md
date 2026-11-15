@@ -23,7 +23,7 @@ Preview the composition in Remotion Studio with `npm run dev`.
 {
   "spec": {
     "headline": "Flooding reports are up more than seven times this week",
-    "script": "35 to 45 words. Each sentence becomes one caption.",
+    "script": "About 30 seconds of narration. Each sentence becomes one caption.",
     "chart": {
       "kind": "bar",
       "title": "Flooding reports by neighbourhood, last 7 days",

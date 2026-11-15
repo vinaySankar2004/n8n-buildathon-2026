@@ -87,7 +87,7 @@ Score gets every `collected` and returns `{ "ok": true, "story": …, "runners_u
 ```json
 {
   "headline": "Flooding reports up seven times",
-  "script": "35 to 45 words (the client's style.script_words), every number from the story",
+  "script": "About 30 seconds (the client's style.script_words), every number from the story",
   "callout": { "value": "7.4×", "label": "218 reports this week against an average of 29.3" },
   "chart": {
     "kind": "bar",

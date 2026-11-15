@@ -19,7 +19,7 @@ For the judges' tables and for recording the video. Everything runs on the host 
 3. Approve script: the video arrives in the thread. Reply "make it a line chart"; about 20 seconds later the new video arrives.
 4. Open the trace: follow 218 back to the 3-1-1 data; show the news report, what Claude was asked and the cost.
 5. Write "@NewsReels how many noise complaints in Kitsilano this week?": the answer arrives in the thread.
-6. The run ledger: every run, who asked, what it cost. Then n8n: the ten workflows and their runs.
+6. The run ledger: every run, who asked, what it cost. Then n8n: the workflows and their runs.
 
 ## If something fails
 
