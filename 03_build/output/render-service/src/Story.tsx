@@ -40,15 +40,94 @@ const splitSentences = (script: string) =>
 const formatValue = (v: number) =>
   Number.isInteger(v) ? v.toLocaleString("en-CA") : v.toFixed(1);
 
+type ChartProps = { data: { label: string; value: number }[]; accent: string; hiLabel?: string; start: number };
+
+// A line across the weeks (or items), drawn left to right, with each value above its point.
+const LineChart: React.FC<ChartProps & { max: number }> = ({ data, max, accent, hiLabel, start }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const W = 920, H = 460, padX = 46, top = 70, bottom = 80;
+  const p = interpolate(frame, [start, start + 1.6 * fps], [0, 1], { ...clamp, easing: ease });
+  const pts = data.map((d, i) => ({
+    d,
+    x: padX + (i * (W - 2 * padX)) / Math.max(data.length - 1, 1),
+    y: top + (1 - d.value / max) * (H - top - bottom),
+  }));
+  const reveal = padX + p * (W - 2 * padX) + 1;
+  return (
+    <svg width={W} height={H} style={{ overflow: "visible" }}>
+      <defs>
+        <clipPath id="reveal"><rect x={0} y={0} width={reveal} height={H} /></clipPath>
+      </defs>
+      <line x1={padX} x2={W - padX} y1={H - bottom} y2={H - bottom} stroke={C.faint} strokeWidth={3} />
+      <polyline points={pts.map((q) => `${q.x},${q.y}`).join(" ")} fill="none" stroke={C.bar} strokeWidth={9}
+        strokeLinejoin="round" strokeLinecap="round" clipPath="url(#reveal)" />
+      {pts.map((q) => {
+        const on = q.x <= reveal;
+        const hi = q.d.label === hiLabel;
+        return (
+          <g key={q.d.label} opacity={on ? 1 : 0}>
+            <circle cx={q.x} cy={q.y} r={hi ? 17 : 12} fill={hi ? accent : C.bar} stroke={C.bg} strokeWidth={4} />
+            <text x={q.x} y={q.y - 30} textAnchor="middle" fill={C.text} fontSize={36} fontWeight={700}>{formatValue(q.d.value)}</text>
+            <text x={q.x} y={H - bottom + 46} textAnchor="middle" fill={hi ? C.text : C.muted} fontSize={27} fontWeight={hi ? 700 : 500}>{q.d.label}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+};
+
+// A donut of each item's share, slices sweeping in, with a legend of labels and values.
+const PieChart: React.FC<ChartProps> = ({ data, accent, hiLabel, start }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const total = data.reduce((n, d) => n + d.value, 0) || 1;
+  const p = interpolate(frame, [start, start + 1.4 * fps], [0, 1], { ...clamp, easing: ease });
+  const shades = [C.bar, "#7FC4F2", "#2E6FA8", "#A7B6C9", "#5B6E86", "#3B4A5E"];
+  const R = 200, r = 118, cx = 210, cy = 215;
+  const pt = (a: number, rad: number) => [cx + rad * Math.sin(a), cy - rad * Math.cos(a)];
+  let acc = 0;
+  let shade = 0;
+  const slices = data.map((d) => {
+    const a0 = (acc / total) * 2 * Math.PI * p;
+    acc += d.value;
+    const a1 = (acc / total) * 2 * Math.PI * p;
+    const big = a1 - a0 > Math.PI ? 1 : 0;
+    const [x0, y0] = pt(a0, R), [x1, y1] = pt(a1, R), [x2, y2] = pt(a1, r), [x3, y3] = pt(a0, r);
+    const color = d.label === hiLabel ? accent : shades[shade++ % shades.length];
+    const path = a1 - a0 < 0.0001 ? "" : `M${x0} ${y0} A${R} ${R} 0 ${big} 1 ${x1} ${y1} L${x2} ${y2} A${r} ${r} 0 ${big} 0 ${x3} ${y3} Z`;
+    return { d, color, path };
+  });
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 40 }}>
+      <svg width={420} height={430}>
+        {slices.map((sl) => (sl.path ? <path key={sl.d.label} d={sl.path} fill={sl.color} stroke={C.bg} strokeWidth={4} /> : null))}
+      </svg>
+      <div style={{ flex: 1 }}>
+        {slices.map((sl, i) => (
+          <div key={sl.d.label} style={{ display: "flex", alignItems: "center", marginBottom: 20, opacity: interpolate(frame, [start + i * 0.15 * fps, start + i * 0.15 * fps + 0.3 * fps], [0, 1], clamp) }}>
+            <div style={{ width: 26, height: 26, borderRadius: 6, background: sl.color, marginRight: 16, flexShrink: 0 }} />
+            <div style={{ flex: 1, fontSize: 28, fontWeight: sl.d.label === hiLabel ? 700 : 500, lineHeight: 1.15 }}>{sl.d.label}</div>
+            <div style={{ fontSize: 32, fontWeight: 700, marginLeft: 12, fontVariantNumeric: "tabular-nums" }}>{formatValue(sl.d.value)}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export const Story: React.FC<StoryProps> = ({ spec, audioSrc }) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
   const accent = spec.brand?.accent || C.accent;
 
-  const data = [...spec.chart.data]
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 6);
+  const kind = spec.chart.kind || "bar";
+  const byTime = spec.chart.order === "time";
+  const data = (byTime ? [...spec.chart.data] : [...spec.chart.data].sort((a, b) => b.value - a.value)).slice(byTime ? -6 : 0, byTime ? undefined : 6);
   const max = Math.max(...data.map((d) => d.value), 1);
+  const hiLabel = spec.chart.highlight && data.some((d) => d.label === spec.chart.highlight)
+    ? spec.chart.highlight
+    : (byTime ? data[data.length - 1] : data[0])?.label;
   const callout = spec.callout ?? {
     value: formatValue(data[0]?.value ?? 0),
     label: data[0]?.label ?? "",
@@ -178,69 +257,77 @@ export const Story: React.FC<StoryProps> = ({ spec, audioSrc }) => {
         >
           {spec.chart.title}
         </div>
-        {data.map((d, i) => {
-          const start = barsStart + i * stagger;
-          const progress = interpolate(frame, [start, start + grow], [0, 1], {
-            ...clamp,
-            easing: ease,
-          });
-          return (
-            <div
-              key={d.label}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: 26,
-                opacity: interpolate(frame, [start, start + 0.3 * fps], [0, 1], clamp),
-              }}
-            >
+        {kind === "line" ? (
+          <LineChart data={data} max={max} accent={accent} hiLabel={hiLabel} start={barsStart} />
+        ) : kind === "pie" ? (
+          <PieChart data={data} accent={accent} hiLabel={hiLabel} start={barsStart} />
+        ) : (
+          <>
+          {data.map((d, i) => {
+            const start = barsStart + i * stagger;
+            const progress = interpolate(frame, [start, start + grow], [0, 1], {
+              ...clamp,
+              easing: ease,
+            });
+            return (
               <div
+                key={d.label}
                 style={{
-                  width: 390,
-                  fontSize: 32,
-                  fontWeight: 500,
-                  lineHeight: 1.1,
-                  paddingRight: 20,
-                }}
-              >
-                {d.label}
-              </div>
-              <div
-                style={{
-                  flex: 1,
-                  height: 58,
-                  background: C.faint,
-                  borderRadius: 8,
-                  overflow: "hidden",
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: 26,
+                  opacity: interpolate(frame, [start, start + 0.3 * fps], [0, 1], clamp),
                 }}
               >
                 <div
                   style={{
-                    height: "100%",
-                    width: `${(d.value / max) * 100 * progress}%`,
-                    background: i === 0 ? accent : C.bar,
-                    borderRadius: 8,
+                    width: 390,
+                    fontSize: 32,
+                    fontWeight: 500,
+                    lineHeight: 1.1,
+                    paddingRight: 20,
                   }}
-                />
+                >
+                  {d.label}
+                </div>
+                <div
+                  style={{
+                    flex: 1,
+                    height: 58,
+                    background: C.faint,
+                    borderRadius: 8,
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      height: "100%",
+                      width: `${(d.value / max) * 100 * progress}%`,
+                      background: d.label === hiLabel ? accent : C.bar,
+                      borderRadius: 8,
+                    }}
+                  />
+                </div>
+                <div
+                  style={{
+                    width: 110,
+                    textAlign: "right",
+                    fontSize: 40,
+                    fontWeight: 700,
+                    fontVariantNumeric: "tabular-nums",
+                  }}
+                >
+                  {formatValue(
+                    Number.isInteger(d.value)
+                      ? Math.round(d.value * progress)
+                      : Math.round(d.value * progress * 10) / 10,
+                  )}
+                </div>
               </div>
-              <div
-                style={{
-                  width: 110,
-                  textAlign: "right",
-                  fontSize: 40,
-                  fontWeight: 700,
-                  fontVariantNumeric: "tabular-nums",
-                }}
-              >
-                {formatValue(
-                  Number.isInteger(d.value)
-                    ? Math.round(d.value * progress)
-                    : Math.round(d.value * progress * 10) / 10,
-                )}
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+          </>
+        )}
       </div>
 
       {/* Captions */}

@@ -39,19 +39,25 @@ function buildSpec(story, d, ctx = {}) {
     value: story.direction === "down" ? `${Math.abs(story.pct_change)}%` : story.ratio ? `${story.ratio}×` : String(story.this_week),
     label: d.callout_label,
   };
+  // How the chart looks, which an editor can change from the thread: bar, line or pie; one item in
+  // the accent colour; and the accent colour itself (a hex value), else the client's own.
+  const style = ["bar", "line", "pie"].includes(d.chart_style) ? d.chart_style : "bar";
+  const color = /^#[0-9a-f]{6}$/i.test(String(d.accent_color || "")) ? d.accent_color : null;
   const spec = {
     headline: d.headline,
     script: d.script,
     callout,
     chart: {
-      kind: "bar",
+      kind: style,
+      order: chartKind === "weekly" ? "time" : "value",
+      highlight: d.highlight || null,
       title: d.chart_title,
       data: chartKind === "weekly"
         ? story.weekly.slice(-6).map((w) => ({ label: new Date(w.week_ending + "T12:00:00Z").toLocaleDateString("en-CA", { month: "short", day: "numeric", timeZone: "UTC" }), value: w.count }))
         : story.by_area.slice(0, 6).map((a) => ({ label: a.area, value: a.count })),
       source_note: [story.source_note, ...new Set(used.map((r) => r.source))].join("; "),
     },
-    brand: { name: client.name || "", desk: client.look?.desk || "", accent: client.look?.accent || null },
+    brand: { name: client.name || "", desk: client.look?.desk || "", accent: color || client.look?.accent || null },
     duration_s: 20,
   };
   const fields = { headline: d.headline, script: d.script, callout_value: callout.value, callout_label: d.callout_label, chart_title: d.chart_title, blurb: d.blurb };
@@ -60,6 +66,7 @@ function buildSpec(story, d, ctx = {}) {
   for (const [field, text] of Object.entries(fields)) {
     for (const n of numbersIn(text)) number_checks.push({ field, number: n, from: origin.get(n) || null });
   }
+  if (spec.chart.highlight && !spec.chart.data.some((x) => x.label === spec.chart.highlight)) spec.chart.highlight = null;
   const problems = [];
   const unknown = number_checks.filter((c) => !c.from).map((c) => `${c.number} in ${c.field}`);
   if (unknown.length) problems.push(`${unknown.join(", ")} is not in the story or a report it uses`);
@@ -80,4 +87,7 @@ const draftOf = (run) => ({
   chart_kind: run.chart_kind || run.story.chart_kind,
   blurb: run.blurb,
   reports_used: (run.reports_used || []).map((r) => r.id),
+  chart_style: run.spec.chart.kind || "bar",
+  highlight: run.spec.chart.highlight || null,
+  accent_color: run.spec.brand?.accent && run.spec.brand.accent !== run.client?.look?.accent ? run.spec.brand.accent : null,
 });
