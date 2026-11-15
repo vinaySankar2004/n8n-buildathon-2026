@@ -8,6 +8,7 @@ captions from 04_demo/output/script.md, and the voice levelled to -16 LUFS.
 
   python3 tools/edit_demo.py --look    durations, the voice's beats, and a contact sheet per take
   python3 tools/edit_demo.py           builds the video
+  python3 tools/edit_demo.py --merge   title card, intro.mov, arman.mov, end card (the final cut on Sunday)
 
 cuts.json, all optional: {"voice": [[start, end], ...one per beat], "B05": [[from, to], ...parts to keep]}.
 Times are seconds. A beat lasts as long as its narration; its kept parts are sped up (up to 4x) or held
@@ -193,5 +194,53 @@ def build():
     print(f"{final}: {duration(final):.1f} s")
 
 
+def spoken_span(path):
+    """First and last moment of speech in a clip, so silence at either end can be trimmed."""
+    r = subprocess.run(["ffmpeg", "-hide_banner", "-i", str(path), "-vn", "-af", "silencedetect=noise=-42dB:d=0.6", "-f", "null", "-"], capture_output=True, text=True)
+    starts = [float(x) for x in re.findall(r"silence_start: ([\d.]+)", r.stderr)]
+    ends = [float(x) for x in re.findall(r"silence_end: ([\d.]+)", r.stderr)]
+    total = duration(path)
+    first = ends[0] if starts and starts[0] < 0.2 and ends else 0.0
+    last = starts[-1] if starts and (len(ends) < len(starts) or ends[-1] >= total - 0.2) else total
+    return max(0.0, first - 0.4), min(total, last + 0.7)
+
+
+def merge(intro_name="intro", main_name="arman", limit=179.0):
+    """Title card, the spoken intro, the main walkthrough, end card. Each voice levelled to -16 LUFS.
+    If the whole runs over the limit, the walkthrough is sped up slightly (at most 8 percent)."""
+    find_one = lambda stem: next((RAW / f"{stem}{e}" for e in (".mov", ".mp4", ".MOV", ".MP4") if (RAW / f"{stem}{e}").exists()), None)
+    intro, main = find_one(intro_name), find_one(main_name)
+    if not intro or not main:
+        sys.exit(f"Need {intro_name}.mov and {main_name}.mov in {RAW}.")
+    T1, T4 = 2.5, 4.0
+    a, b = spoken_span(intro)
+    main_len = duration(main)
+    speed = max(1.0, min(1.08, (T1 + (b - a) + main_len + T4) / limit))
+    fit = f"scale={W}:{H}:force_original_aspect_ratio=decrease,pad={W}:{H}:(ow-iw)/2:(oh-ih)/2:color=0x141414,setsar=1,fps={FPS},format=yuv420p"
+    voice = "aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000"
+    graph = (
+        f"[0:v]{fit}[v0];[1:v]{fit}[v1];[2:v]setpts=PTS/{speed:.4f},{fit}[v2];[3:v]{fit}[v3];"
+        f"[1:a]{voice},afade=t=in:d=0.2[a1];[2:a]atempo={speed:.4f},{voice}[a2];"
+        f"[4:a]aformat=sample_fmts=fltp:channel_layouts=stereo[s0];[5:a]aformat=sample_fmts=fltp:channel_layouts=stereo[s3];"
+        "[v0][s0][v1][a1][v2][a2][v3][s3]concat=n=4:v=1:a=1[v][a]"
+    )
+    final = RAW / "newsreels-demo.mp4"
+    run(["ffmpeg", "-y", "-v", "error",
+         "-loop", "1", "-t", str(T1), "-i", str(BRAND / "title-card.png"),
+         "-ss", f"{a:.2f}", "-to", f"{b:.2f}", "-i", str(intro),
+         "-i", str(main),
+         "-loop", "1", "-t", str(T4), "-i", str(BRAND / "end-card.png"),
+         "-f", "lavfi", "-t", str(T1), "-i", "anullsrc=r=48000:cl=stereo",
+         "-f", "lavfi", "-t", str(T4), "-i", "anullsrc=r=48000:cl=stereo",
+         "-filter_complex", graph, "-map", "[v]", "-map", "[a]",
+         "-c:v", "libx264", "-crf", "20", "-preset", "fast", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", str(final)])
+    print(f"intro {a:.1f} to {b:.1f} s, main {main_len:.1f} s at {speed:.3f}x; {final}: {duration(final):.1f} s")
+
+
 if __name__ == "__main__":
-    look() if "--look" in sys.argv else build()
+    if "--merge" in sys.argv:
+        merge()
+    elif "--look" in sys.argv:
+        look()
+    else:
+        build()
