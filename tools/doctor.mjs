@@ -51,6 +51,15 @@ if (url) {
   try {
     await get("/healthz");
     done(`n8n answers at ${url}`);
+    // Through the tunnel the router sends /health to the render service; on the host laptop, ask it directly.
+    const renderUrl = /localhost|127\.0\.0\.1/.test(url) ? `http://127.0.0.1:${env.RENDER_PORT || 8787}` : url;
+    try {
+      const r = await fetch(`${renderUrl}/health`, { headers: { "ngrok-skip-browser-warning": "1" }, signal: AbortSignal.timeout(8000) });
+      if (!(await r.json()).ok) throw new Error();
+      done("render service answers");
+    } catch {
+      next("The render service does not answer, so no video can be made. On the host laptop, run npm run host.");
+    }
     if (env.N8N_API_KEY) {
       try {
         workflows = (await get("/api/v1/workflows?limit=100")).data || [];

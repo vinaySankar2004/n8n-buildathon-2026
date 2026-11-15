@@ -1,6 +1,6 @@
 # Spec
 
-Agreed Saturday 14 November, evening, from the team's discussion and [Vinayak's proposal](../proposals/vinayak.md), and kept current since. Decisions D13 to D23 hold the detail; this page says what is built and what is left.
+Agreed Saturday 14 November, evening, from the team's discussion and [Vinayak's proposal](../proposals/vinayak.md), and kept current since. Decisions D13 to D24 hold the detail; this page says what is built and what is left.
 
 ## Product
 
@@ -26,9 +26,9 @@ Each row is in [must-work.md](../../02_storyboard/output/must-work.md) with its 
 
 ## Before the freeze, Sunday 13:00
 
-1. **Account settings (Arman):** the ElevenLabs key gets User: Read; the Slack app gets `users:read` and is reinstalled. Test: the ledger shows a dollar figure for ElevenLabs and a name in "Who".
+1. **Done 12:20:** account settings. The ElevenLabs key reads the plan, so the ledger prices narration (about $0.000191 a credit), and Slack names who asked.
 2. **Done 12:12:** the guard test live ("Blocked: 38 in script") and three clean runs in a row, logged in `test-log.md` (F17).
-3. **Demo setup:** a fresh Slack channel and a fresh run ledger; the storyboard gets its "Approved" line.
+3. **Done:** #editor-demo and an empty run ledger (D24). Left: the storyboard's "Approved" line, the demo video, and Submit on Devpost by 14:45.
 
 ## After the event
 
