@@ -8,7 +8,15 @@ const res = $input.first().json;
 const ws = run.client?.web_search || {};
 const blocks = Array.isArray(res.content) ? res.content : [];
 const clip = (s, n) => (s.length > n ? s.slice(0, n).replace(/\s+\S*$/, "") + "..." : s);
-const host = (u) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } };
+// n8n's Code sandbox has no URL object, so the host is read with a pattern.
+const host = (u) => (String(u).match(/^https?:\/\/([^/?#:]+)/i)?.[1] || "").toLowerCase().replace(/^www\./, "");
+// Cited text can carry page markup: headings, "Share this article", runs of blank lines.
+const tidy = (t) => String(t || "")
+  .replace(/^#+\s*/gm, "")
+  .replace(/^\s*(share this article|advertisement|read more)\s*$/gim, "")
+  .replace(/^…\s*/, "")
+  .replace(/\s+/g, " ")
+  .trim();
 
 const queries = blocks.filter((b) => b.type === "server_tool_use" && b.name === "web_search").map((b) => b.input?.query).filter(Boolean);
 const results = new Map(); // url -> what the search returned for it
@@ -28,7 +36,7 @@ for (const b of blocks) {
   for (const c of b.citations) {
     if (c.type !== "web_search_result_location" || !c.url) continue;
     const s = sources.get(c.url) || { url: c.url, title: c.title || results.get(c.url)?.title || host(c.url), quotes: [], claims: [] };
-    const q = String(c.cited_text || "").trim();
+    const q = tidy(c.cited_text);
     if (q && !s.quotes.includes(q)) s.quotes.push(q);
     if (claim && !s.claims.includes(claim)) s.claims.push(claim);
     sources.set(c.url, s);

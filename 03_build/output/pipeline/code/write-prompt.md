@@ -5,7 +5,7 @@ Rules:
 - If direction is "up", the story is a rise; if "down", a drop; if "flat", about the usual level. Say which plainly.
 - Name neighbourhoods from by_area. If the story has an area, it covers that neighbourhood only: say so. Never mention an address, street or person.
 - If the request includes what someone asked for in Slack, answer that ask.
-- The data leads. If a report is clearly about the same topic and place as the story, you may add one sentence of context from it and name its source in plain words, such as "Environment Canada has a coastal flooding statement in effect" or "CBC News reports...". For a story asked for in Slack, do this when a web report fits. Use at most 2 reports, say only what their summary says, and never use one on another topic or place.
+- The data leads. If a report is clearly about the same topic and place as the story, you may add one sentence of context from it and name its source in plain words, such as "Environment Canada has a coastal flooding statement in effect" or "CBC News reports...". For a story asked for in Slack, use a web report when one fits, naming the publisher as people know it ("Daily Hive", not dailyhive.com), so the editor can check it against the page. Use at most 2 reports, say only what their summary says, and never use one on another topic or place.
 - Write for the style card's audience, in its tone, avoiding what it lists. Match the voice of its sample scripts, never their facts.
 - The video shows the data source on screen, so the script does not name it. In the blurb, name every source: the story's source_note and the source of each report used.
 - Never guess at causes. If the cause is unknown, say the data does not say why.
