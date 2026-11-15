@@ -218,8 +218,35 @@ def merge(intro_name="intro", main_name="arman", limit=179.0):
     speed = max(1.0, min(1.08, (T1 + (b - a) + main_len + T4) / limit))
     fit = f"scale={W}:{H}:force_original_aspect_ratio=decrease,pad={W}:{H}:(ow-iw)/2:(oh-ih)/2:color=0x141414,setsar=1,fps={FPS},format=yuv420p"
     voice = "aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000"
+    # Punch-in zooms from zooms.json: {"intro": [[start, end, x, y, w, h], ...], "main": [...]}, in each
+    # clip's own seconds and pixels. A zoomed stretch is cropped to that box and scaled back up.
+    zooms = json.loads((RAW / "zooms.json").read_text()) if (RAW / "zooms.json").exists() else {}
+
+    def chain(label, length, boxes, tag, offset=0.0, extra=""):
+        pieces, t = [], 0.0
+        for s, e, x, y, w, h in sorted(boxes):
+            s, e = max(0.0, s - offset), min(length, e - offset)
+            if e <= s:
+                continue
+            if s > t:
+                pieces.append((t, s, None))
+            pieces.append((s, e, (x, y, w, h)))
+            t = e
+        if t < length:
+            pieces.append((t, length, None))
+        if len(pieces) == 1:
+            return f"[{label}]{extra}{fit}[{tag}];"
+        g = f"[{label}]split={len(pieces)}" + "".join(f"[{tag}p{i}]" for i in range(len(pieces))) + ";"
+        for i, (s, e, box) in enumerate(pieces):
+            crop = f",crop={box[2]}:{box[3]}:{box[0]}:{box[1]}" if box else ""
+            g += f"[{tag}p{i}]trim={s:.3f}:{e:.3f},setpts=PTS-STARTPTS{crop},{fit}[{tag}q{i}];"
+        return g + "".join(f"[{tag}q{i}]" for i in range(len(pieces))) + f"concat=n={len(pieces)}:v=1:a=0,{extra or 'null'}[{tag}];"
+
     graph = (
-        f"[0:v]{fit}[v0];[1:v]{fit}[v1];[2:v]setpts=PTS/{speed:.4f},{fit}[v2];[3:v]{fit}[v3];"
+        f"[0:v]{fit}[v0];"
+        + chain("1:v", b - a, zooms.get("intro", []), "v1", offset=a)
+        + chain("2:v", main_len, zooms.get("main", []), "v2", extra=f"setpts=PTS/{speed:.4f}" if speed > 1.0 else "")
+        + f"[3:v]{fit}[v3];"
         f"[1:a]{voice},afade=t=in:d=0.2[a1];[2:a]atempo={speed:.4f},{voice}[a2];"
         f"[4:a]aformat=sample_fmts=fltp:channel_layouts=stereo[s0];[5:a]aformat=sample_fmts=fltp:channel_layouts=stereo[s3];"
         "[v0][s0][v1][a1][v2][a2][v3][s3]concat=n=4:v=1:a=1[v][a]"
