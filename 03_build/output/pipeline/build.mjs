@@ -628,7 +628,7 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
       binaryData: true,
       binaryPropertyName: "data",
       options: {
-        channelId: SLACK_CHANNELS.editor,
+        channelId: "={{ " + deskChannel("$('Make video').first().json", "editor") + " }}",
         threadTs: "={{ $('Make video').first().json.chat.thread_ts }}",
         fileName: "={{ $('Make video').first().json.story.topic }}.mp4",
         initialComment: "=Video: {{ $('Make video').first().json.spec.headline }}",

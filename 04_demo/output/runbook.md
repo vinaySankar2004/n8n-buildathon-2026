@@ -4,13 +4,14 @@ For the judges' tables and for recording the video. Everything runs on the host 
 
 ## Before anyone watches
 
-1. Laptop plugged in, lid open, on the event Wi-Fi. `npm run host -- status` shows every line up. If not, `npm run host`.
-2. Open, each in its own tab:
+1. NewsReels is a member of every channel it works in (#editor-demo, #editor, #outlet): in a channel it is not in, it can post text but cannot upload the video or hear replies (F19). If in doubt, write `/invite @NewsReels` in the channel.
+2. Laptop plugged in, lid open, on the event Wi-Fi. `npm run host -- status` shows every line up. If not, `npm run host`.
+3. Open, each in its own tab:
    - Slack #editor-demo and the outlet channel.
    - n8n at http://localhost:5678, on 0 Orchestrator, with its Executions tab ready.
    - The run ledger (its link is at the bottom of any trace page). Click "Visit Site" on ngrok's notice once, so it never shows on camera.
    - The pipeline README on GitHub, for the workflow pictures.
-3. Five minutes before: `npm run invoke -- orchestrator`, so a fresh review card is waiting in #editor-demo. A practice run goes to #editor instead: `npm run invoke -- orchestrator '{"desk":"test"}'`.
+4. Five minutes before: `npm run invoke -- orchestrator`, so a fresh review card is waiting in #editor-demo. A practice run goes to #editor instead: `npm run invoke -- orchestrator '{"desk":"test"}'`.
 
 ## Two minutes at a table
 
@@ -27,7 +28,7 @@ The words are in [script.md](script.md). Arman records B1 and B4 to B10 and the 
 
 | By | Step | Who |
 | --- | --- | --- |
-| 13:00 | A review card waits in #editor-demo (done 12:47) | Agent |
+| 13:00 | A review card waits in #editor-demo (posted again 13:35) | Agent |
 | 13:35 | Screen takes B1, B4 to B10 ([arman.md](arman.md)) | Arman |
 | 13:35 | Screen take B3, below | Vinayak |
 | 13:45 | The voice | Arman |
@@ -39,8 +40,8 @@ The words are in [script.md](script.md). Arman records B1 and B4 to B10 and the 
 
 **Vinayak: B3, n8n (about 24 seconds).** Same recording rules as Arman's (whole screen, silent, hold 2 seconds at each end). Close any n8n credentials or settings page first.
 
-1. Open the demo run in 0 Orchestrator: http://localhost:5678/workflow/kjZJ4EboduvsCPUg/executions/349. Every step is green; hold 3 seconds, then move the pointer slowly along Collect, Score, Context, Write and Chat.
-2. Open its 2 Score run: http://localhost:5678/workflow/4Yz4ps6sUDrcbUae/executions/353. Click the last node so its output shows: Fireworks, 37 this week against 5.5, 6.7 times, Grandview-Woodland 19. Hold 4 seconds.
+1. Open the demo run in 0 Orchestrator: http://localhost:5678/workflow/kjZJ4EboduvsCPUg/executions/406. Every step is green; hold 3 seconds, then move the pointer slowly along Collect, Score, Context, Write and Chat.
+2. Open its 2 Score run: http://localhost:5678/workflow/4Yz4ps6sUDrcbUae/executions/410. Click the last node so its output shows: Fireworks, 37 this week against 5.5, 6.7 times, Grandview-Woodland 19. Hold 4 seconds.
 3. Save it as `B03.mov` in `04_demo/raw/`.
 
 If Arman needs a fresh card (after B6 cannot be redone), run `npm run invoke -- orchestrator`; B3's links then change to the newest runs.

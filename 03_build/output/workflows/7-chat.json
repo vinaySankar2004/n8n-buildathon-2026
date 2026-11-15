@@ -572,7 +572,7 @@
         "binaryData": true,
         "binaryPropertyName": "data",
         "options": {
-          "channelId": "C0CHG0WGLMD",
+          "channelId": "={{ (((($('Make video').first().json) || {}).desk || (((($('Make video').first().json) || {}).request) || {}).desk) === 'test' ? 'C0CHNAKERA9' : 'C0CHG0WGLMD') }}",
           "threadTs": "={{ $('Make video').first().json.chat.thread_ts }}",
           "fileName": "={{ $('Make video').first().json.story.topic }}.mp4",
           "initialComment": "=Video: {{ $('Make video').first().json.spec.headline }}"

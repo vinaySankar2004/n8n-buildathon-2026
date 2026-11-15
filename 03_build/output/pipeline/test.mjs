@@ -118,7 +118,13 @@ check(note.text.startsWith("No story today."), `Quiet note: ${note.text}`);
 
 // 7 Chat: the editor's review thread, with Claude's answers faked here.
 const chat = wf("7-chat.json");
-const editor = chat.nodes.find((x) => x.name === "Upload to thread").parameters.options.channelId;
+// The demo editor channel, from the client file (the Slack nodes pick it, or the test channel, per run).
+const clientSlack = JSON.parse(readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "../clients/rain-city-ledger.json"), "utf8")).slack;
+const editor = clientSlack.editor;
+const [testCard] = await run(codeOf(chat, "Start review"), [{ ...good, desk: "test" }]);
+check(testCard.post.channel === clientSlack.test.editor, "A run tagged desk test opens its review in the test channel");
+const testEv = await run(codeOf(chat, "Read Slack event"), [{ body: { source: "events", body: { type: "event_callback", authorizations: [{ is_bot: true, user_id: "UBOT" }], event: { type: "message", channel: clientSlack.test.editor, ts: "3.0", user: "U1", text: "<@UBOT> how many potholes?" } } } }]);
+check(testEv[0]?.desk === "test", "A mention in the test channel is tagged desk test");
 const runForChat = good;
 const [card] = await run(codeOf(chat, "Start review"), [runForChat]);
 const cardText = JSON.stringify(card.post.blocks);

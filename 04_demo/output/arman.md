@@ -20,7 +20,7 @@ Targets: takes done by 13:35, voice by 13:45, files sent by 13:50.
    - Pause notifications: your profile picture, then "Pause notifications", for 1 hour.
 3. **Browser**, one window, bookmarks bar hidden (Cmd+Shift+B), these four tabs in order:
    - B1: https://opendata.vancouver.ca/explore/dataset/3-1-1-service-requests/table/
-   - B7: https://paratactical-professionally-yasuko.ngrok-free.dev/files/trace-67685038-960b-4236-9914-f89be9536c5a.html (the same page as "Open the run trace" on the review card)
+   - B7: https://paratactical-professionally-yasuko.ngrok-free.dev/files/trace-75af1dc7-7f0d-4a45-b660-d23ea4d96fac.html (the same page as "Open the run trace" on the review card)
    - B9: https://paratactical-professionally-yasuko.ngrok-free.dev/files/ledger-341e9456e856.html
    - B10: https://github.com/vinaySankar2004/n8n-buildathon-2026/blob/main/03_build/output/clients/rain-city-ledger.json
 
@@ -39,14 +39,14 @@ For every take: start recording, hold still 2 seconds, do the steps, hold still 
 3. Wait for the new draft in the thread (10 to 20 seconds). Hold 3 seconds on it.
 
 **B5, approve and the video (1 to 2 minutes of waiting is fine).** Same thread.
-1. Click **Approve script** on the newest draft.
+1. Click **Approve script** on the newest draft, once. A note says it is working; a second click makes a second video.
 2. Wait for the video in the thread (30 to 60 seconds). Click play and let it run 6 seconds.
 3. Type `make it a line chart` and send. Wait about 20 seconds for the new video. Play it 3 seconds.
 
 **B6, publish (about 30 seconds).** Same thread.
-1. Click **Approve and publish** under the newest video. Wait for "Published to #outlet" in the thread.
+1. Click **Approve and publish** under the newest video, once. Wait for "Published to #outlet" in the thread.
 2. Click #outlet in the sidebar: the video, its headline and blurb. Hold 3 seconds.
-3. The post's text ends with "How this story was made:" and a link. It only exists once you publish. Click the link and scroll the page slowly for 5 seconds. (The same page, in case the link is hard to click: https://paratactical-professionally-yasuko.ngrok-free.dev/files/story-67685038-960b-4236-9914-f89be9536c5a.html)
+3. The post's text ends with "How this story was made:" and a link. It only exists once you publish. Click the link and scroll the page slowly for 5 seconds. (The same page, in case the link is hard to click: https://paratactical-professionally-yasuko.ngrok-free.dev/files/story-75af1dc7-7f0d-4a45-b660-d23ea4d96fac.html)
 
 **B7, the run trace (about 25 seconds).** Browser, tab 2, reload it (Cmd+R) so it shows the approvals. Scroll slowly, pausing about 3 seconds on each of these headings:
 1. "The story"
