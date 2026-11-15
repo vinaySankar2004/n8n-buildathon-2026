@@ -85,8 +85,4 @@ Uploaded from `05_submit/output/samples/`, with captions: chart types, the n8n o
 
 ## Status on Devpost
 
-Draft at https://devpost.com/software/newsreels, entered in the n8n track. Everything above is filled in except the video link. To finish: add the YouTube or Vimeo link, invite teammates with the secret link on Manage team, tick the terms, and submit by 14:30.
-
-## Tracks
-
-The n8n track, and the overall prizes. On the event page's tracks: Human-in-the-loop.
+The team's draft, with all four members: https://devpost.com/software/newsreels-zlpn06 (submission 1303260), entered in the n8n track. Everything above is filled in except the video link. To finish: add the YouTube or Vimeo link, tick the terms, and submit by 14:30. A second draft made by mistake (submission 1306652) is to be deleted.
