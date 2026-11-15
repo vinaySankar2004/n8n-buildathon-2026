@@ -27,9 +27,8 @@ Each row is in [must-work.md](../../02_storyboard/output/must-work.md) with its 
 ## Before the freeze, Sunday 13:00
 
 1. **Account settings (Arman):** the ElevenLabs key gets User: Read; the Slack app gets `users:read` and is reinstalled. Test: the ledger shows a dollar figure for ElevenLabs and a name in "Who".
-2. **Three clean runs in a row**, orchestrator through publish, logged with `npm run sync`.
-3. **Guard test live** (must-work row 9): with `test_tamper` on, the editor gets "Blocked: 219 ...".
-4. **Demo setup:** a fresh Slack channel and a fresh run ledger; the storyboard gets its "Approved" line.
+2. **Done 12:12:** the guard test live ("Blocked: 38 in script") and three clean runs in a row, logged in `test-log.md` (F17).
+3. **Demo setup:** a fresh Slack channel and a fresh run ledger; the storyboard gets its "Approved" line.
 
 ## After the event
 

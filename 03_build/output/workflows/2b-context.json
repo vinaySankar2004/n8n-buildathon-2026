@@ -217,6 +217,17 @@
       "name": "Web sources"
     },
     {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1540,
+        300
+      ],
+      "id": "ad1d2609-cba8-59eb-a2d1-eb6724367655",
+      "name": "Not asked"
+    },
+    {
       "parameters": {
         "content": "## 2b Context\nFetches every news feed in the client's config (RSS, Environment Canada weather alerts, DriveBC road events) and adds the newest 12 items since the story's week began to the run as `reports`. Write decides which, if any, fit the story.\n\nFor a story someone asked for in Slack, **Search the web** has Claude search for recent reporting on it (Anthropic web search). **Web sources** keeps each page it cited, with the exact words cited, as reports `w1`, `w2`... They go to Write, the editor's review card and the trace.\n\nFor every story, **2c Reddit** adds how people are reacting on Reddit (opinion only, never data).\n\nA feed, search or Reddit read that fails is listed in `feeds_checked` and skipped: news never stops a run.\n\nAn empty test body uses **Sample run**.",
         "height": 400,
@@ -334,6 +345,13 @@
         [
           {
             "node": "Search request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Not asked",
             "type": "main",
             "index": 0
           }

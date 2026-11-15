@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2296" height="832" viewBox="0 0 2296 832" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
-<rect x="0" y="0" width="2296" height="832" fill="#f6f7f9"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="2296" height="932" viewBox="0 0 2296 932" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+<rect x="0" y="0" width="2296" height="932" fill="#f6f7f9"/>
 <text x="40" y="44" font-size="20" font-weight="700" fill="#1c2430">2b Context</text>
-<text x="40" y="812" font-size="12" fill="#667085">Grey line: the run goes on. Red dashed line: the error or "no" path. Drawn from 03_build/output/workflows/, the JSON deployed to n8n.</text>
+<text x="40" y="912" font-size="12" fill="#667085">Grey line: the run goes on. Red dashed line: the error or "no" path. Drawn from 03_build/output/workflows/, the JSON deployed to n8n.</text>
 <rect x="40" y="74" width="460" height="336" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
 <text x="54" y="100" font-size="16" font-weight="700" fill="#4a3f12">2b Context</text>
 <text x="54" y="122" font-size="12" font-weight="400" fill="#4a3f12">Fetches every news feed in the client's config (RSS, Environment</text>
@@ -31,7 +31,8 @@
 <path d="M1816,531 C1856,531 1800,531 1840,531" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M2036,516 C2076,516 2020,531 2060,531" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M2036,546 C2076,546 2020,531 2060,531" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
-<path d="M1596,631 C1636,631 1580,531 1620,531" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1596,616 C1636,616 1580,531 1620,531" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M1596,646 C1636,646 1580,831 1620,831" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
 <path d="M276,731 C316,731 260,731 300,731" fill="none" stroke="#7d8796" stroke-width="2" />
 <rect x="80" y="494" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
 <rect x="80" y="494" width="7" height="74" rx="3" fill="#5a6578"/>
@@ -78,4 +79,8 @@
 <rect x="2060" y="494" width="7" height="74" rx="3" fill="#ff6d5a"/>
 <text x="2078" y="518" font-size="13.5" font-weight="700" fill="#1c2430">Web sources</text>
 <text x="2078" y="556" font-size="11" fill="#667085">Code</text>
+<rect x="1620" y="794" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="1620" y="794" width="7" height="74" rx="3" fill="#9aa3b2"/>
+<text x="1638" y="818" font-size="13.5" font-weight="700" fill="#1c2430">Not asked</text>
+<text x="1638" y="856" font-size="11" fill="#667085">Pass-through</text>
 </svg>
