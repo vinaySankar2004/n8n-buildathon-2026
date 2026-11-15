@@ -11,7 +11,7 @@ Ask early. Each track has one judge, so their answer is the real rubric for that
 - Is a GitHub repo required, or only allowed? Answer: pending.
 
 - Which rules apply: the opening slides (two sponsor tracks, four criteria at 25%, Devpost and a video) or the event page (three tracks, six weighted criteria, live judging visits)? Answer: pending.
-- When do submissions lock: 14:45 (event page) or 15:00 (written rules)? Answer: pending. Until settled, submit by 14:30.
+- When do submissions lock: 14:45 (event page), 15:00 (written rules) or 15:45 (the Devpost page, loop.devpost.com, read Sunday morning: "Deadline: Nov 15, 2026 @ 3:45pm PDT")? Answer: pending. Until settled, submit by 14:30.
 
 ## Judges at our table
 
