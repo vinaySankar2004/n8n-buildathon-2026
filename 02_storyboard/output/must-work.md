@@ -23,7 +23,7 @@ Every step the storyboard shows, in order. Each one is the build scope and has a
 | 17 | **Web sources.** A video request also searches the web for recent reporting; the review card lists each source with the words it was cited for, and the script may name one (D20) | B7 | The review card shows the web sources with links and quotes, the trace lists the searches and their cost, and a number from a page passes the guard only if the script cites it | Arman |
 | 18 | **Unemployment.** "@NewsReels show unemployment over the last 5 years" answers in the thread, and as a video draws Vancouver's monthly rate as a line | B9 | The answer's latest rate and month match Statistics Canada's table 14-10-0459-01 | Vinayak |
 | 19 | **Free edits and scenes.** Videos run about 30 seconds in three scenes; a reply can change colours per bar, length, scenes or the closing line, and only a made-up number is refused | B6 | "Make Downtown green and drop the closing scene" remakes the video that way | Vinayak |
-| 20 | **Reactions.** Each story gets how people are reacting on Reddit, opinion only (D21) | B7 | The review card shows the mood, quotes and thread links, marked opinion only; a script with a number from Reddit is blocked | Arman |
+| 20 | **Reactions.** Each story gets how people are reacting on Reddit, opinion only (D23) | B7 | The review card shows the mood, quotes and thread links, marked opinion only; a script with a number from Reddit is blocked | Arman |
 
 ## Contracts between workflows
 
