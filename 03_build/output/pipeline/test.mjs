@@ -292,8 +292,10 @@ const [rx] = await run(codeOf(reddit, "Reactions"), [moodRes], { Input: [rdRun],
 check(rx.reactions.relevant && rx.reactions.quotes.length === 1 && rx.reactions.quotes[0].thread === "p1" && rx.reactions.calls.length === 2 && !rx.terms_body, "Reactions keeps only quotes found word for word in a comment, and records both Claude calls");
 const [rxNone] = await run(codeOf(reddit, "Reactions"), [{ none: true }], { Input: [rdRun], "What to search": whatToSearch, "Search Reddit": [{ error: { message: "Credentials not found" } }] });
 check(rxNone.reactions.relevant === false && rxNone.reactions.error === "Credentials not found", `Reactions without threads goes on and says why: ${rxNone.reactions.error}`);
-const [merged] = await run(codeOf(context, "Add reactions"), [rx], { "Recent reports": [writeIn] });
-const [mergedFail] = await run(codeOf(context, "Add reactions"), [{ error: { message: "2c Reddit failed" } }], { "Recent reports": [writeIn] });
+// "Add reactions" is only in 2b Context once the client turns Reddit on, so test its source file.
+const addReactions = readFileSync(path.join(here, "code", "context-reactions.js"), "utf8");
+const [merged] = await run(addReactions, [rx], { "Recent reports": [writeIn] });
+const [mergedFail] = await run(addReactions, [{ error: { message: "2c Reddit failed" } }], { "Recent reports": [writeIn] });
 check(merged.reactions.relevant && merged.reports.length === writeIn.reports.length && mergedFail.reactions.relevant === false && mergedFail.story, "Context adds the reactions, and goes on without them if 2c Reddit fails");
 
 const redditScript = answer.script.replace("The city data does not say why.", "On Reddit, 400 residents say the drains clog.");

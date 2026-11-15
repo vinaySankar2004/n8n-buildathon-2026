@@ -272,8 +272,7 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
       options: { timeout: 120000 },
     }, { maxTries: 2, ...creds("anthropicApi", "Anthropic") }),
     codeNode("Web sources", [1980, 0], "search-sources.js"),
-    execWf("2c Reddit", [2200, 100], "2c Reddit"),
-    codeNode("Add reactions", [2420, 100], "context-reactions.js"),
+    ...(client.reddit?.enabled ? [execWf("2c Reddit", [2200, 100], "2c Reddit"), codeNode("Add reactions", [2420, 100], "context-reactions.js")] : []),
     sticky("About Context", [-40, -420], "## 2b Context\nFetches every news feed in the client's config (RSS, Environment Canada weather alerts, DriveBC road events) and adds the newest 12 items since the story's week began to the run as `reports`. Write decides which, if any, fit the story.\n\nFor a story someone asked for in Slack, **Search the web** has Claude search for recent reporting on it (Anthropic web search). **Web sources** keeps each page it cited, with the exact words cited, as reports `w1`, `w2`... They go to Write, the editor's review card and the trace.\n\nFor every story, **2c Reddit** adds how people are reacting on Reddit (opinion only, never data).\n\nA feed, search or Reddit read that fails is listed in `feeds_checked` and skipped: news never stops a run.\n\nAn empty test body uses **Sample run**.", 400),
   ];
   const c = {};
@@ -286,9 +285,15 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
   link(c, "Recent reports", [["Asked in Slack?"]]);
   link(c, "Search request", [["Search the web"]]);
   link(c, "Search the web", [["Web sources"], ["Web sources"]]);
-  link(c, "Asked in Slack?", [["Search request"], ["2c Reddit"]]);
-  link(c, "Web sources", [["2c Reddit"]]);
-  link(c, "2c Reddit", [["Add reactions"], ["Add reactions"]]);
+  // 2c Reddit joins only once the client turns it on (client.reddit.enabled): n8n will not switch
+  // on a workflow whose sub-workflow cannot be switched on, and 2c Reddit needs its credential.
+  if (client.reddit?.enabled) {
+    link(c, "Asked in Slack?", [["Search request"], ["2c Reddit"]]);
+    link(c, "Web sources", [["2c Reddit"]]);
+    link(c, "2c Reddit", [["Add reactions"], ["Add reactions"]]);
+  } else {
+    link(c, "Asked in Slack?", [["Search request"]]);
+  }
   out["2b-context"] = workflow("2b Context", n, c);
 }
 

@@ -105,8 +105,8 @@
     "max_sources": 6
   },
   "reddit": {
-    "_note": "For every story, 2c Reddit reads how people are reacting in these subreddits. Opinion only: never a source for numbers.",
-    "enabled": true,
+    "_note": "For every story, 2c Reddit reads how people are reacting in these subreddits. Opinion only: never a source for numbers. Stays false until the Reddit credential is connected in n8n, since n8n will not switch on 2b Context while 2c Reddit cannot run.",
+    "enabled": false,
     "subreddits": ["vancouver", "britishcolumbia"],
     "days": 30,
     "max_threads": 4,
