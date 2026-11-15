@@ -7,7 +7,7 @@
     "accent": "#F2B33D"
   },
   "slack": {
-    "editor": "C0CHNAKERA9",
+    "editor": "C0CHG0WGLMD",
     "outlet": "C0CHVG02PJM"
   },
   "data_sources": [
@@ -109,7 +109,10 @@
     "enabled": false,
     "via": "web_search",
     "max_searches": 2,
-    "subreddits": ["vancouver", "britishcolumbia"],
+    "subreddits": [
+      "vancouver",
+      "britishcolumbia"
+    ],
     "days": 30,
     "max_threads": 4,
     "comments_per_thread": 6

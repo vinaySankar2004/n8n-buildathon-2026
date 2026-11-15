@@ -42,7 +42,7 @@ The response is `{ "video_url", "duration_s", "render_seconds" }`. The video las
 
 `POST /trace` with the same header and `{ "run": …, "prompt": "Write's system prompt" }` saves the run trace as two pages in `files/` ([trace-page.mjs](trace-page.mjs)): `trace-<id>.html` for the editor (sources, ranking, news offered, what Claude was asked and answered, where each number came from, edits, approvals, cost) and `story-<id>.html`, the public "How this story was made" page without prompts, messages or costs. It returns `{ "trace_id", "trace_url", "story_url", "ledger_url" }`. A run that already has a `trace_id` overwrites its own pages, so the links stay the same.
 
-`POST /ledger` with `{ "run", "stage" }` or `{ "run", "status" }` updates the run's row in the run ledger ([ledger.mjs](ledger.mjs), costs from [costs.mjs](costs.mjs)): one page at `files/ledger-<id>.html`, with an id derived from the token so it cannot be guessed. Every trace save updates it too.
+`POST /ledger` with `{ "run", "stage" }` or `{ "run", "status" }` updates the run's row in the run ledger ([ledger.mjs](ledger.mjs), costs from [costs.mjs](costs.mjs)): one page at `files/ledger-<id>.html`, with an id derived from the token so it cannot be guessed. Every trace save updates it too. To start a fresh ledger, move `files/ledger.json` aside (keep it as an archive), write `[]` in its place, and redraw the page with `ledgerStore(...).rebuild()`.
 
 ## Made with
 

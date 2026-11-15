@@ -60,7 +60,9 @@ export function ledgerStore(dir, name) {
     });
     return queue;
   };
-  return { upsert, stageStatus: (stage) => STAGES[stage] };
+  // Redraws the page from ledger.json, for example after starting a fresh ledger.
+  const rebuild = async () => writeFile(html, ledgerPage(load()));
+  return { upsert, rebuild, stageStatus: (stage) => STAGES[stage] };
 }
 
 function ledgerPage(rows) {
