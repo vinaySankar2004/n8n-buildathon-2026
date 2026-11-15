@@ -108,7 +108,7 @@ Score gets every `collected` and returns `{ "ok": true, "story": …, "runners_u
 
 | After | Adds |
 | --- | --- |
-| Run options | `client` (the client file without `data_sources`), `run_id`, `trigger`, `started_at`, `test_tamper` |
+| Run options | `client` (the client file without `data_sources`), `run_id`, `trigger`, `desk` (`demo`, or `test` when the test webhook is sent `{ "desk": "test" }`), `started_at`, `test_tamper` |
 | Context | `reports` (up to 12, newest first: `{ "id": "r1", "source", "feed", "title", "summary", "url", "published" }`), `feeds_checked` (`{ "feed", "ok", "items", "recent" }` or `{ "feed", "ok": false, "reason" }`). For a story asked for in Slack (the run has `request`), it also adds web sources to `reports`: `{ "id": "w1", "feed": "web", "source": the site's host, "title", "url", "summary": the exact words Claude cited from the page, "claims": Claude's sentences that cite it, "page_age" }`, one `feeds_checked` row `{ "feed": "Web search: <queries>", ... }`, and `web_search` (`model`, `usage`, `stop_reason`, `searches`, `queries`, `results_seen`, `sources_kept`, `findings`, `summary`, `error`) |
 | Write | `spec`, `blurb`, `script_words`, `chart_kind` (`by_area` or `weekly`, which the editor can change), `reports_used` (the reports the script cites), `write` (`model`, `usage`, `stop_reason`, `answer`, `number_checks`: `{ "field", "number", "from" }` for every number) |
 | Add trace link | `trace_id`, `trace_url` (editor page), `story_page_url` (public page), all null if the save failed |
@@ -120,9 +120,9 @@ Inside 7 Chat the run also carries `chat`: `{ "thread_ts", "stage", "history", "
 
 ## 8 Request
 
-7 Chat hands 8 Request a mention of the bot: `{ "kind": "request", "text", "user", "ts", "channel", "at" }`. Read request (Claude Haiku) returns `{ "kind": "video" | "answer" | "unclear", "source_id", "categories": [...], "topic", "area", "reply" }`; Plan keeps only categories and neighbourhoods that are in the data. Requested story returns a run like Score's, with `story.area`, `story.direction` (`up`, `down` or `flat`), `run_id` (`request-<ts>`), `trigger: "Slack request"`, `request` (the event plus `parse` and `matched`), `answer` (Slack text) and `answer_line`. A video request then goes through Context and Write like any run, and its review opens in the request's thread.
+7 Chat hands 8 Request a mention of the bot: `{ "kind": "request", "text", "user", "ts", "channel", "desk", "at" }`, where `desk` is `test` for the test channel (D25). Read request (Claude Haiku) returns `{ "kind": "video" | "answer" | "unclear", "source_id", "categories": [...], "topic", "area", "reply" }`; Plan keeps only categories and neighbourhoods that are in the data. Requested story returns a run like Score's, with `story.area`, `story.direction` (`up`, `down` or `flat`), `run_id` (`request-<ts>`), `trigger: "Slack request"`, `request` (the event plus `parse` and `matched`), `answer` (Slack text) and `answer_line`. A video request then goes through Context and Write like any run, and its review opens in the request's thread.
 
-Render service: `POST /render` with `{ "spec": …, "audio_base64": … }` or `{ "spec": …, "audio_url": … }` returns `{ "video_url", "duration_s", "render_seconds" }`. `POST /trace` with `{ "run": …, "prompt": … }` returns `{ "trace_id", "trace_url", "story_url", "ledger_url" }` and updates the run's ledger row. `POST /ledger` with `{ "run", "stage" }` (7 Chat) or `{ "run", "status" }` (anywhere else) updates the row keyed by `run_id`.
+Render service: `POST /render` with `{ "spec": …, "audio_base64": … }` or `{ "spec": …, "audio_url": … }` returns `{ "video_url", "duration_s", "render_seconds" }`. `POST /trace` with `{ "run": …, "prompt": … }` returns `{ "trace_id", "trace_url", "story_url", "ledger_url" }` and updates the run's ledger row. `POST /ledger` with `{ "run", "stage" }` (7 Chat) or `{ "run", "status" }` (anywhere else) updates the row keyed by `run_id`. A run whose `desk` (or `request.desk`) is `test` goes to the test ledger instead, and its `ledger_url` points there.
 
 ## 7 Chat
 

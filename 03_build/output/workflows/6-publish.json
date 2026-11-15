@@ -126,9 +126,7 @@
         "binaryData": true,
         "binaryPropertyName": "data",
         "options": {
-          "channelIds": [
-            "C0CHVG02PJM"
-          ],
+          "channelIds": "={{ [(((($('Input').first().json) || {}).desk || (((($('Input').first().json) || {}).request) || {}).desk) === 'test' ? 'C0CHNAKERA9' : 'C0CHVG02PJM')] }}",
           "fileName": "={{ $('Input').first().json.story.topic }}.mp4",
           "initialComment": "={{ $('Input').first().json.spec.headline }}\n\n{{ $('Input').first().json.blurb }}\n\nSource: {{ $('Input').first().json.spec.chart.source_note }}{{ $('Input').first().json.story_page_url ? '\\n\\nHow this story was made: ' + $('Input').first().json.story_page_url : '' }}"
         }
@@ -154,7 +152,7 @@
         "channelId": {
           "__rl": true,
           "mode": "id",
-          "value": "C0CHVG02PJM"
+          "value": "={{ (((($('Input').first().json) || {}).desk || (((($('Input').first().json) || {}).request) || {}).desk) === 'test' ? 'C0CHNAKERA9' : 'C0CHVG02PJM') }}"
         },
         "text": "=Newsletter draft: {{ $('Input').first().json.blurb }}",
         "otherOptions": {

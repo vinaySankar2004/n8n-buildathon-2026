@@ -1,6 +1,6 @@
 # Spec
 
-Agreed Saturday 14 November, evening, from the team's discussion and [Vinayak's proposal](../proposals/vinayak.md), and kept current since. Decisions D13 to D24 hold the detail; this page says what is built and what is left.
+Agreed Saturday 14 November, evening, from the team's discussion and [Vinayak's proposal](../proposals/vinayak.md), and kept current since. Decisions D13 to D25 hold the detail; this page says what is built and what is left.
 
 ## Product
 
@@ -18,7 +18,7 @@ Each row is in [must-work.md](../../02_storyboard/output/must-work.md) with its 
 | Review in one Slack thread: script first, then video | D14 | 6, 7 |
 | Run trace and public "How this story was made" page | D16 | 13 |
 | Slack requests: "@NewsReels make a video about ..." or a question | D17 | 14 |
-| Run ledger: who, what, status, Claude and ElevenLabs cost | D17 | 15 |
+| Run ledger: who, what, status, Claude and ElevenLabs cost; a separate test channel (#editor) and test ledger | D17, D25 | 15 |
 | Web search for requested stories, every source shown to the editor | D20 | 17 |
 | Vancouver unemployment rate from Statistics Canada, for requests | D21 | 18 |
 | Edits that change anything but the numbers; about 30 second videos in three scenes; bar, line or pie charts | D18, D21 | 16, 19 |

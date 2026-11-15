@@ -2,6 +2,12 @@
 // posts, and the row it keeps for each review thread in the "editor_threads" data table.
 const EDITOR = "__EDITOR_CHANNEL__";
 const OUTLET = "__OUTLET_CHANNEL__";
+// The test channel: runs started there are tagged desk "test", so their threads, published videos
+// and ledger rows stay out of the demo channel and the demo ledger.
+const TEST_EDITOR = "__TEST_EDITOR_CHANNEL__";
+const TEST_OUTLET = "__TEST_OUTLET_CHANNEL__";
+const isTest = (run) => ((run && (run.desk || (run.request && run.request.desk))) === "test");
+const deskOf = (run) => (isTest(run) && TEST_EDITOR ? { editor: TEST_EDITOR, outlet: TEST_OUTLET || TEST_EDITOR } : { editor: EDITOR, outlet: OUTLET });
 
 const section = (text) => ({ type: "section", text: { type: "mrkdwn", text: String(text).slice(0, 2900) } });
 const context = (text) => ({ type: "context", elements: [{ type: "mrkdwn", text: String(text).slice(0, 2900) }] });
@@ -93,7 +99,7 @@ const rowFor = (threadTs, stage, run, history) => ({ thread_ts: threadTs || "", 
 // What every branch hands to "Reply ready": the Slack message to post and the row to save.
 const reply = (threadTs, text, blocks, stage, run, history) => ({
   json: {
-    post: { channel: EDITOR, ...(threadTs ? { thread_ts: threadTs } : {}), text: String(text).slice(0, 3000), ...(blocks ? { blocks } : {}), unfurl_links: false },
+    post: { channel: deskOf(run).editor, ...(threadTs ? { thread_ts: threadTs } : {}), text: String(text).slice(0, 3000), ...(blocks ? { blocks } : {}), unfurl_links: false },
     row: rowFor(threadTs, stage, run, history),
   },
 });

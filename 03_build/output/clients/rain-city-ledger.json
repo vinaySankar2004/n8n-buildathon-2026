@@ -8,7 +8,11 @@
   },
   "slack": {
     "editor": "C0CHG0WGLMD",
-    "outlet": "C0CHVG02PJM"
+    "outlet": "C0CHVG02PJM",
+    "test": {
+      "editor": "C0CHNAKERA9",
+      "outlet": "C0CHNAKERA9"
+    }
   },
   "data_sources": [
     {

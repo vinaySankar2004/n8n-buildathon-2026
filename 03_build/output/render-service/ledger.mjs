@@ -34,8 +34,9 @@ export function entryFrom(run = {}, status) {
   };
 }
 
-export function ledgerStore(dir, name) {
-  const json = path.join(dir, "ledger.json");
+// file: the JSON the rows live in; title: the page heading. The demo and test ledgers each get their own.
+export function ledgerStore(dir, name, { file = "ledger.json", title = "Run ledger" } = {}) {
+  const json = path.join(dir, file);
   const html = path.join(dir, `${name}.html`);
   const load = () => {
     try {
@@ -56,16 +57,16 @@ export function ledgerStore(dir, name) {
       } else rows.push(entry);
       rows.sort((a, b) => String(b.started_at).localeCompare(String(a.started_at)));
       await writeFile(json, JSON.stringify(rows, null, 2));
-      await writeFile(html, ledgerPage(rows));
+      await writeFile(html, ledgerPage(rows, title));
     });
     return queue;
   };
   // Redraws the page from ledger.json, for example after starting a fresh ledger.
-  const rebuild = async () => writeFile(html, ledgerPage(load()));
+  const rebuild = async () => writeFile(html, ledgerPage(load(), title));
   return { upsert, rebuild, stageStatus: (stage) => STAGES[stage] };
 }
 
-function ledgerPage(rows) {
+function ledgerPage(rows, title = "Run ledger") {
   const sum = (k) => rows.reduce((s, r) => s + (Number(r[k]) || 0), 0);
   const published = rows.filter((r) => r.status === "Published").length;
   const voiceKnown = rows.every((r) => !r.voice_credits || r.voice_usd !== null);
@@ -78,7 +79,7 @@ function ledgerPage(rows) {
     <td>${r.voice_credits ? `${r.voice_credits} credits<br>${usd(r.voice_usd)}` : "none"}</td>
     <td>${[r.trace_url && `<a href="${esc(r.trace_url)}">trace</a>`, r.story_url && `<a href="${esc(r.story_url)}">public page</a>`, r.video_url && `<a href="${esc(r.video_url)}">video</a>`].filter(Boolean).join("<br>")}</td>
   </tr>`).join("\n");
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>NewsReels run ledger</title>
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>NewsReels ${esc(title.toLowerCase())}</title>
 <style>
   :root { --bg: #f6f7f9; --card: #fff; --text: #1c2430; --muted: #5b6575; --line: #dde2ea; --accent: #b7791f; }
   @media (prefers-color-scheme: dark) { :root { --bg: #11161d; --card: #1a212b; --text: #eef1f5; --muted: #a3adbb; --line: #2c3542; --accent: #f2b33d; } }
@@ -96,7 +97,7 @@ function ledgerPage(rows) {
   .muted { color: var(--muted); }
   a { color: inherit; }
 </style></head><body><main>
-<p class="kicker">NewsReels</p><h1>Run ledger</h1>
+<p class="kicker">NewsReels</p><h1>${esc(title)}</h1>
 <div class="stats">
   <div class="stat"><b>${rows.length}</b>runs</div>
   <div class="stat"><b>${published}</b>published</div>

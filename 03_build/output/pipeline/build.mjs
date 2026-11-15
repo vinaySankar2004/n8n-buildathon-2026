@@ -82,6 +82,15 @@ const channel = (which) => {
   if (!value) console.warn(`slack.${which} is empty in the client file; its Slack nodes deploy with no channel.`);
   return { __rl: true, mode: "id", value };
 };
+// test: a second editor and outlet for trying things out. A run tagged desk "test" (started in the
+// test channel, or with { "desk": "test" }) posts there and logs to the test ledger instead.
+const TEST_CHANNELS = SLACK_CHANNELS.test ?? {};
+const isTestExpr = (runExpr) => `(((${runExpr}) || {}).desk || ((((${runExpr}) || {}).request) || {}).desk) === 'test'`;
+const deskChannel = (runExpr, which) => {
+  const demo = SLACK_CHANNELS[which] ?? "";
+  const test = TEST_CHANNELS[which] || TEST_CHANNELS.editor;
+  return test ? `(${isTestExpr(runExpr)} ? '${test}' : '${demo}')` : `'${demo}'`;
+};
 
 // ---------- connection helpers ----------
 const link = (conns, from, outputs) => {
@@ -516,10 +525,10 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
       resource: "file",
       binaryData: true,
       binaryPropertyName: "data",
-      options: { channelIds: SLACK_CHANNELS.outlet ? [SLACK_CHANNELS.outlet] : [], fileName: "={{ $('Input').first().json.story.topic }}.mp4", initialComment: "={{ $('Input').first().json.spec.headline }}\n\n{{ $('Input').first().json.blurb }}\n\nSource: {{ $('Input').first().json.spec.chart.source_note }}{{ $('Input').first().json.story_page_url ? '\\n\\nHow this story was made: ' + $('Input').first().json.story_page_url : '' }}" },
+      options: { channelIds: SLACK_CHANNELS.outlet ? "={{ [" + deskChannel("$('Input').first().json", "outlet") + "] }}" : [], fileName: "={{ $('Input').first().json.story.topic }}.mp4", initialComment: "={{ $('Input').first().json.spec.headline }}\n\n{{ $('Input').first().json.blurb }}\n\nSource: {{ $('Input').first().json.spec.chart.source_note }}{{ $('Input').first().json.story_page_url ? '\\n\\nHow this story was made: ' + $('Input').first().json.story_page_url : '' }}" },
     }, { onError: "continueErrorOutput", ...SLACK }),
     node("Newsletter draft", "n8n-nodes-base.slack", 2.3, [1320, -100], {
-      select: "channel", channelId: channel("outlet"), text: "=Newsletter draft: {{ $('Input').first().json.blurb }}", otherOptions: { includeLinkToWorkflow: false },
+      select: "channel", channelId: { ...channel("outlet"), value: "={{ " + deskChannel("$('Input').first().json", "outlet") + " }}" }, text: "=Newsletter draft: {{ $('Input').first().json.blurb }}", otherOptions: { includeLinkToWorkflow: false },
     }, { onError: "continueErrorOutput", ...SLACK }),
     codeNode("Published", [1540, -100], "publish-done.js"),
     codeNode("Failed", [1320, 300], "publish-failed.js"),
@@ -546,6 +555,8 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
   const fill = {
     __EDITOR_CHANNEL__: SLACK_CHANNELS.editor,
     __OUTLET_CHANNEL__: SLACK_CHANNELS.outlet,
+    __TEST_EDITOR_CHANNEL__: TEST_CHANNELS.editor ?? "",
+    __TEST_OUTLET_CHANNEL__: TEST_CHANNELS.outlet ?? "",
     __MODEL__: CHAT_MODEL,
     __CHAT_PROMPT__: JSON.stringify(code("chat-prompt.md")),
   };
@@ -601,7 +612,7 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
     }, { maxTries: 2, ...creds("anthropicApi", "Anthropic") }),
     chatCode("Check revision", [1320, 400], "chat-check.js"),
     ifOk("Needs video?", [1540, 400], "={{ $json.render === true }}"),
-    slackPost("Say working on it", [1760, 760], "={{ JSON.stringify({ channel: '" + SLACK_CHANNELS.editor + "', thread_ts: $json.chat.thread_ts, text: $json.working_note }) }}", { onError: "continueRegularOutput" }),
+    slackPost("Say working on it", [1760, 760], "={{ JSON.stringify({ channel: " + deskChannel("$json", "editor") + ", thread_ts: $json.chat.thread_ts, text: $json.working_note }) }}", { onError: "continueRegularOutput" }),
     execWf("Make voice", [1760, 600], "4 Voice"),
     ifOk("Voice ok?", [1980, 600]),
     execWf("Make video", [2200, 600], "5 Render"),
@@ -683,7 +694,7 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
   const fill = { __REQUEST_MODEL__: REQUEST_MODEL, __REQUEST_PROMPT__: JSON.stringify(code("request-prompt.md")) };
   const reqCode = (name, pos, file) => codeWith(name, pos, file, [], fill);
   const thread = (textExpr, tsExpr = "$('Input').first().json.ts") =>
-    `{ channel: ${tsExpr} ? '${SLACK_CHANNELS.editor}' : '', thread_ts: ${tsExpr}, text: ${textExpr}, unfurl_links: false }`;
+    `{ channel: ${tsExpr} ? ($('Input').first().json.channel || '${SLACK_CHANNELS.editor}') : '', thread_ts: ${tsExpr}, text: ${textExpr}, unfurl_links: false }`;
   const n = [
     calledBy([0, 0]), testRun([0, 200]),
     jsonNode("Sample request", [220, 200], { kind: "request", text: "make a video about graffiti in Mount Pleasant", user: "U0TEST", ts: "", channel: SLACK_CHANNELS.editor, at: "2026-11-14T20:00:00.000Z" }),
@@ -780,6 +791,8 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
 
 // ---------- 0 Orchestrator ----------
 {
+  // What the test webhook was sent, for { "desk": "test" }; empty for the daily schedule.
+  const ASKED = "($('Test webhook').isExecuted ? $('Test webhook').first().json.body : {})";
   const n = [
     testRun([0, 200]),
     node("Every morning", "n8n-nodes-base.scheduleTrigger", 1.2, [0, 0], { rule: { interval: [{ triggerAtHour: 7 }] } }, { disabled: true }),
@@ -796,8 +809,8 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
     codeNode("Add trace link", [2420, 0], "trace-link.js"),
     execWf("7 Chat", [2640, 0], "7 Chat"),
     codeNode("Why it stopped", [1980, 400], "why-stopped.js"),
-    node("No story today", "n8n-nodes-base.slack", 2.3, [2200, 400], { select: "channel", channelId: channel("editor"), text: "={{ $json.text }}", otherOptions: { includeLinkToWorkflow: false } }, SLACK),
-    logLedger("Log no story", [2420, 400], "{ status: 'No story', run: { run_id: 'run-' + $execution.id, trigger: $('Every morning').isExecuted ? 'Daily run' : 'Test run', client: { name: $('Client').first().json.name }, reason: $('Why it stopped').first().json.text } }"),
+    node("No story today", "n8n-nodes-base.slack", 2.3, [2200, 400], { select: "channel", channelId: { ...channel("editor"), value: "={{ " + deskChannel(ASKED, "editor") + " }}" }, text: "={{ $json.text }}", otherOptions: { includeLinkToWorkflow: false } }, SLACK),
+    logLedger("Log no story", [2420, 400], "{ status: 'No story', run: { run_id: 'run-' + $execution.id, desk: " + isTestExpr(ASKED) + " ? 'test' : 'demo', trigger: $('Every morning').isExecuted ? 'Daily run' : 'Test run', client: { name: $('Client').first().json.name }, reason: $('Why it stopped').first().json.text } }"),
     sticky("About the newsroom", [-40, -460], `## 0 Orchestrator\nRuns NewsReels for one client, **${client.name}**. **Client** holds its config; **Data sources** lists its datasets. **1 Collect** runs once per dataset, **2 Score** picks the week's strongest change, **2b Context** adds recent reports from the client's news feeds, **3 Write** drafts it, **Save trace** writes the run trace pages, and **7 Chat** posts the draft, its data and the trace link to the editor in Slack. From there the editor's thread drives Voice, Render and Publish.\n\nIf any step says \`ok: false\`, or errors, **No story today** tells the editor why in Slack.\n\n**Every morning** stays off while building. To test the guard, set \`test_tamper\` to true in **Run options**.`, 400, 540),
   ];
   const c = {};

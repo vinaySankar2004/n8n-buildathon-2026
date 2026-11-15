@@ -123,8 +123,14 @@ app.post("/render", async (req, res) => {
 
 // The run ledger page has a fixed but unguessable name, derived from the render token.
 const LEDGER_NAME = `ledger-${createHash("sha256").update(TOKEN).digest("hex").slice(0, 12)}`;
-const LEDGER_URL = `${PUBLIC_BASE_URL}/files/${LEDGER_NAME}.html`;
-const ledger = ledgerStore(FILES, LEDGER_NAME);
+// Runs tagged desk "test" (started in the test Slack channel) get their own ledger, so the demo one stays clean.
+const LEDGERS = {
+  demo: { url: `${PUBLIC_BASE_URL}/files/${LEDGER_NAME}.html`, store: ledgerStore(FILES, LEDGER_NAME) },
+  test: { url: `${PUBLIC_BASE_URL}/files/${LEDGER_NAME}-test.html`, store: ledgerStore(FILES, `${LEDGER_NAME}-test`, { file: "ledger-test.json", title: "Test run ledger" }) },
+};
+const deskOf = (run) => LEDGERS[(run?.desk ?? run?.request?.desk) === "test" ? "test" : "demo"];
+const LEDGER_URL = LEDGERS.demo.url;
+for (const l of Object.values(LEDGERS)) l.store.rebuild().catch(() => {});
 
 // Run trace: n8n posts the run (and Write's prompt) after Write and again on publish. Both pages are
 // saved under one id, so the links stay the same while the run moves on.
@@ -133,12 +139,13 @@ app.post("/trace", async (req, res) => {
   const { run, prompt } = req.body ?? {};
   if (!run?.story || !run?.spec) return res.status(400).json({ error: "run needs story and spec" });
   const id = /^[0-9a-f-]{36}$/.test(String(run.trace_id)) ? run.trace_id : randomUUID();
-  const urls = { trace_id: id, trace_url: `${PUBLIC_BASE_URL}/files/trace-${id}.html`, story_url: `${PUBLIC_BASE_URL}/files/story-${id}.html`, ledger_url: LEDGER_URL };
+  const ledger = deskOf(run);
+  const urls = { trace_id: id, trace_url: `${PUBLIC_BASE_URL}/files/trace-${id}.html`, story_url: `${PUBLIC_BASE_URL}/files/story-${id}.html`, ledger_url: ledger.url };
   const saved = { ...run, ...urls, story_page_url: urls.story_url, trace_saved_at: new Date().toISOString() };
   try {
-    await writeFile(path.join(FILES, `trace-${id}.html`), tracePage(saved, { prompt, editor: true, ledgerUrl: LEDGER_URL }));
+    await writeFile(path.join(FILES, `trace-${id}.html`), tracePage(saved, { prompt, editor: true, ledgerUrl: ledger.url }));
     await writeFile(path.join(FILES, `story-${id}.html`), tracePage(saved, { editor: false }));
-    await ledger.upsert(entryFrom(saved));
+    await ledger.store.upsert(entryFrom(saved));
   } catch (err) {
     return res.status(500).json({ error: String(err?.message ?? err) });
   }
@@ -149,12 +156,13 @@ app.post("/trace", async (req, res) => {
 app.post("/ledger", async (req, res) => {
   if (!tokenOk(req.get("x-render-token"))) return res.status(401).json({ error: "bad token" });
   const { run, stage, status } = req.body ?? {};
+  const ledger = deskOf(run);
   try {
-    await ledger.upsert(entryFrom(run || {}, status || ledger.stageStatus(stage)));
+    await ledger.store.upsert(entryFrom(run || {}, status || ledger.store.stageStatus(stage)));
   } catch (err) {
     return res.status(500).json({ error: String(err?.message ?? err) });
   }
-  res.json({ ok: true, ledger_url: LEDGER_URL });
+  res.json({ ok: true, ledger_url: ledger.url });
 });
 
-app.listen(PORT, () => console.log(`Render service on http://localhost:${PORT}; run ledger at ${LEDGER_URL}`));
+app.listen(PORT, () => console.log(`Render service on http://localhost:${PORT}; run ledger at ${LEDGER_URL}; test runs at ${LEDGERS.test.url}`));
