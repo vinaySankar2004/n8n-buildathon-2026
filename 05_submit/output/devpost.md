@@ -77,7 +77,7 @@ n8n, anthropic, claude, elevenlabs, remotion, react, typescript, javascript, nod
 
 ## Video demo
 
-Pending: the demo video, 3 minutes or less.
+https://youtu.be/-1ckG5RrevY (2:52, unlisted): Vinayak's intro over n8n, the trace and the ledger, then Arman's review in Slack.
 
 ## Image gallery
 
@@ -85,4 +85,4 @@ Uploaded from `05_submit/output/samples/`, with captions: chart types, the n8n o
 
 ## Status on Devpost
 
-The team's draft, with Vinayak and Arman: https://devpost.com/software/newsreels-f5uegw (submission 1306753), entered in the n8n track. Everything above is filled in except the video link. To finish: add the YouTube or Vimeo link, update the 3-1-1 count in Inspiration to 1.1 million (the city's dataset shrank since Saturday's 1.33 million), swap in the logo thumbnail, tick the terms, and submit by 14:45 (edits close at 15:00). Vinayak's earlier solo draft (submission 1306652) is hidden; Devpost does not allow deleting it, and it is not entered.
+The team's draft, with Vinayak and Arman: https://devpost.com/software/newsreels-f5uegw (submission 1306753), entered in the n8n track. Everything is filled in, including the video link, the logo thumbnail and the 1.1 million count. Left: tick the terms and press Submit project, by 14:45. Vinayak's earlier solo draft (submission 1306652) is hidden; Devpost does not allow deleting it, and it is not entered.
