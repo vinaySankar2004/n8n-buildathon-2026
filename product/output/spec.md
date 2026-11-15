@@ -19,6 +19,7 @@ Each row is in [must-work.md](../../02_storyboard/output/must-work.md) with its 
 | Run trace and public "How this story was made" page | D16 | 13 |
 | Slack requests: "@Newsroom make a video about ..." or a question | D17 | 14 |
 | Run ledger: who, what, status, Claude and ElevenLabs cost | D17 | 15 |
+| Chart edits from the thread: bar, line or pie, a colour, a highlight; the video is remade in about 20 seconds | D18 | 16 |
 
 ## Before the freeze, Sunday 11:00
 
@@ -32,7 +33,6 @@ In order. Each has its test and the stage it touches.
 
 ## After the event
 
-- Chart edits from the thread: chart type and colours (editors asked for both in testing).
 - More cities and clients; a second client file to show it scales.
 - Narration in more languages, and a social post or weekly digest alongside the video.
 - A schedule per client, and the trace and ledger hosted somewhere other than the laptop.

@@ -4,7 +4,7 @@ newsReels turns a newsroom's or creator's own sources, open data and news feeds,
 
 ## The problem
 
-Cities publish fresh data every day, and the stories are in it: Vancouver's 3-1-1 service requests alone hold 1.33 million records, updated daily. Finding a story takes someone who can query the data, compare weeks, chart it and write it up. Small newsrooms, neighbourhood newsletters and solo creators rarely have that person. newsReels does the finding and drafting; the editor keeps the judgement.
+613 local news outlets have closed in 391 Canadian communities since 2008 ([Local News Research Project, via The Canadian Press](https://www.ctvnews.ca/canada/article/ottawa-commissions-project-to-track-news-deserts-in-canada/)). The newsrooms and solo creators that remain have the public data, such as Vancouver's 1.33 million 3-1-1 requests, updated daily, but no data desk and no video team. newsReels does the finding and drafting for about a cent of Claude per story; the editor keeps the judgement. It runs hosted, or on a client's own server so their data never leaves it.
 
 ## A run
 

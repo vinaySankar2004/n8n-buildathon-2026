@@ -12,7 +12,13 @@ Cities publish data every day, and small newsrooms have nobody to read it. newsR
 
 ## What problem does it solve, and for whom?
 
-Small newsrooms, neighbourhood newsletters and solo creators have the data and the feeds but nobody to query, compare, chart and script them. Vancouver's 3-1-1 data alone holds 1.33 million requests, refreshed daily. newsReels does the finding and drafting; the editor keeps the judgement.
+Local news is disappearing: 613 local news outlets have closed in 391 Canadian communities since 2008, about half of them in places under 20,000 people ([Local News Research Project, via The Canadian Press, August 2026](https://www.ctvnews.ca/canada/article/ottawa-commissions-project-to-track-news-deserts-in-canada/)). The outlets that remain, and the solo creators filling the gap on social video, have the public data but no data desk and no video team. Vancouver's 3-1-1 data alone holds 1.33 million requests, refreshed daily.
+
+newsReels is for hyperlocal newsrooms, neighbourhood newsletters and solo news creators. It does the finding and drafting; the editor keeps the judgement.
+
+## What does it cost?
+
+A finished short video from a freelance editor typically costs $20 to $500, at $20 to $75 an hour (industry rate guides, 2026). A newsReels story costs about one cent of Claude plus a few hundred ElevenLabs credits, and the ledger shows the exact cost of every run. The fixed cost is a small server for n8n and the render service.
 
 ## Who uses it?
 
@@ -24,7 +30,7 @@ The client's editor, in a Slack thread: the script and the data behind it first,
 2. Score: this week against the eight before; the biggest real change wins.
 3. Context: recent reports from the client's news feeds.
 4. Write: Claude drafts a headline, script, chart and blurb in the client's style; a check confirms every number.
-5. Review: the script and data go to the editor in Slack; replies edit the draft.
+5. Review: the script and data go to the editor in Slack; replies edit the draft, and after the video is made they can change the chart (bar, line or pie, a colour, which item stands out), which remakes the video in about 20 seconds.
 6. Voice and render: only after the script is approved.
 7. Publish: only after the video is approved, with a public "How this story was made" page.
 
@@ -41,13 +47,17 @@ The client's editor, in a Slack thread: the script and the data behind it first,
 
 It does not say why a number changed. It reports what the data shows, and the editor decides whether there is more to the story.
 
+## How it runs for a client
+
+Hosted by us for small clients, or self-hosted for privacy: the same n8n workflows and render service run on the client's own server (a small VPS is enough), so their data, drafts and editor messages never leave it. Either way, every run has a trace and a ledger row.
+
 ## Why n8n?
 
 n8n runs every step as its own workflow: ten in all, joined by Execute Workflow, a Slack webhook for the review thread, an n8n data table for each thread's state, and code nodes for scoring and the number check. A failure shows up at the step that broke. A second client is one config file.
 
 ## Next step
 
-Run it for one neighbourhood newsletter for a month and count how many drafts the editor approves. Then add more datasets, more languages for the voice, and chart edits from the thread.
+Run it for one neighbourhood newsletter for a month and count how many drafts the editor approves. Then add more datasets, more languages for the voice, and other cities.
 
 ## Track fit
 
