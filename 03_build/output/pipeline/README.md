@@ -1,99 +1,76 @@
-# Newsroom pipeline
+# newsReels pipeline
 
-The source for all nine workflows. Written 2026-11-14 by Arman and Vinayak with Claude Code; deployed and running end to end since that evening. Each run serves one newsReels client (D13), set in one file in [../clients/](../clients/): its name and look, Slack channels, data sources, news feeds and style card. The build puts that file into the orchestrator's "Client" node. Collect works for any open dataset with a date, a category and a neighbourhood field.
+The source for all ten n8n workflows, written by Arman and Vinayak with Claude Code and running end to end since the evening of 14 November. Each run serves one client (D13, D15), set in one file in [../clients/](../clients/): its name and look, Slack channels, data sources, news feeds and style card. The build puts that file into a "Client" node.
 
 - `code/`: every Code node and the prompts
-- [build.mjs](build.mjs): writes the workflow JSON into [../workflows/](../workflows/) (`npm run pipeline`)
-- [test.mjs](test.mjs): runs the workflows' own Code nodes against live city data (`npm run test:pipeline`)
+- [build.mjs](build.mjs): writes the workflow JSON and a picture of each canvas into [../workflows/](../workflows/) (`npm run pipeline`)
+- [test.mjs](test.mjs): runs the workflows' own Code nodes against live data (`npm run test:pipeline`)
 
 | Workflow | Does |
 | --- | --- |
-| 0 Orchestrator | Loads the client, runs Collect for each data source, then Score, Context and Write, hands the draft to 7 Chat, and sends "No story today" to Slack when a step stops |
+| 0 Orchestrator | Loads the client, runs Collect for each data source, then Score, Context and Write, saves the trace, and hands the draft to 7 Chat; sends "No story today" when a step stops |
 | 1 Collect | 9 weeks of one dataset, grouped by category, day and neighbourhood |
 | 2 Score | Picks the week's strongest change across all sources |
 | 2b Context | Reads the client's news feeds and adds the newest reports since the story's week began |
-| 3 Write | Claude writes the headline, script, chart title and blurb in the client's style, with at most one sentence of context from a report it names; the guard checks every number and records where it came from |
-| 4 Voice | ElevenLabs reads the script; stops if it runs 22 seconds or longer |
+| 3 Write | Claude Sonnet 5.5 writes the headline, script, chart title and blurb in the client's style, with at most one sentence from a report it names; the guard checks every number and records where it came from |
+| 4 Voice | ElevenLabs reads the script, stops if it runs 22 seconds or longer, and records the credits used |
 | 5 Render | The Remotion service beside n8n makes the 9:16 video |
-| 6 Publish | Posts an approved video to the outlet channel with the newsletter blurb |
-| 7 Chat | The editor's review in one Slack thread per story: script and data first, then the video. Replies change either one; Claude revises and the guard checks every number (D14) |
+| 6 Publish | Saves the final trace, then posts the video, blurb and public "How this story was made" link to the outlet channel |
+| 7 Chat | The editor's review in one Slack thread per story: script and data first, then the video. Replies change either one through Claude Haiku 5.5, and the guard checks every change (D14) |
+| 8 Request | Someone mentions @Newsroom in the editor channel; Claude Haiku matches the ask to real categories and a neighbourhood, code builds the story or a quick answer, and a video request opens a review in the same thread (D17) |
 
-## Run trace
-
-First full run with all of it, 2026-11-14 at 17:13: the review card linked the trace, Arman approved the script (voice 19.3 seconds, video in 7.7 seconds, with the Environment Canada line), then approved the video, and the outlet post linked the public page. Claude cost $0.0083 for the story.
-
-Every run gets two pages, saved by the render service ([trace-page.mjs](../render-service/trace-page.mjs)). The orchestrator saves them after Write, and the review card in Slack links the editor page: every source checked, how the story was ranked, the news offered and used, what Claude was asked and answered, where each number came from, the edits, approvals and cost. 6 Publish saves them again with the voice, video and approvals, and the outlet post links the public "How this story was made" page, which leaves out prompts, messages and costs.
+Every run also has a trace and a row in the run ledger, saved by the render service: see its [README](../render-service/README.md).
 
 ## See the workflows
 
-On our self-hosted n8n, a member account sees only the workflows it made (sharing is a paid n8n feature), so `npm run pipeline` draws each canvas from the same JSON it deploys. These pictures are always current. Vinayak, as owner, can also show the live editor on the host laptop.
+A member account on our self-hosted n8n sees only the workflows it made (sharing is a paid n8n feature), so `npm run pipeline` draws each canvas from the same JSON it deploys. They are redrawn on every build.
 
 ![0 Orchestrator](../workflows/0-orchestrator.svg)
 ![1 Collect](../workflows/1-collect.svg)
 ![2 Score](../workflows/2-score.svg)
+![2b Context](../workflows/2b-context.svg)
 ![3 Write](../workflows/3-write.svg)
 ![4 Voice](../workflows/4-voice.svg)
 ![5 Render](../workflows/5-render.svg)
-![2b Context](../workflows/2b-context.svg)
 ![6 Publish](../workflows/6-publish.svg)
 ![7 Chat](../workflows/7-chat.svg)
+![8 Request](../workflows/8-request.svg)
 
 ## Getting it into n8n
 
-1. Change code in `code/` or `build.mjs`, never the JSON in `workflows/`. Then `npm run pipeline` and `npm run test:pipeline`.
-2. `npm run deploy` pushes all nine, the orchestrator last, and creates the data table `editor_threads` that 7 Chat keeps its threads in. Deploy points every Execute Workflow node at its workflow by name.
-3. These credentials must exist in n8n with exactly these names, so the nodes find them. Fill in their values in the git-ignored `.env` (`ANTHROPIC_API_KEY`, `ELEVENLABS_API_KEY`, `RENDER_TOKEN`, `SLACK_BOT_TOKEN`) and run `npm run credentials`, which creates or updates each one and skips blanks. Then deploy again:
+1. Change code in `code/`, `build.mjs` or the client file, never the JSON in `workflows/`. Then `npm run pipeline` and `npm run test:pipeline`.
+2. `npm run deploy` pushes all ten, the orchestrator last, creates the data table `editor_threads` that 7 Chat keeps its threads in, and points every Execute Workflow node at its workflow by name. Workflows that call each other are linked on a second pass.
+3. These credentials must exist in n8n with exactly these names. Put their values in the git-ignored `.env` (`ANTHROPIC_API_KEY`, `ELEVENLABS_API_KEY`, `RENDER_TOKEN`, `SLACK_BOT_TOKEN`) and run `npm run credentials`, which creates or updates each one and skips blanks. Then deploy again.
 
 | Name | Type | Used by |
 | --- | --- | --- |
-| Anthropic | Anthropic | Write script (3 Write), Revise with Claude (7 Chat) |
-| ElevenLabs | Header Auth, header `xi-api-key` | Speak script (4 Voice) |
-| Render token | Header Auth, header `x-render-token` | Render video (5 Render) |
-| Slack | Slack API, bot token | 6 Publish, 7 Chat, and "No story today" |
+| Anthropic | Anthropic | 3 Write, 7 Chat, 8 Request |
+| ElevenLabs | Header Auth, header `xi-api-key`; the key needs User: Read for the ledger's price | 4 Voice |
+| Render token | Header Auth, header `x-render-token` | 5 Render, and the trace and ledger saves |
+| Slack | Slack API, bot token | 6 Publish, 7 Chat, 8 Request, "No story today" |
 
-4. **Slack on the host laptop, for 7 Chat.** Slack sends thread replies and button taps to the tunnel, and the router checks each one's signature before passing it to n8n. Once, in this order:
-   1. Pull, then put the Signing Secret from the Slack app's Basic Information page in the host laptop's `.env` as `SLACK_SIGNING_SECRET`.
-   2. Restart the router: `npm run host -- stop`, then `npm run host`.
-   3. In the Slack app's App Manifest page, paste [slack-app-manifest.yml](../host/slack-app-manifest.yml) and save. Slack checks the events address against the running router. Then reinstall the app to the workspace, since it asks for two new scopes to read thread replies.
-5. Slack channels are set in `SLACK_CHANNELS` at the top of [build.mjs](build.mjs): `editor` for review, approval and "No story today" notes, `outlet` for approved videos and newsletter drafts. Put the channel IDs there, then `npm run pipeline` and `npm run deploy`. The bot must be invited to both channels. While an ID is empty, the build warns and those nodes deploy with no channel.
+4. **Slack, once, on the host laptop.** Put the Signing Secret from the Slack app's Basic Information page in `.env` as `SLACK_SIGNING_SECRET` and restart the router (`npm run host -- stop`, then `npm run host`). Paste [slack-app-manifest.yml](../host/slack-app-manifest.yml) into the app's App Manifest page, save, and reinstall the app (F14).
+5. Slack channels are in the client file under `slack`: `editor` (reviews, requests, "No story today") and `outlet` (published videos and newsletter drafts). The bot must be a member of both (F10).
 
-## Testing, one step at a time
+## Testing
 
-Each step has a test webhook at `step-<step>`. An empty body runs it on a built-in sample.
+`npm run test:pipeline` runs the Code nodes against live city data and feeds. Each workflow also has a test webhook at `step-<step>`; `npm run invoke -- <step> [input.json]` runs it, and an empty body uses a built-in sample.
 
 | Command | Good result |
 | --- | --- |
 | `npm run invoke -- collect` | `ok: true`, 9 `weeks`, about 220 `types` (3-1-1) |
-| `npm run invoke -- write` | `ok: true` and a `spec`. If `ok: false`, the reason names the number that was not in the story |
-| `npm run invoke -- voice` | `ok: true` and `audio_seconds` under 22 |
-| `npm run invoke -- render` | `ok: true` and a `video_url` that plays (silent, since the sample has no audio) |
-| `npm run invoke -- publish run.json` | The video and blurb in the outlet channel. `run.json` is a saved 5 Render result. This posts straight to the outlet |
-| `npm run invoke -- chat run.json` | A review message in the editor channel with the script, the data and Approve script. `run.json` is a saved 3 Write result; an empty body uses the sample |
+| `npm run invoke -- context` | `ok: true`, `reports`, and three entries in `feeds_checked` |
+| `npm run invoke -- write` | `ok: true` and a `spec`; if `ok: false`, the reason names the number that was not in the data |
+| `npm run invoke -- voice` | `ok: true`, `audio_seconds` under 22, and a `voice_calls` entry |
+| `npm run invoke -- render` | `ok: true` and a `video_url` that plays (silent with the sample) |
+| `npm run invoke -- request req.json` | A quick answer or a review thread; `req.json` is `{ "kind": "request", "text": "...", "user": "...", "ts": "" }` |
 | `npm run invoke -- orchestrator` | The whole run, ending with the review message in the editor channel |
 
-Then in the review thread: reply with a change ("make the headline calmer", "use the weekly chart") and the bot posts a revised draft; tap Approve script and the video comes in the thread; reply again to change the video; tap Approve and publish and it is in the outlet channel.
+In Slack: reply in a review thread with a change and the bot posts a revised draft; Approve script brings the video into the thread; Approve and publish posts it to the outlet channel. Mention @Newsroom with a question or "make a video about ..." to test requests.
 
-Then the two failure tests from must-work:
-
-- **Guard (row 9):** set `test_tamper` to `true` in [code/run-options.js](code/run-options.js), rebuild, deploy and run the orchestrator. The editor should get "No story today. Blocked: 219 in script is not in the story." Set it back.
-- **Quiet (row 10):** `npm run invoke -- collect` with a body whose `dataset` is `no-such-dataset` ends at Failed with a reason. The test script checks the whole quiet path against live data.
-
-## First full runs
-
-The first full runs, on the evening of 2026-11-14, turned up four problems, each fixed and logged in [memory/failures.md](../../../memory/failures.md): Write's token budget, a credential deployed before it existed, narration over 22 seconds, and Publish not running when started in the background. Approve and Reject both work from Slack, and an approved video shows in the outlet channel with its headline, blurb and newsletter draft.
-
-## How a run is passed along
+Failure tests from must-work: set `test_tamper` to `true` in [code/run-options.js](code/run-options.js) and run the orchestrator; the editor gets "No story today. Blocked: 219 in script ..." (row 9). A dataset that does not exist ends at Collect's Failed with a reason (row 10). Problems found in the first live runs are F6 to F14 in [failures.md](../../../memory/failures.md).
 
 Each step returns the run so far plus its own part, with `ok` saying whether to go on. The shapes are in [contracts.md](../../../_config/contracts.md).
-
-## Checked against live data, 2026-11-14
-
-`npm run test:pipeline` passed:
-
-- Collect works for all three sources: 3-1-1 (222 categories), building permits (4) and business licences (70). In each, the neighbourhood counts add up to the week's count.
-- Score picks 3-1-1 street flooding: 218 this week against an average of 29.3, 7.4 times. Runners-up: short-term rental concerns down to 7 from 36.8, fireworks 43 against 10.5.
-- The guard passes a script with only story numbers and blocks one with a changed number. A reply that is not JSON stops the run.
-- A dead dataset and a quiet week both end in the "No story today" note.
 
 ## Adding a dataset, a news feed or a client
 

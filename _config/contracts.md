@@ -2,7 +2,7 @@
 
 The JSON each workflow hands to the next. Agree a change here before building on it, so four people can build in parallel.
 
-`client` (D13): one file per newsReels client in `03_build/output/clients/`, built into the orchestrator's "Client" node. It holds `id`, `name`, `look` (`desk`, `accent`), `slack` (`editor`, `outlet` channel IDs), `data_sources` (a list of `source`, below), `news_feeds` (`{ "id", "kind": "rss" | "weather_alerts" | "open511", "label", "source_note", "url" }`) and `style` (`audience`, `tone`, `script_words` `{ "min", "max" }`, `avoid`, `samples`). See [rain-city-ledger.json](../03_build/output/clients/rain-city-ledger.json).
+`client` (D13, D15): one file per newsReels client in `03_build/output/clients/`, built into the orchestrator's "Client" node. It holds `id`, `name`, `look` (`desk`, `accent`), `slack` (`editor`, `outlet` channel IDs), `data_sources` (a list of `source`, below), `news_feeds` (`{ "id", "kind": "rss" | "weather_alerts" | "open511", "label", "source_note", "url" }`) and `style` (`audience`, `tone`, `script_words` `{ "min", "max" }`, `avoid`, `samples`). See [rain-city-ledger.json](../03_build/output/clients/rain-city-ledger.json).
 
 `source` (Orchestrator to Collect), one per entry in the client's `data_sources`:
 
@@ -87,7 +87,7 @@ Score gets every `collected` and returns `{ "ok": true, "story": …, "runners_u
 ```json
 {
   "headline": "Flooding reports up seven times",
-  "script": "About 50 words, every number from the story",
+  "script": "35 to 45 words (the client's style.script_words), every number from the story",
   "callout": { "value": "7.4×", "label": "218 reports this week against an average of 29.3" },
   "chart": {
     "kind": "bar",

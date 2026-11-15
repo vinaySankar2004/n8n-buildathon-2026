@@ -1,10 +1,9 @@
 # Architecture page
 
-A live page showing every piece of the newsroom, where it runs, who owns it, and its state right now.
+A live page showing every piece of newsReels, where it runs, who owns it, and its state right now.
 
 ```bash
-cd tools/architecture
-node server.mjs
+npm run architecture
 ```
 
 Then open http://127.0.0.1:4310. No install needed; it uses Node 18 or newer.

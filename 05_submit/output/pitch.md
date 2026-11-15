@@ -1,53 +1,54 @@
 # Pitch and answers
 
-For the judges' table and the Devpost page. Short enough to say out loud. The questions follow the event page: the problem, the safeguards, and the next step.
+For the judges' table and the Devpost page. Short enough to say out loud. The questions follow the event page: the problem, the safeguards and the next step.
 
 ## One line
 
-We turn Vancouver's open city data into a daily narrated news video, and an editor approves it with one tap.
+newsReels turns a newsroom's or creator's own sources into short narrated news videos, and their editor approves each one in Slack.
 
 ## Twenty seconds
 
-Vancouver publishes city data every day: 3-1-1 complaints, permits, business licences. Nobody has time to read it. Our n8n workflow pulls it every morning, compares this week with the last eight, and finds the real story. Today that is street flooding reports at seven times their normal level, worst in Mount Pleasant. An AI agent writes a 20 second script using only those numbers, ElevenLabs voices it, we render a vertical video, and an editor approves it from Slack.
+Cities publish data every day, and small newsrooms have nobody to read it. newsReels checks a client's open data and news feeds, finds the week's real change, and drafts a 20 second video in their style. Today that is street flooding reports at 7.4 times their usual level, worst in Mount Pleasant, with Environment Canada's flooding statement as context. The editor reviews the script in Slack, asks for changes in plain words, approves the video, and every number links back to its source.
 
 ## What problem does it solve, and for whom?
 
-Vancouver's 3-1-1 data alone holds 1.33 million requests, refreshed every day, and the stories are in there. In the week of 7 to 13 November, street flooding reports reached 7.4 times their usual level. Finding that takes someone who can query the data, compare weeks, chart it and write it up. Small newsrooms, neighbourhood newsletters and city communications teams rarely have that person. The workflow does the finding and the drafting; the editor keeps the judgement.
+Small newsrooms, neighbourhood newsletters and solo creators have the data and the feeds but nobody to query, compare, chart and script them. Vancouver's 3-1-1 data alone holds 1.33 million requests, refreshed daily. newsReels does the finding and drafting; the editor keeps the judgement.
 
 ## Who uses it?
 
-An editor at a local outlet or a neighbourhood newsletter, or a city communications officer. They get one message a day in Slack: a 20 second video, the numbers behind it, and two buttons.
+The client's editor, in a Slack thread: the script and the data behind it first, then the video. They can reply in plain words to change either, and anyone in the channel can ask "@Newsroom how many noise complaints this week?" or ask for a video on any topic in the data.
 
 ## What does it do?
 
-1. Collect: pulls nine weeks of 3-1-1 requests, building permits and business licences from the city's open data API.
-2. Score: compares this week with the eight before and picks the biggest real change.
-3. Write: an AI agent drafts a headline, a short script and a chart spec from those numbers only.
-4. Guard: checks every number in the script against the data and stops the run on a mismatch.
-5. Voice and render: ElevenLabs reads the script and a render service makes a vertical video.
-6. Approve and publish: the editor approves or rejects in Slack, and only then does it publish.
+1. Collect: nine weeks of the client's datasets.
+2. Score: this week against the eight before; the biggest real change wins.
+3. Context: recent reports from the client's news feeds.
+4. Write: Claude drafts a headline, script, chart and blurb in the client's style; a check confirms every number.
+5. Review: the script and data go to the editor in Slack; replies edit the draft.
+6. Voice and render: only after the script is approved.
+7. Publish: only after the video is approved, with a public "How this story was made" page.
 
 ## Safeguards
 
-- Nothing publishes without a person. n8n waits for the editor's answer in Slack.
-- The AI only drafts. It may use no number that is not in the scored data, and the guard step blocks any script that does.
-- A change counts as a story only above a bar: at least 20 reports and at least twice the usual weekly level. Small, noisy counts are ignored.
-- Public open data only, reported by neighbourhood. No addresses and no people.
-- Every video names its source dataset.
-- Failures are visible. If the city API is down or nothing passes the bar, the editor gets a "no story today" note instead of a video.
+- Nothing publishes without two approvals, and no voice or video is paid for before the script is approved.
+- The AI only drafts. It may use no number that is not in the data or a report it names, and the check blocks any draft that does, including the editor's edits.
+- A change counts as a story only above a bar: at least 20 and twice the usual weekly level.
+- Public sources only, reported by neighbourhood. No addresses and no people.
+- Every run has a trace that follows each number to its source, and a ledger row with its cost.
+- Failures are visible: the editor gets "No story today" and the reason.
 
 ## What it does not do
 
-It does not say why a number changed. It reports what the city's data shows, and the editor decides whether there is more to the story.
+It does not say why a number changed. It reports what the data shows, and the editor decides whether there is more to the story.
 
 ## Why n8n?
 
-n8n runs every step: the schedule, the API calls, the scoring code, the AI agent, the voice, the render request and the approval wait. Each step is its own workflow, joined by an orchestrator, so a failure shows up at the step that broke.
+n8n runs every step as its own workflow: ten in all, joined by Execute Workflow, a Slack webhook for the review thread, an n8n data table for each thread's state, and code nodes for scoring and the number check. A failure shows up at the step that broke. A second client is one config file.
 
 ## Next step
 
-Run it daily for one neighbourhood newsletter for a month and count how many drafts the editor approves. Then add more Vancouver datasets, more languages for the voice, and other cities whose portals use the same open data API.
+Run it for one neighbourhood newsletter for a month and count how many drafts the editor approves. Then add more datasets, more languages for the voice, and chart edits from the thread.
 
 ## Track fit
 
-Human-in-the-loop: the editor approves every video, and it is always clear what the system did and who decides.
+Human-in-the-loop: the editor approves every script and every video, can change either by replying, and can see exactly what the system did, what it cost and who decided.

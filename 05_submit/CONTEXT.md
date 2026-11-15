@@ -6,7 +6,7 @@ Get the Devpost page and this repository submitted, complete, before the deadlin
 
 ## Inputs
 
-`01_idea/output/pick.md`, `03_build/output/services.md`, `03_build/output/workflows/`, `04_demo/output/link.md`, `_config/rules.md`, `_config/rubric.md`, `_config/judges.md`.
+`README.md`, `memory/decisions.md` (D13 to D17), `output/pitch.md`, `output/samples/`, `03_build/output/services.md`, `03_build/output/workflows/`, `04_demo/output/link.md`, `_config/rules.md`, `_config/rubric.md`, `_config/judges.md`.
 
 ## Process
 

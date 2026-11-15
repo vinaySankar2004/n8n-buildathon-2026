@@ -1,27 +1,52 @@
 # newsReels
 
-newsReels is a service that turns a newsroom's or creator's own sources into short narrated news videos, which their editor approves in Slack. It is built in n8n for LOOP, the UBC eProjects x n8n Buildathon, November 2026.
+newsReels turns a newsroom's or creator's own sources, open data and news feeds, into short narrated news videos. Their editor reviews each one in a Slack thread before anything is published. Built in n8n for LOOP, the UBC eProjects x n8n Buildathon, 14 and 15 November 2026.
 
-The working build serves one made-up client, Rain City Ledger, from Vancouver city data. Vancouver publishes fresh data every day, and nobody has time to turn it into stories. newsReels finds the week's real story in that data and turns it into a 20 second video that the editor approves with one tap.
+## The problem
 
-## How it works
+Cities publish fresh data every day, and the stories are in it: Vancouver's 3-1-1 service requests alone hold 1.33 million records, updated daily. Finding a story takes someone who can query the data, compare weeks, chart it and write it up. Small newsrooms, neighbourhood newsletters and solo creators rarely have that person. newsReels does the finding and drafting; the editor keeps the judgement.
 
-1. n8n pulls nine weeks of 3-1-1 service requests, building permits and business licences from the City of Vancouver open data API.
-2. A code step compares this week with the eight before and picks the biggest real change.
-3. An AI agent writes a short script and a chart spec, using only numbers from the data.
-4. ElevenLabs voices the script, and a Remotion service renders a vertical video.
-5. The editor approves it in Slack, and n8n publishes it.
+## A run
 
-For the week of 7 to 13 November the top story was street flooding: 218 reports, 7.4 times the usual level, up from 45 and 93 in the two weeks before.
+1. A run starts by hand, on a daily schedule (off during the event), or when someone writes "@Newsroom make a video about graffiti in Mount Pleasant" in the editor's Slack channel.
+2. **Collect** pulls nine weeks of the client's datasets. The demo client, Rain City Ledger (made up), uses City of Vancouver 3-1-1 requests, building permits and business licences.
+3. **Score** compares this week with the eight before and keeps a rise to at least 20 and twice the usual level, or a fall to half.
+4. **Context** reads the client's news feeds: BC Government News, Environment Canada weather alerts and DriveBC road events.
+5. **Write**: Claude Sonnet 5.5 drafts a headline, a 35 to 45 word script, a chart and a newsletter blurb in the client's style. A code check stops the run if any number is not in the data or in a report the script names.
+6. The editor gets the script and its data in a Slack thread before any voice or video is made. Replies in plain words ("make the headline calmer") are applied by Claude Haiku 5.5 and checked again.
+7. **Approve script**: ElevenLabs reads it and a Remotion service renders a 20 second vertical video into the thread.
+8. **Approve and publish**: the video, blurb and a "How this story was made" link go to the client's channel.
+
+If a source fails or nothing passes the bar, the editor gets "No story today" and the reason. Example, 7 to 13 November: 218 street flooding reports, 7.4 times the usual 29.3 a week, most in Mount Pleasant, with Environment Canada's coastal flooding statement as context.
+
+## See inside every run
+
+- **Run trace** for the editor: the sources checked, how the story was ranked, the news offered and used, what Claude was asked and answered, where each number came from, the edits, the approvals and the cost.
+- **"How this story was made"**, public: the same story and sources, without prompts, messages or costs.
+- **Run ledger**: one row per run, with who started it, its status, and its Claude and ElevenLabs cost.
+
+A story costs about one cent of Claude. Samples are in [05_submit/output/samples/](05_submit/output/samples/).
+
+## The workflows
+
+Ten n8n workflows, built as code and deployed through n8n's API: 0 Orchestrator, 1 Collect, 2 Score, 2b Context, 3 Write, 4 Voice, 5 Render, 6 Publish, 7 Chat (the Slack review) and 8 Request (questions and video requests). What each does, with a picture of every canvas: [pipeline README](03_build/output/pipeline/README.md).
+
+## Safeguards
+
+- Nothing publishes without two approvals from the editor, and no voice or video is paid for before the script is approved.
+- No number reaches the script unless it is in the data or a news report the script names.
+- Public sources only, reported by neighbourhood, never an address or a person.
+- Failures reach the editor; nothing fails silently.
+- It reports what changed, not why.
+
+## Built with
+
+n8n 2.47.7 (self-hosted), Claude Sonnet 5.5 and Haiku 5.5, ElevenLabs, Remotion, Slack and ngrok. Everything used is listed in [services.md](03_build/output/services.md). n8n, the render service and a small router run on one laptop behind a tunnel ([infrastructure](_config/infrastructure.md)).
+
+## A new client
+
+One config file: name and look, Slack channels, data sources, news feeds and a style card for the writing. Example: [rain-city-ledger.json](03_build/output/clients/rain-city-ledger.json).
 
 ## For the team
 
-- Open this repository in your AI coding tool (Claude Code, Codex or Cursor) and ask it what to do. It runs `npm run doctor`, which checks your setup and lists what is left, then does what it can and asks you only for keys or clicks. After that, say what you want to build.
-- To build something, say what you want. It writes the n8n workflow as code, deploys it to our n8n, runs it and fixes it. Nobody needs the n8n editor.
-- To deploy, copy `.env.example` to `.env` and fill in `N8N_API_KEY`, which Vinayak sends in a direct message. The file says what else, if anything, is yours to fill in.
-- Every commit and push is checked for keys and careless mistakes, here and on GitHub.
-- Nothing gets pushed after Sunday 15:00.
-
-```bash
-git clone git@github.com:vinaySankar2004/n8n-buildathon-2026.git
-```
+Open this repository in Claude Code, Codex or Cursor and say what you want. It checks your setup, asks only for keys or clicks, and builds, deploys and tests the workflows.

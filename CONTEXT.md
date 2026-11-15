@@ -2,7 +2,7 @@
 
 Team workspace for LOOP, the UBC eProjects x n8n Buildathon, 14 and 15 November 2026. It takes one idea to a Devpost submission: a working n8n product, a demo video under three minutes, and this repository.
 
-Status, Saturday evening: the pipeline runs end to end, from city data to an approved post in Slack. The product is now newsReels, a video service for newsrooms and creators (D13), and the team is deciding what to add (`product/`).
+Status, Saturday evening: newsReels runs end to end for its demo client, from its sources to a published post, with a review thread, Slack requests, a trace and a run ledger (D13 to D17). The spec is in `product/output/spec.md`; the build freezes Sunday 11:00.
 
 Read only the current stage, its declared inputs, and the configuration it names.
 
@@ -42,5 +42,5 @@ Submissions close Sunday 15:00. Nobody pushes to this repository or edits Devpos
 - Nothing moves to the next stage until a person has read the last output. At a stop time, a stage hands over what it has.
 - Change `_config/contracts.md` first, then build on the change.
 - No keys, tokens or passwords in git. Secrets live in n8n credentials or a local `.env`.
-- Public open data only, reported by neighbourhood, never a single address.
+- Public sources only (open data and public news feeds), reported by neighbourhood, never a single address.
 - Keep facts, judges' statements, team decisions and suggestions apart, and say which is which.

@@ -6,7 +6,7 @@ Gather what each teammate wants the product to become, then merge it into one sp
 
 ## Inputs
 
-`product/questions.md`, `01_idea/output/pick.md`, `_config/rubric.md`, and any proposals already in `product/proposals/`.
+`product/questions.md`, `README.md`, `_config/rubric.md`, and any proposals already in `product/proposals/`.
 
 ## Process
 

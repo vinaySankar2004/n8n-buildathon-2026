@@ -5,7 +5,7 @@
 # After changing this file: paste it into the app's App Manifest page, save, then reinstall the app.
 display_information:
   name: Newsroom
-  description: Posts the week's data story for an editor to approve, then publishes it to the outlet channel.
+  description: "newsReels: drafts short news videos from your sources for your editor to review in a thread, and answers @Newsroom requests."
   background_color: "#173332"
 features:
   bot_user:

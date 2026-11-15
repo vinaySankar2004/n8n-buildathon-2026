@@ -13,11 +13,12 @@ The disclosure list for Devpost. Add each one the moment it enters the build.
 | DriveBC Open511 API | Live road events in Vancouver (2b Context); terms of use not yet checked | 2026-11-14 |
 | Remotion 4.0.543 | Rendering the story video (open-source library; check its licence terms for a team of four) | 2026-11-14 |
 | Express 5.3.0 | The render service's web server | 2026-11-14 |
-| ngrok, free plan | Public address for the render service | 2026-11-14 |
+| FFmpeg (ffprobe) | Measuring the narration's length in the render service | 2026-11-14 |
+| ngrok, free plan | One public address for n8n, the render service's links and pages, and Slack's events, through the router (D11) | 2026-11-14 |
 | create-video blank template | Starting point for the render service | 2026-11-14 |
 | Claude Code (Anthropic) | Writing code, workflow JSON, docs and the repository's checks, directed by the team | 2026-11-14 |
-| Anthropic API, Claude Sonnet 5.5 | Writing the headline, script, chart title and newsletter blurb (draft) | 2026-11-14 |
+| Anthropic API, Claude Sonnet 5.5 | Writing the headline, script, chart title and newsletter blurb | 2026-11-14 |
 | Anthropic API, Claude Haiku 5.5 | Revising drafts from the editor's replies (7 Chat) and matching Slack requests to the data (8 Request) | 2026-11-14 |
 | ElevenLabs subscription API | Reading the plan's credits and price per credit for the ledger (4 Voice) | 2026-11-14 |
-| ElevenLabs text to speech | Reading the script (draft) | 2026-11-14 |
+| ElevenLabs text to speech, Multilingual v2 | Reading the script | 2026-11-14 |
 | Slack | Editor review threads (Events API and interactivity through the router, D14), the outlet channel, and "no story today" notes | 2026-11-14 |
