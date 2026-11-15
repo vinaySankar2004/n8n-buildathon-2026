@@ -11,7 +11,7 @@ NewsReels turns a newsroom's or creator's own sources, open data and news feeds,
 1. A run starts by hand, on a daily schedule (off during the event), or when someone writes "@NewsReels make a video about graffiti in Mount Pleasant" in the editor's Slack channel. A question ("@NewsReels show unemployment over the last 5 years") gets its numbers in the thread; a time series such as Vancouver's unemployment rate comes from Statistics Canada.
 2. **Collect** pulls nine weeks of the client's datasets. The demo client, Rain City Ledger (made up), uses City of Vancouver 3-1-1 requests, building permits and business licences.
 3. **Score** compares this week with the eight before and keeps a rise to at least 20 and twice the usual level, or a fall to half.
-4. **Context** reads the client's news feeds (BC Government News, Environment Canada weather alerts, DriveBC road events), searches the web for a story someone asked for, and gathers how people are reacting on Reddit, as opinion only.
+4. **Context** reads the client's news feeds (BC Government News, Environment Canada weather alerts, DriveBC road events), and searches the web for a story someone asked for.
 5. **Write**: Claude Sonnet 5.5 drafts a headline, a script of about 30 seconds, a chart, a closing line and a newsletter blurb in the client's style. A code check stops the run if any number is not in the data or in a report the script names.
 6. The editor gets the script and its data in a Slack thread before any voice or video is made. Replies in plain words can change anything but the numbers ("make the headline calmer", "make it a line chart", "make Mount Pleasant red"); Claude Sonnet 5.5 applies them and the number check runs again.
 7. **Approve script**: ElevenLabs reads it and a Remotion service renders a vertical video of about 30 seconds into the thread: a title card with the big number, the chart (bar, line or pie), and a closing line.
@@ -29,23 +29,23 @@ A story costs about one cent of Claude. Samples are in [05_submit/output/samples
 
 ## The workflows
 
-Every step is its own n8n workflow, built as code and deployed through n8n's API: an orchestrator; Collect, Score, Context, Reddit, Write, Voice, Render and Publish; the Slack review (7 Chat); and questions and video requests (8 Request). What each does, with a picture of every canvas: [pipeline README](03_build/output/pipeline/README.md).
+Every step is its own n8n workflow, built as code and deployed through n8n's API: an orchestrator; Collect, Score, Context, Write, Voice, Render and Publish; the Slack review (7 Chat); and questions and video requests (8 Request). What each does, with a picture of every canvas: [pipeline README](03_build/output/pipeline/README.md).
 
 ## Safeguards
 
 - Nothing publishes without two approvals from the editor, and no voice or video is paid for before the script is approved.
-- No number reaches the script unless it is in the data or a news report the script names. Reddit is opinion only, never a source for numbers.
+- No number reaches the script unless it is in the data or a news report the script names.
 - Public sources only, reported by neighbourhood, never an address or a person.
 - Failures reach the editor; nothing fails silently.
 - It reports what changed, not why.
 
 ## Built with
 
-n8n 2.47.7 (self-hosted), Claude Sonnet 5.5 and Haiku 5.5, ElevenLabs, Remotion, Slack, Reddit, Statistics Canada and ngrok. Everything used is listed in [services.md](03_build/output/services.md). n8n, the render service and a small router run on one laptop behind a tunnel ([infrastructure](_config/infrastructure.md)).
+n8n 2.47.7 (self-hosted), Claude Sonnet 5.5 and Haiku 5.5, ElevenLabs, Remotion, Slack, Statistics Canada and ngrok. Everything used is listed in [services.md](03_build/output/services.md). n8n, the render service and a small router run on one laptop behind a tunnel ([infrastructure](_config/infrastructure.md)).
 
 ## A new client
 
-One config file: name and look, Slack channels, data sources, time series, news feeds, subreddits and a style card for the writing. Example: [rain-city-ledger.json](03_build/output/clients/rain-city-ledger.json).
+One config file: name and look, Slack channels, data sources, time series, news feeds and a style card for the writing. Example: [rain-city-ledger.json](03_build/output/clients/rain-city-ledger.json).
 
 ## For the team
 

@@ -22,15 +22,14 @@ Each row is in [must-work.md](../../02_storyboard/output/must-work.md) with its 
 | Web search for requested stories, every source shown to the editor | D20 | 17 |
 | Vancouver unemployment rate from Statistics Canada, for requests | D21 | 18 |
 | Edits that change anything but the numbers; about 30 second videos in three scenes; bar, line or pie charts | D18, D21 | 16, 19 |
-| Reddit reactions to each story, opinion only (on once the Reddit credential is connected) | D23 | 20 |
+| Reddit reactions to each story, opinion only: built, but off, since Reddit's API needs Reddit's approval and Reddit blocks Anthropic's web search (F16) | D23 | 20 |
 
 ## Before the freeze, Sunday 13:00
 
-1. **Reddit credential (Arman):** connect it so 2c Reddit runs. Test: `npm run doctor` shows nothing to do.
-2. **Account settings (Arman):** the ElevenLabs key gets User: Read; the Slack app gets `users:read` and is reinstalled. Test: the ledger shows a dollar figure for ElevenLabs and a name in "Who".
-3. **Three clean runs in a row**, orchestrator through publish, logged with `npm run sync`.
-4. **Guard test live** (must-work row 9): with `test_tamper` on, the editor gets "Blocked: 219 ...".
-5. **Demo setup:** a fresh Slack channel and a fresh run ledger; the storyboard gets its "Approved" line.
+1. **Account settings (Arman):** the ElevenLabs key gets User: Read; the Slack app gets `users:read` and is reinstalled. Test: the ledger shows a dollar figure for ElevenLabs and a name in "Who".
+2. **Three clean runs in a row**, orchestrator through publish, logged with `npm run sync`.
+3. **Guard test live** (must-work row 9): with `test_tamper` on, the editor gets "Blocked: 219 ...".
+4. **Demo setup:** a fresh Slack channel and a fresh run ledger; the storyboard gets its "Approved" line.
 
 ## After the event
 
