@@ -80,6 +80,13 @@
       "url": "https://api.open511.gov.bc.ca/events?format=json&status=ACTIVE&bbox=-123.27,49.19,-123.02,49.32&limit=50"
     }
   ],
+  "web_search": {
+    "_note": "For a story someone asks for in Slack, 2b Context searches the web for recent reporting on it. Each source is kept with the words it was quoted for, shown to the editor and listed in the trace.",
+    "enabled": true,
+    "location": { "city": "Vancouver", "region": "British Columbia", "country": "CA", "timezone": "America/Vancouver" },
+    "max_searches": 3,
+    "max_sources": 6
+  },
   "style": {
     "audience": "Vancouver residents who follow local news on their phones",
     "tone": "Plain, calm and specific, like a local radio newsreader",

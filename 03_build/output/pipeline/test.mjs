@@ -209,5 +209,50 @@ check(ledgerRow.trigger === "Slack request" && ledgerRow.requested_by === "U1" &
 const tracePageHtml = tracePage(ledgerRun, { editor: true, ledgerUrl: "https://example.test/ledger.html" });
 check(tracePageHtml.includes("asked NewsReels") && tracePageHtml.includes("260 credits") && tracePageHtml.includes("run ledger"), "Trace page shows who asked, the ElevenLabs credits and the ledger link");
 
+// Web search for a story asked for in Slack, with the shape the Anthropic web search tool returns.
+const reqRun = { ...writeIn, request: { text: `make a video about ${story.topic.toLowerCase()}`, ts: "1.0" }, client: { ...runClient, web_search: { enabled: true, max_searches: 3, max_sources: 6, location: { city: "Vancouver", region: "British Columbia", country: "CA", timezone: "America/Vancouver" } } } };
+const [asked] = await run(codeOf(context, "Search request"), [reqRun]);
+check(asked.search_body.tools[0].type === "web_search_20250305" && asked.search_body.tools[0].user_location.city === "Vancouver" && asked.search_body.messages[0].content.includes(story.topic),
+  "Search request asks Claude to search the web for the requested story, near the client");
+const pageA = "https://news.example.ca/rain-week";
+const pageB = "https://weather.example.ca/statement";
+const searchRes = {
+  model: "claude-sonnet-5-5",
+  stop_reason: "end_turn",
+  usage: { input_tokens: 21000, output_tokens: 500, server_tool_use: { web_search_requests: 2 } },
+  content: [
+    { type: "server_tool_use", id: "s1", name: "web_search", input: { query: "Vancouver street flooding this week" } },
+    { type: "web_search_tool_result", tool_use_id: "s1", content: [
+      { type: "web_search_result", url: pageA, title: "Rain soaks Vancouver", page_age: "2 days ago", encrypted_content: "x" },
+      { type: "web_search_result", url: pageB, title: "Coastal flooding statement", page_age: null, encrypted_content: "x" },
+    ] },
+    { type: "server_tool_use", id: "s2", name: "web_search", input: { query: "Vancouver flooding November" } },
+    { type: "web_search_tool_result", tool_use_id: "s2", content: { type: "web_search_tool_result_error", error_code: "max_uses_exceeded" } },
+    { type: "text", text: "Here is what recent reporting says." },
+    { type: "text", text: "About 250 millimetres of rain fell on parts of the coast.", citations: [{ type: "web_search_result_location", url: pageA, title: "Rain soaks Vancouver", cited_text: "Some areas saw 250 millimetres of rain over the week.", encrypted_index: "x" }] },
+    { type: "text", text: "Environment Canada issued a coastal flooding statement.", citations: [{ type: "web_search_result_location", url: pageB, title: "Coastal flooding statement", cited_text: "Coastal flooding statement continued for Metro Vancouver.", encrypted_index: "x" }] },
+  ],
+};
+const [withWeb] = await run(codeOf(context, "Web sources"), [searchRes], { "Search request": [asked] });
+const w1 = withWeb.reports.find((r) => r.id === "w1");
+check(w1 && w1.url === pageA && w1.summary.includes("250 millimetres") && w1.feed === "web" && withWeb.reports.length === reqRun.reports.length + 2 && !withWeb.search_body,
+  "Web sources keeps each cited page with the exact words cited, after the feed reports");
+check(withWeb.web_search.searches === 2 && withWeb.web_search.queries.length === 2 && withWeb.feeds_checked.at(-1).feed.startsWith("Web search: ") && withWeb.web_search.usage.input_tokens === 21000,
+  "Web sources records the queries, searches and tokens for the trace and costs");
+const [noWeb] = await run(codeOf(context, "Web sources"), [{ error: { message: "529 overloaded" } }], { "Search request": [asked] });
+check(noWeb.reports.length === reqRun.reports.length && noWeb.feeds_checked.at(-1).ok === false && noWeb.web_search.error, `A failed web search goes on without web sources: ${noWeb.web_search.error}`);
+
+const webScript = answer.script.replace("The city data does not say why.", "Local news reports 250 millimetres of rain.");
+const webModel = (a) => ({ content: [{ type: "text", text: JSON.stringify(a) }] });
+const [cites] = await run(codeOf(write, "Build spec and check numbers"), [webModel({ ...answer, script: webScript, reports_used: ["w1"] })], { Input: [withWeb] });
+check(cites.ok && cites.reports_used.some((r) => r.id === "w1") && cites.write.number_checks.some((c) => c.number === 250 && /w1/.test(c.from)),
+  `Guard passes a number quoted from a cited web page${cites.ok ? "" : `: ${cites.reason}`}`);
+const [webUncited] = await run(codeOf(write, "Build spec and check numbers"), [webModel({ ...answer, script: webScript, reports_used: [] })], { Input: [withWeb] });
+check(webUncited.ok === false, `Guard blocks a web number when the script does not cite the page: ${webUncited.reason}`);
+const [webCard] = await run(codeOf(chat, "Start review"), [{ ...cites, request: reqRun.request }]);
+const webCardText = JSON.stringify(webCard.post.blocks);
+check(webCardText.includes("Web sources to check") && webCardText.includes(pageA) && webCardText.includes(pageB) && webCardText.includes("Used in the script") && webCardText.includes("250 millimetres"),
+  "The review card lists every web source with its quoted words and which the script uses");
+
 console.log(failures ? `\n${failures} check(s) failed.` : "\nAll checks passed.");
 process.exit(failures ? 1 : 0);

@@ -257,7 +257,22 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
       options: { timeout: 20000, response: { response: { responseFormat: "text", outputPropertyName: "data" } } },
     }, { maxTries: 2, onError: "continueRegularOutput" }),
     codeNode("Recent reports", [1100, 100], "context-related.js"),
-    sticky("About Context", [-40, -380], "## 2b Context\nFetches every news feed in the client's config (RSS, Environment Canada weather alerts, DriveBC road events) and adds the newest 12 items since the story's week began to the run as `reports`. Write decides which, if any, fit the story.\n\nA feed that fails is listed in `feeds_checked` and skipped: news never stops a run.\n\nAn empty test body uses **Sample run**.", 320),
+    ifOk("Asked in Slack?", [1320, 100], "={{ !!$json.request && $json.client?.web_search?.enabled !== false }}"),
+    codeWith("Search request", [1540, 0], "search-ask.js", [], { __MODEL__: MODEL, __SEARCH_PROMPT__: JSON.stringify(code("search-prompt.md")) }),
+    http("Search the web", [1760, 0], {
+      method: "POST",
+      url: "https://api.anthropic.com/v1/messages",
+      authentication: "predefinedCredentialType",
+      nodeCredentialType: "anthropicApi",
+      sendHeaders: true,
+      headerParameters: { parameters: [{ name: "anthropic-version", value: "2023-06-01" }] },
+      sendBody: true,
+      specifyBody: "json",
+      jsonBody: "={{ JSON.stringify($json.search_body) }}",
+      options: { timeout: 120000 },
+    }, { maxTries: 2, ...creds("anthropicApi", "Anthropic") }),
+    codeNode("Web sources", [1980, 0], "search-sources.js"),
+    sticky("About Context", [-40, -420], "## 2b Context\nFetches every news feed in the client's config (RSS, Environment Canada weather alerts, DriveBC road events) and adds the newest 12 items since the story's week began to the run as `reports`. Write decides which, if any, fit the story.\n\nFor a story someone asked for in Slack, **Search the web** has Claude search for recent reporting on it (Anthropic web search). **Web sources** keeps each page it cited, with the exact words cited, as reports `w1`, `w2`... They go to Write, the editor's review card and the trace.\n\nA feed or search that fails is listed in `feeds_checked` and skipped: news never stops a run.\n\nAn empty test body uses **Sample run**.", 400),
   ];
   const c = {};
   link(c, "When Executed by Another Workflow", [["Input"]]);
@@ -266,6 +281,10 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
   link(c, "Input", [["Feeds"]]);
   link(c, "Feeds", [["Fetch feed"]]);
   link(c, "Fetch feed", [["Recent reports"]]);
+  link(c, "Recent reports", [["Asked in Slack?"]]);
+  link(c, "Asked in Slack?", [["Search request"]]);
+  link(c, "Search request", [["Search the web"]]);
+  link(c, "Search the web", [["Web sources"], ["Web sources"]]);
   out["2b-context"] = workflow("2b Context", n, c);
 }
 
@@ -275,7 +294,7 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
   // What Claude is given: the client's name and style card, the story, and the recent reports.
   const request = "'Client: ' + JSON.stringify({ name: $('Input').first().json.client?.name, style: $('Input').first().json.client?.style }, null, 2)"
     + " + '\\n\\nStory JSON:\\n' + JSON.stringify($('Input').first().json.story, null, 2)"
-    + " + '\\n\\nReports from the client news feeds, newest first:\\n' + JSON.stringify(($('Input').first().json.reports || []).map(r => ({ id: r.id, source: r.source, published: r.published, title: r.title, summary: r.summary })), null, 2)"
+    + " + '\\n\\nReports from the client news feeds (ids r1, r2...) and, for a story asked for in Slack, from a web search (ids w1, w2...; summary is the exact words quoted from the page):\\n' + JSON.stringify(($('Input').first().json.reports || []).map(r => ({ id: r.id, from: r.feed === 'web' ? 'web search' : 'news feed', source: r.source, published: r.published || r.page_age || null, title: r.title, summary: r.summary })), null, 2)"
     + " + ($('Input').first().json.request ? '\\n\\nAsked for in Slack: ' + $('Input').first().json.request.text : '')";
   const write = http("Write script", [660, 100], {
     method: "POST",

@@ -36,7 +36,7 @@ if (route === "revise") {
     stage: stage === "script" ? "script review: no voice or video made yet" : "video review: the editor has seen the video",
     client: { name: run.client?.name, style: run.client?.style },
     story: run.story,
-    news_reports: (run.reports || []).map(({ id, source, title, summary }) => ({ id, source, title, summary })),
+    news_reports: (run.reports || []).map(({ id, source, title, summary, feed, url }) => ({ id, from: feed === "web" ? "web search" : "news feed", source, title, summary, url })),
     current_draft: draftOf(run),
     conversation: history,
     editor_message: ev.text,

@@ -18,6 +18,7 @@ The disclosure list for Devpost. Add each one the moment it enters the build.
 | create-video blank template | Starting point for the render service | 2026-11-14 |
 | Claude Code (Anthropic) | Writing code, workflow JSON, docs and the repository's checks, directed by the team | 2026-11-14 |
 | Anthropic API, Claude Sonnet 5.5 | Writing the headline, script, chart title and newsletter blurb | 2026-11-14 |
+| Anthropic API, web search tool (`web_search_20250305`) | Recent reporting on a story asked for in Slack (2b Context), with the exact words cited from each page; $10 per 1,000 searches plus tokens, about $0.07 a request (D20) | 2026-11-15 |
 | Anthropic API, Claude Haiku 5.5 | Revising drafts from the editor's replies (7 Chat) and matching Slack requests to the data (8 Request) | 2026-11-14 |
 | ElevenLabs subscription API | Reading the plan's credits and price per credit for the ledger (4 Voice) | 2026-11-14 |
 | ElevenLabs text to speech, Multilingual v2 | Reading the script | 2026-11-14 |

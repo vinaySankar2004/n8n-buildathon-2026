@@ -33,7 +33,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Input for a run through the test webhook (npm run invoke). An empty body uses this sample.\nconst body = $input.first().json.body;\nif (body && typeof body === \"object\" && Object.keys(body).length) return [{ json: body }];\nreturn [{ json: {\n  \"ok\": true,\n  \"story\": {\n    \"week_start\": \"2026-11-07\",\n    \"week_ending\": \"2026-11-13\",\n    \"dataset\": \"3-1-1 service requests\",\n    \"source_note\": \"City of Vancouver open data, 3-1-1 service requests\",\n    \"source_url\": \"https://opendata.vancouver.ca/explore/dataset/3-1-1-service-requests/\",\n    \"unit\": \"reports\",\n    \"type\": \"Street Surface Water Flooding Case\",\n    \"topic\": \"Street Surface Water Flooding\",\n    \"direction\": \"up\",\n    \"chart_kind\": \"by_area\",\n    \"this_week\": 218,\n    \"avg_prev_8_weeks\": 29.3,\n    \"ratio\": 7.4,\n    \"pct_change\": 644,\n    \"by_area\": [\n      {\n        \"area\": \"Mount Pleasant\",\n        \"count\": 33\n      },\n      {\n        \"area\": \"Downtown\",\n        \"count\": 24\n      },\n      {\n        \"area\": \"Grandview-Woodland\",\n        \"count\": 20\n      },\n      {\n        \"area\": \"Fairview\",\n        \"count\": 16\n      },\n      {\n        \"area\": \"Kensington-Cedar Cottage\",\n        \"count\": 14\n      },\n      {\n        \"area\": \"Hastings-Sunrise\",\n        \"count\": 11\n      }\n    ],\n    \"unknown_area\": 4,\n    \"weekly\": [\n      {\n        \"week_ending\": \"2026-09-18\",\n        \"count\": 18\n      },\n      {\n        \"week_ending\": \"2026-09-25\",\n        \"count\": 13\n      },\n      {\n        \"week_ending\": \"2026-10-02\",\n        \"count\": 31\n      },\n      {\n        \"week_ending\": \"2026-10-09\",\n        \"count\": 13\n      },\n      {\n        \"week_ending\": \"2026-10-16\",\n        \"count\": 15\n      },\n      {\n        \"week_ending\": \"2026-10-23\",\n        \"count\": 6\n      },\n      {\n        \"week_ending\": \"2026-10-30\",\n        \"count\": 45\n      },\n      {\n        \"week_ending\": \"2026-11-06\",\n        \"count\": 93\n      },\n      {\n        \"week_ending\": \"2026-11-13\",\n        \"count\": 218\n      }\n    ]\n  },\n  \"client\": {\n    \"id\": \"rain-city-ledger\",\n    \"name\": \"Rain City Ledger\",\n    \"about\": \"A made-up Vancouver outlet, the demo client (D5, D13).\",\n    \"look\": {\n      \"desk\": \"City data desk\",\n      \"accent\": \"#F2B33D\"\n    },\n    \"slack\": {\n      \"editor\": \"C0CHNAKERA9\",\n      \"outlet\": \"C0CHVG02PJM\"\n    },\n    \"news_feeds\": [\n      {\n        \"id\": \"bc-gov-news\",\n        \"kind\": \"rss\",\n        \"label\": \"BC Government News\",\n        \"source_note\": \"BC Government News\",\n        \"url\": \"https://news.gov.bc.ca/feed\"\n      },\n      {\n        \"id\": \"weather-alerts\",\n        \"kind\": \"weather_alerts\",\n        \"label\": \"Environment Canada weather alerts, Vancouver\",\n        \"source_note\": \"Environment Canada\",\n        \"url\": \"https://api.weather.gc.ca/collections/weather-alerts/items?f=json&bbox=-123.27,49.19,-123.02,49.32&limit=50\"\n      },\n      {\n        \"id\": \"drivebc\",\n        \"kind\": \"open511\",\n        \"label\": \"DriveBC road events, Vancouver\",\n        \"source_note\": \"DriveBC\",\n        \"url\": \"https://api.open511.gov.bc.ca/events?format=json&status=ACTIVE&bbox=-123.27,49.19,-123.02,49.32&limit=50\"\n      }\n    ],\n    \"style\": {\n      \"audience\": \"Vancouver residents who follow local news on their phones\",\n      \"tone\": \"Plain, calm and specific, like a local radio newsreader\",\n      \"script_words\": {\n        \"min\": 35,\n        \"max\": 45\n      },\n      \"avoid\": [\n        \"hype\",\n        \"exclamation marks\",\n        \"guessing at causes\",\n        \"addresses, streets or people\"\n      ],\n      \"samples\": [\n        \"Vancouver logged 218 street flooding reports this week, against a usual 29.3 a week. Mount Pleasant had the most, with 33. The city data does not say why.\"\n      ]\n    }\n  }\n} }];\n"
+        "jsCode": "// Input for a run through the test webhook (npm run invoke). An empty body uses this sample.\nconst body = $input.first().json.body;\nif (body && typeof body === \"object\" && Object.keys(body).length) return [{ json: body }];\nreturn [{ json: {\n  \"ok\": true,\n  \"story\": {\n    \"week_start\": \"2026-11-07\",\n    \"week_ending\": \"2026-11-13\",\n    \"dataset\": \"3-1-1 service requests\",\n    \"source_note\": \"City of Vancouver open data, 3-1-1 service requests\",\n    \"source_url\": \"https://opendata.vancouver.ca/explore/dataset/3-1-1-service-requests/\",\n    \"unit\": \"reports\",\n    \"type\": \"Street Surface Water Flooding Case\",\n    \"topic\": \"Street Surface Water Flooding\",\n    \"direction\": \"up\",\n    \"chart_kind\": \"by_area\",\n    \"this_week\": 218,\n    \"avg_prev_8_weeks\": 29.3,\n    \"ratio\": 7.4,\n    \"pct_change\": 644,\n    \"by_area\": [\n      {\n        \"area\": \"Mount Pleasant\",\n        \"count\": 33\n      },\n      {\n        \"area\": \"Downtown\",\n        \"count\": 24\n      },\n      {\n        \"area\": \"Grandview-Woodland\",\n        \"count\": 20\n      },\n      {\n        \"area\": \"Fairview\",\n        \"count\": 16\n      },\n      {\n        \"area\": \"Kensington-Cedar Cottage\",\n        \"count\": 14\n      },\n      {\n        \"area\": \"Hastings-Sunrise\",\n        \"count\": 11\n      }\n    ],\n    \"unknown_area\": 4,\n    \"weekly\": [\n      {\n        \"week_ending\": \"2026-09-18\",\n        \"count\": 18\n      },\n      {\n        \"week_ending\": \"2026-09-25\",\n        \"count\": 13\n      },\n      {\n        \"week_ending\": \"2026-10-02\",\n        \"count\": 31\n      },\n      {\n        \"week_ending\": \"2026-10-09\",\n        \"count\": 13\n      },\n      {\n        \"week_ending\": \"2026-10-16\",\n        \"count\": 15\n      },\n      {\n        \"week_ending\": \"2026-10-23\",\n        \"count\": 6\n      },\n      {\n        \"week_ending\": \"2026-10-30\",\n        \"count\": 45\n      },\n      {\n        \"week_ending\": \"2026-11-06\",\n        \"count\": 93\n      },\n      {\n        \"week_ending\": \"2026-11-13\",\n        \"count\": 218\n      }\n    ]\n  },\n  \"client\": {\n    \"id\": \"rain-city-ledger\",\n    \"name\": \"Rain City Ledger\",\n    \"about\": \"A made-up Vancouver outlet, the demo client (D5, D13).\",\n    \"look\": {\n      \"desk\": \"City data desk\",\n      \"accent\": \"#F2B33D\"\n    },\n    \"slack\": {\n      \"editor\": \"C0CHNAKERA9\",\n      \"outlet\": \"C0CHVG02PJM\"\n    },\n    \"news_feeds\": [\n      {\n        \"id\": \"bc-gov-news\",\n        \"kind\": \"rss\",\n        \"label\": \"BC Government News\",\n        \"source_note\": \"BC Government News\",\n        \"url\": \"https://news.gov.bc.ca/feed\"\n      },\n      {\n        \"id\": \"weather-alerts\",\n        \"kind\": \"weather_alerts\",\n        \"label\": \"Environment Canada weather alerts, Vancouver\",\n        \"source_note\": \"Environment Canada\",\n        \"url\": \"https://api.weather.gc.ca/collections/weather-alerts/items?f=json&bbox=-123.27,49.19,-123.02,49.32&limit=50\"\n      },\n      {\n        \"id\": \"drivebc\",\n        \"kind\": \"open511\",\n        \"label\": \"DriveBC road events, Vancouver\",\n        \"source_note\": \"DriveBC\",\n        \"url\": \"https://api.open511.gov.bc.ca/events?format=json&status=ACTIVE&bbox=-123.27,49.19,-123.02,49.32&limit=50\"\n      }\n    ],\n    \"web_search\": {\n      \"_note\": \"For a story someone asks for in Slack, 2b Context searches the web for recent reporting on it. Each source is kept with the words it was quoted for, shown to the editor and listed in the trace.\",\n      \"enabled\": true,\n      \"location\": {\n        \"city\": \"Vancouver\",\n        \"region\": \"British Columbia\",\n        \"country\": \"CA\",\n        \"timezone\": \"America/Vancouver\"\n      },\n      \"max_searches\": 3,\n      \"max_sources\": 6\n    },\n    \"style\": {\n      \"audience\": \"Vancouver residents who follow local news on their phones\",\n      \"tone\": \"Plain, calm and specific, like a local radio newsreader\",\n      \"script_words\": {\n        \"min\": 35,\n        \"max\": 45\n      },\n      \"avoid\": [\n        \"hype\",\n        \"exclamation marks\",\n        \"guessing at causes\",\n        \"addresses, streets or people\"\n      ],\n      \"samples\": [\n        \"Vancouver logged 218 street flooding reports this week, against a usual 29.3 a week. Mount Pleasant had the most, with 33. The city data does not say why.\"\n      ]\n    }\n  }\n} }];\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -118,8 +118,108 @@
     },
     {
       "parameters": {
-        "content": "## 2b Context\nFetches every news feed in the client's config (RSS, Environment Canada weather alerts, DriveBC road events) and adds the newest 12 items since the story's week began to the run as `reports`. Write decides which, if any, fit the story.\n\nA feed that fails is listed in `feeds_checked` and skipped: news never stops a run.\n\nAn empty test body uses **Sample run**.",
-        "height": 320,
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "678a9b21-9ead-5cc1-a4cf-96a5c813b883",
+              "leftValue": "={{ !!$json.request && $json.client?.web_search?.enabled !== false }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1320,
+        100
+      ],
+      "id": "404de500-bb52-5cbf-ae5d-fc92a9a45c58",
+      "name": "Asked in Slack?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// \"Search request\": the web search Claude runs for a story someone asked for in Slack. Uses the\n// Anthropic web search tool (basic variant, so every finding comes back with the exact words it\n// cites from the page). Settings come from the client's config (web_search).\nconst run = $input.first().json;\nconst ws = run.client?.web_search || {};\nconst s = run.story;\nconst ask = {\n  asked_in_slack: run.request?.text || null,\n  topic: s.topic,\n  neighbourhood: s.area || null,\n  city: ws.location?.city || null,\n  data_week: `${s.week_start} to ${s.week_ending}`,\n  data_says: `${s.this_week} ${s.unit} this week against an average of ${s.avg_prev_8_weeks} a week over the 8 weeks before`,\n};\nconst tool = { type: \"web_search_20250305\", name: \"web_search\", max_uses: ws.max_searches || 3 };\nif (ws.location) tool.user_location = { type: \"approximate\", ...ws.location };\nif (ws.blocked_domains?.length) tool.blocked_domains = ws.blocked_domains;\nreturn [{ json: { ...run, search_body: {\n  model: \"claude-sonnet-5-5\",\n  max_tokens: 4000,\n  output_config: { effort: \"low\" },\n  system: \"You research context for a short local news video. Someone asked for this story in Slack, and the numbers already come from open data. Your job is to find what recent reporting and official sources say about the same topic, so the editor can see it and the script can mention it.\\n\\nSearch the web for recent news or official information about the topic, in the client's city and, if one is given, the neighbourhood. Prefer local news outlets and official sources such as the city, the province and Environment Canada. Only reporting from the last 30 days matters.\\n\\nThen write 2 to 5 findings, one sentence each, each backed by a citation to the page it came from. Add nothing the sources do not say, and never guess at causes. If you find nothing about the topic in the place asked about, say so in one sentence instead.\\n\",\n  tools: [tool],\n  messages: [{ role: \"user\", content: JSON.stringify(ask, null, 2) }],\n} } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        0
+      ],
+      "id": "01f200a4-4ae8-5bf8-a42c-1daf6b341f1c",
+      "name": "Search request"
+    },
+    {
+      "parameters": {
+        "options": {
+          "timeout": 120000
+        },
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.search_body) }}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        0
+      ],
+      "id": "2851c66b-4732-59b2-a8bb-46e8d334162a",
+      "name": "Search the web",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "anthropicApi": {
+          "name": "Anthropic"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// \"Web sources\": turns the web search into sources for Write, the editor and the trace.\n// Every source is a page Claude cited, kept with the exact words it was cited for (`summary`),\n// so the number guard and the editor check against the page's own words, not Claude's.\n// They join the feed reports as ids w1, w2...; a search that fails is noted and skipped.\nconst run = $(\"Search request\").first().json;\nconst { search_body, ...rest } = run;\nconst res = $input.first().json;\nconst ws = run.client?.web_search || {};\nconst blocks = Array.isArray(res.content) ? res.content : [];\nconst clip = (s, n) => (s.length > n ? s.slice(0, n).replace(/\\s+\\S*$/, \"\") + \"...\" : s);\nconst host = (u) => { try { return new URL(u).hostname.replace(/^www\\./, \"\"); } catch { return \"\"; } };\n\nconst queries = blocks.filter((b) => b.type === \"server_tool_use\" && b.name === \"web_search\").map((b) => b.input?.query).filter(Boolean);\nconst results = new Map(); // url -> what the search returned for it\nfor (const b of blocks) {\n  if (b.type !== \"web_search_tool_result\") continue;\n  if (!Array.isArray(b.content)) continue; // an error object, such as max_uses_exceeded\n  for (const r of b.content) if (r.url && !results.has(r.url)) results.set(r.url, { title: r.title, page_age: r.page_age ?? null });\n}\n\n// Each cited sentence becomes a finding; each page it cites becomes (or adds to) a source.\nconst sources = new Map();\nconst findings = [];\nfor (const b of blocks) {\n  if (b.type !== \"text\" || !b.citations?.length) continue;\n  const claim = b.text.trim();\n  const urls = [];\n  for (const c of b.citations) {\n    if (c.type !== \"web_search_result_location\" || !c.url) continue;\n    const s = sources.get(c.url) || { url: c.url, title: c.title || results.get(c.url)?.title || host(c.url), quotes: [], claims: [] };\n    const q = String(c.cited_text || \"\").trim();\n    if (q && !s.quotes.includes(q)) s.quotes.push(q);\n    if (claim && !s.claims.includes(claim)) s.claims.push(claim);\n    sources.set(c.url, s);\n    urls.push(c.url);\n  }\n  if (urls.length) findings.push({ claim, urls });\n}\nconst summaryText = blocks.filter((b) => b.type === \"text\").map((b) => b.text).join(\"\").trim();\n\nconst web = [...sources.values()].slice(0, ws.max_sources || 6).map((s, k) => ({\n  id: `w${k + 1}`,\n  source: host(s.url),\n  feed: \"web\",\n  title: s.title,\n  summary: clip(s.quotes.join(\" ... \"), 600),\n  claims: s.claims,\n  url: s.url,\n  published: null,\n  page_age: results.get(s.url)?.page_age ?? null,\n}));\n\nconst failed = res.error || res.type === \"error\" || !blocks.length;\nconst searches = res.usage?.server_tool_use?.web_search_requests ?? queries.length;\nconst web_search = {\n  model: res.model ?? null,\n  usage: res.usage ?? null,\n  stop_reason: res.stop_reason ?? null,\n  searches,\n  queries,\n  results_seen: results.size,\n  sources_kept: web.length,\n  findings,\n  summary: failed ? null : clip(summaryText, 600),\n  error: failed ? (res.error?.message || res.error || \"no answer\") : null,\n};\nconst checked = failed\n  ? { feed: \"Web search\", ok: false, reason: String(web_search.error) }\n  : { feed: `Web search: ${queries.join(\"; \") || \"no query\"}`, ok: true, items: results.size, recent: web.length };\nreturn [{ json: { ...rest, reports: [...(rest.reports || []), ...web], feeds_checked: [...(rest.feeds_checked || []), checked], web_search } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        0
+      ],
+      "id": "1a7df9a0-b5be-50cb-ae8e-106ef82afb11",
+      "name": "Web sources"
+    },
+    {
+      "parameters": {
+        "content": "## 2b Context\nFetches every news feed in the client's config (RSS, Environment Canada weather alerts, DriveBC road events) and adds the newest 12 items since the story's week began to the run as `reports`. Write decides which, if any, fit the story.\n\nFor a story someone asked for in Slack, **Search the web** has Claude search for recent reporting on it (Anthropic web search). **Web sources** keeps each page it cited, with the exact words cited, as reports `w1`, `w2`... They go to Write, the editor's review card and the trace.\n\nA feed or search that fails is listed in `feeds_checked` and skipped: news never stops a run.\n\nAn empty test body uses **Sample run**.",
+        "height": 400,
         "width": 460,
         "color": 5
       },
@@ -127,7 +227,7 @@
       "typeVersion": 1,
       "position": [
         -40,
-        -380
+        -420
       ],
       "id": "04a54392-b0a3-568c-a34f-80e0d0ba8410",
       "name": "About Context"
@@ -183,6 +283,57 @@
         [
           {
             "node": "Recent reports",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recent reports": {
+      "main": [
+        [
+          {
+            "node": "Asked in Slack?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Asked in Slack?": {
+      "main": [
+        [
+          {
+            "node": "Search request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search request": {
+      "main": [
+        [
+          {
+            "node": "Search the web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search the web": {
+      "main": [
+        [
+          {
+            "node": "Web sources",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Web sources",
             "type": "main",
             "index": 0
           }

@@ -127,6 +127,20 @@ export function tracePage(run, { prompt, editor, ledgerUrl }) {
     for (const r of reports) out.push(`<tr><td>${esc(r.id)}</td><td>${esc(r.source)}</td><td>${link(r.url, r.title)}</td><td>${usedIds.has(r.id) ? '<span class="ok">used</span>' : ""}</td></tr>`);
     out.push(`</table></div></section>`);
 
+    // Web search, for a story asked for in Slack: what was searched, and each page with the words it was cited for.
+    const ws = run.web_search;
+    if (ws) {
+      const web = reports.filter((r) => r.feed === "web");
+      out.push(`<section><h2>Web search</h2><p>Model: ${esc(ws.model)}. ${esc(ws.searches)} searches${(ws.queries || []).length ? `: ${ws.queries.map((q) => `"${esc(q)}"`).join(", ")}` : ""}. ${esc(ws.results_seen)} pages seen, ${esc(ws.sources_kept)} cited and kept.${ws.error ? ` <span class="bad">${esc(ws.error)}</span>` : ""}</p>`);
+      if (ws.summary) out.push(`<p class="muted">Claude's summary: ${esc(ws.summary)}</p>`);
+      if (web.length) {
+        out.push(`<div class="scroll"><table><tr><th>Id</th><th>Page</th><th>Exact words cited</th><th>Claude's finding</th><th>Used</th></tr>`);
+        for (const r of web) out.push(`<tr><td>${esc(r.id)}</td><td>${link(r.url, r.title)}<br><span class="muted">${esc(r.source)}${r.page_age ? `, ${esc(r.page_age)}` : ""}</span></td><td>${esc(r.summary)}</td><td>${esc((r.claims || []).join(" "))}</td><td>${usedIds.has(r.id) ? '<span class="ok">used</span>' : ""}</td></tr>`);
+        out.push(`</table></div>`);
+      }
+      out.push(`<p class="muted">Only the exact words cited from a page count for the number guard; Claude's finding is shown for reference.</p></section>`);
+    }
+
     // Claude.
     out.push(`<section><h2>What Claude was asked</h2><p>Model: ${esc(run.write?.model)}. It got the client's style card, the story data and the reports above.</p>`);
     if (prompt) out.push(`<details><summary>Instructions (system prompt)</summary><pre>${esc(prompt)}</pre></details>`);

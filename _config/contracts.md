@@ -107,7 +107,7 @@ Score gets every `collected` and returns `{ "ok": true, "story": …, "runners_u
 | After | Adds |
 | --- | --- |
 | Run options | `client` (the client file without `data_sources`), `run_id`, `trigger`, `started_at`, `test_tamper` |
-| Context | `reports` (up to 12, newest first: `{ "id": "r1", "source", "feed", "title", "summary", "url", "published" }`), `feeds_checked` (`{ "feed", "ok", "items", "recent" }` or `{ "feed", "ok": false, "reason" }`) |
+| Context | `reports` (up to 12, newest first: `{ "id": "r1", "source", "feed", "title", "summary", "url", "published" }`), `feeds_checked` (`{ "feed", "ok", "items", "recent" }` or `{ "feed", "ok": false, "reason" }`). For a story asked for in Slack (the run has `request`), it also adds web sources to `reports`: `{ "id": "w1", "feed": "web", "source": the site's host, "title", "url", "summary": the exact words Claude cited from the page, "claims": Claude's sentences that cite it, "page_age" }`, one `feeds_checked` row `{ "feed": "Web search: <queries>", ... }`, and `web_search` (`model`, `usage`, `stop_reason`, `searches`, `queries`, `results_seen`, `sources_kept`, `findings`, `summary`, `error`) |
 | Write | `spec`, `blurb`, `script_words`, `chart_kind` (`by_area` or `weekly`, which the editor can change), `reports_used` (the reports the script cites), `write` (`model`, `usage`, `stop_reason`, `answer`, `number_checks`: `{ "field", "number", "from" }` for every number) |
 | Add trace link | `trace_id`, `trace_url` (editor page), `story_page_url` (public page), all null if the save failed |
 | Voice | `audio_base64`, `audio_seconds`, and one entry in `voice_calls` per narration: `{ "at", "characters", "tier", "used_this_period", "limit", "usd_per_credit" }` |
@@ -133,5 +133,7 @@ The orchestrator hands 7 Chat the run from Write. 7 Chat posts it to the editor 
 | `state` | JSON text: `{ "run": the run without audio, "history": [{ "editor": "..." } or { "bot": "..." }, last 12] }` |
 
 The router on the host laptop checks Slack's signature and posts to n8n's `/webhook/slack-events` either `{ "source": "events", "body": Slack's event_callback }` for a message, or `{ "source": "interactivity", "payload": Slack's block_actions }` for a tap on a button whose `action_id` starts with `newsroom_` (`newsroom_approve_script`, `newsroom_approve_video`, `newsroom_reject`).
+
+The client config's `web_search` block sets the search: `enabled`, `location` (`city`, `region`, `country`, `timezone`), `max_searches`, `max_sources`, and optional `blocked_domains`.
 
 Revise with Claude returns `{ "reply": "...", "draft": { "headline", "script", "callout_label", "chart_title", "chart_kind", "blurb", "reports_used" } or null }`. The draft passes the same number guard as Write before it is used.

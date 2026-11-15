@@ -14,6 +14,26 @@ function numbersLine(story) {
   return `${story.this_week} ${story.unit} in the week ${story.week_start} to ${story.week_ending}, against an average of ${story.avg_prev_8_weeks} a week over the 8 weeks before (${change}).`;
 }
 
+// For a story asked for in Slack: every page the web search cited, with the exact words it was cited
+// for, so the editor can check the script against the source before approving.
+function webSourceBlocks(run) {
+  const web = (run.reports || []).filter((r) => r.feed === "web");
+  const ws = run.web_search;
+  if (!ws) return [];
+  const used = new Set((run.reports_used || []).map((r) => r.id));
+  const searched = ws.queries?.length ? `Searched for: ${ws.queries.map((q) => `"${q}"`).join(", ")}.` : "";
+  if (!web.length) {
+    return [section(`*Web sources to check*\n${ws.error ? `The web search failed: ${ws.error}` : "The web search found nothing to cite."} ${searched}`.trim())];
+  }
+  const clip = (t, n) => (t.length > n ? t.slice(0, n).replace(/\s+\S*$/, "") + "..." : t);
+  return [
+    section(`*Web sources to check* (${web.length}; ${web.filter((r) => used.has(r.id)).length} used in the script)\n${searched}`),
+    ...web.map((r) => section(
+      `${used.has(r.id) ? "*Used in the script.* " : ""}<${r.url}|${r.title}> (${r.source}${r.page_age ? `, ${r.page_age}` : ""})\n>_${clip(r.summary || "", 400)}_`,
+    )),
+  ];
+}
+
 function scriptBlocks(run) {
   const s = run.story;
   const spec = run.spec;
@@ -29,9 +49,10 @@ function scriptBlocks(run) {
         (weeks ? `\n• Last 6 weeks: ${weeks}` : "") +
         `\n• Source: <${s.source_url}|${s.source_note}>`,
     ),
-    ...((run.reports_used || []).length
-      ? [section(`*Context from the news*\n${run.reports_used.map((r) => `• ${r.url ? `<${r.url}|${r.title}>` : r.title} (${r.source})`).join("\n")}`)]
+    ...((run.reports_used || []).filter((r) => r.feed !== "web").length
+      ? [section(`*Context from the news*\n${run.reports_used.filter((r) => r.feed !== "web").map((r) => `• ${r.url ? `<${r.url}|${r.title}>` : r.title} (${r.source})`).join("\n")}`)]
       : []),
+    ...webSourceBlocks(run),
     section(`*On screen*\n• Big number: ${spec.callout.value}, "${spec.callout.label}"\n• Chart: ${spec.chart.title} (${spec.chart.kind || "bar"} chart${spec.chart.highlight ? `, ${spec.chart.highlight} highlighted` : ""}${spec.brand?.accent ? `, colour ${spec.brand.accent}` : ""})\n• Values: ${chart}`),
     section(`*Newsletter blurb*\n${run.blurb}`),
   ];

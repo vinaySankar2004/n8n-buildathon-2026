@@ -11,7 +11,7 @@ The source for all ten n8n workflows, written by Arman and Vinayak with Claude C
 | 0 Orchestrator | Loads the client, runs Collect for each data source, then Score, Context and Write, saves the trace, and hands the draft to 7 Chat; sends "No story today" when a step stops |
 | 1 Collect | 9 weeks of one dataset, grouped by category, day and neighbourhood |
 | 2 Score | Picks the week's strongest change across all sources |
-| 2b Context | Reads the client's news feeds and adds the newest reports since the story's week began |
+| 2b Context | Reads the client's news feeds and adds the newest reports since the story's week began. For a story asked for in Slack, also searches the web and keeps every cited page with the exact words cited, for Write, the editor and the trace (D20) |
 | 3 Write | Claude Sonnet 5.5 writes the headline, script, chart title and blurb in the client's style, with at most one sentence from a report it names; the guard checks every number and records where it came from |
 | 4 Voice | ElevenLabs reads the script, stops if it runs 22 seconds or longer, and records the credits used |
 | 5 Render | The Remotion service beside n8n makes the 9:16 video |
