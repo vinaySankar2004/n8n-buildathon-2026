@@ -23,7 +23,7 @@ For each client (our demo client is Rain City Ledger, a made-up Vancouver outlet
 1. Pulls nine weeks of the client's open data: City of Vancouver 3-1-1 requests, building permits and business licences.
 2. Compares this week with the eight before and keeps only real changes: at least 20 and twice the usual level, or a fall to half.
 3. Reads the client's news feeds (BC Government News, Environment Canada weather alerts, DriveBC road events) for context.
-4. Has Claude draft a headline, a 35 to 45 word script, a chart and a newsletter blurb in the client's style. A code check blocks any number that is not in the data or in a report the script names.
+4. Has Claude draft a headline, a script of about 30 seconds, a chart, a closing line and a newsletter blurb in the client's style. A code check blocks any number that is not in the data or in a report the script names.
 5. Sends the script and its data to the editor in a Slack thread before any voice or video is made. The editor replies in plain words and can change anything but the numbers ("make the headline calmer", "make it a line chart", "make Mount Pleasant red and Downtown green", "make it shorter") and the bot revises, with the same number check.
 6. On "Approve script", ElevenLabs reads it and a Remotion service renders a vertical video of about 30 seconds, in three scenes (a title card with the big number, the chart, a closing line), into the thread. On "Approve and publish", it goes to the client's channel with a public "How this story was made" page.
 
@@ -36,8 +36,8 @@ Example from the week of 7 to 13 November: 218 street flooding reports, 7.4 time
 ### How we built it
 
 - **n8n does the work:** ten workflows built as code and deployed through the n8n API: an orchestrator, Collect, Score, Context, Write, Voice, Render, Publish, a Slack review workflow (7 Chat) with a webhook and an n8n data table per thread, and a request workflow (8 Request). They are joined by Execute Workflow, with error paths that end in a "No story today" note to the editor.
-- **Claude:** Sonnet 5.5 writes each draft; Haiku 5.5 revises drafts from the editor's replies and matches Slack requests to real data categories and neighbourhoods. For requested stories, Claude's web search tool finds recent reporting, and each source is kept with the words it was quoted for. Code nodes, not the model, build the chart, the quick answers and the number check.
-- **Video:** a Remotion template rendered by a small Express service, in the client's name and colour, with bar, line and pie charts.
+- **Claude:** Sonnet 5.5 writes each draft and makes the editor's changes from the thread; Haiku 5.5 matches Slack requests to real data categories, neighbourhoods and time series. For requested stories, Claude's web search tool finds recent reporting, and each source is kept with the words it was quoted for. Code nodes, not the model, build the chart, the quick answers and the number check.
+- **Video:** a Remotion template rendered by a small Express service, in the client's name and colour: a title card, a bar, line or pie chart, and a closing card.
 - **Hosting:** n8n 2.47.7 self-hosted with the render service and a router on one laptop, behind an ngrok tunnel. The router checks Slack's signature on every event. The same setup runs on a small VPS, so a client can keep their data on their own server.
 - **Each client is one config file:** name and look, Slack channels, data sources, news feeds and a style card.
 
@@ -65,7 +65,7 @@ Run it for one neighbourhood newsletter for a month and count how many drafts th
 
 ### Services and models we used
 
-n8n 2.47.7 (self-hosted community edition), Anthropic API (Claude Sonnet 5.5 and Haiku 5.5), ElevenLabs text to speech (Multilingual v2), Remotion, Express, FFmpeg, Slack, ngrok, City of Vancouver open data API, BC Government News RSS, Environment Canada weather alerts API, DriveBC Open511 API, and Claude Code for writing the code with us. The full list is in the repository's services.md.
+n8n 2.47.7 (self-hosted community edition), Anthropic API (Claude Sonnet 5.5 and Haiku 5.5), ElevenLabs text to speech (Multilingual v2), Remotion, Express, FFmpeg, Slack, ngrok, City of Vancouver open data API, Statistics Canada Web Data Service, BC Government News RSS, Environment Canada weather alerts API, DriveBC Open511 API, and Claude Code for writing the code with us. The full list is in the repository's services.md.
 
 ## Built with
 
@@ -85,4 +85,4 @@ Uploaded from `05_submit/output/samples/`, with captions: chart types, the n8n o
 
 ## Status on Devpost
 
-The team's draft, with all four members: https://devpost.com/software/newsreels-zlpn06 (submission 1303260), entered in the n8n track. Everything above is filled in except the video link. To finish: add the YouTube or Vimeo link, tick the terms, and submit by 14:30. A second draft made by mistake (submission 1306652) is to be deleted.
+The team's draft, with Vinayak and Arman: https://devpost.com/software/newsreels-f5uegw (submission 1306753), entered in the n8n track. Everything above is filled in except the video link. To finish: add the YouTube or Vimeo link, tick the terms, and submit by 14:30. Vinayak's earlier solo draft (submission 1306652) is to be deleted.

@@ -1,6 +1,6 @@
 # Data contracts
 
-The JSON each workflow hands to the next. Agree a change here before building on it, so four people can build in parallel.
+The JSON each workflow hands to the next. Agree a change here before building on it, so several people can build in parallel.
 
 `client` (D13, D15): one file per NewsReels client in `03_build/output/clients/`, built into the orchestrator's "Client" node. It holds `id`, `name`, `look` (`desk`, `accent`), `slack` (`editor`, `outlet` channel IDs), `data_sources` (a list of `source`, below), `news_feeds` (`{ "id", "kind": "rss" | "weather_alerts" | "open511", "label", "source_note", "url" }`) and `style` (`audience`, `tone`, `script_words` `{ "min", "max" }`, `avoid`, `samples`). See [rain-city-ledger.json](../03_build/output/clients/rain-city-ledger.json).
 

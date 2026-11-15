@@ -7,11 +7,11 @@ The disclosure list for Devpost. Add each one the moment it enters the build.
 | n8n 2.47.7, self-hosted community edition | Every workflow | 2026-11-14 |
 | n8n Cloud, trial | Fallback only; its API is blocked | 2026-11-14 |
 | City of Vancouver open data API | 3-1-1 service requests, issued building permits, business licences | 2026-11-14 |
-| Statistics Canada Web Data Service | Checked only, not used yet | 2026-11-14 |
+| Statistics Canada Web Data Service | Vancouver's monthly unemployment rate, table 14-10-0459-01, for Slack requests (8 Request) | 2026-11-15 |
 | BC Government News RSS (news.gov.bc.ca) | News context for Rain City Ledger (2b Context); terms of use not yet checked | 2026-11-14 |
 | Environment Canada weather alerts API (api.weather.gc.ca) | Live weather alerts for Vancouver (2b Context); terms of use not yet checked | 2026-11-14 |
 | DriveBC Open511 API | Live road events in Vancouver (2b Context); terms of use not yet checked | 2026-11-14 |
-| Remotion 4.0.543 | Rendering the story video (open-source library; check its licence terms for a team of four) | 2026-11-14 |
+| Remotion 4.0.543 | Rendering the story video (open-source library; its free licence covers individuals and small teams, and the team is two people) | 2026-11-14 |
 | Express 5.3.0 | The render service's web server | 2026-11-14 |
 | FFmpeg (ffprobe) | Measuring the narration's length in the render service | 2026-11-14 |
 | ngrok, free plan | One public address for n8n, the render service's links and pages, and Slack's events, through the router (D11) | 2026-11-14 |
