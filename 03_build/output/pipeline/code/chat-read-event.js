@@ -25,6 +25,6 @@ if (body.source === "interactivity") {
   if (p.type !== "block_actions" || !a || !String(a.action_id).startsWith("newsroom_")) return [];
   if ((p.channel || {}).id !== EDITOR) return [];
   const m = p.message || {};
-  return [{ json: { kind: "action", action: a.action_id.replace("newsroom_", ""), thread_ts: m.thread_ts || m.ts, user: (p.user || {}).id } }];
+  return [{ json: { kind: "action", action: a.action_id.replace("newsroom_", ""), thread_ts: m.thread_ts || m.ts, user: (p.user || {}).id, name: (p.user || {}).name || (p.user || {}).username || null } }];
 }
 return [];

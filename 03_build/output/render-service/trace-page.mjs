@@ -76,7 +76,7 @@ export function tracePage(run, { prompt, editor, ledgerUrl }) {
   out.push(`<h1>${esc(spec.headline)}</h1>`);
   out.push(`<p>${editor ? `${esc(status)} · run started ${when(run.started_at)} · trace saved ${when(run.trace_saved_at)}` : (published ? `Published ${when(run.approved_at)}` : "Draft: an editor has not approved it yet")}</p></header>`);
 
-  if (editor && run.request) out.push(`<section><h2>The request</h2><p>Slack user ${esc(run.request.user)} asked newsReels: <em>"${esc(run.request.text)}"</em></p><p class="muted">Matched to ${esc(s.dataset)}${(run.request.matched?.categories || []).length ? `, ${esc(run.request.matched.categories.join("; "))}` : ""}${run.request.matched?.area ? `, ${esc(run.request.matched.area)}` : ""}, by ${esc(run.request.parse?.model)}.</p></section>`);
+  if (editor && run.request) out.push(`<section><h2>The request</h2><p>${esc(run.request.user_name || `Slack user ${run.request.user}`)} asked newsReels: <em>"${esc(run.request.text)}"</em></p><p class="muted">Matched to ${esc(s.dataset)}${(run.request.matched?.categories || []).length ? `, ${esc(run.request.matched.categories.join("; "))}` : ""}${run.request.matched?.area ? `, ${esc(run.request.matched.area)}` : ""}, by ${esc(run.request.parse?.model)}.</p></section>`);
   out.push(`<section><h2>The story</h2><blockquote>${esc(spec.script)}</blockquote>`);
   if (run.video_url) out.push(`<p>${link(run.video_url, "Watch the video")}</p>`);
   out.push(`<p class="muted">${esc(run.blurb)}</p></section>`);
@@ -142,7 +142,7 @@ export function tracePage(run, { prompt, editor, ledgerUrl }) {
       out.push(`</table></div>`);
     } else out.push(`<p class="muted">No edits.</p>`);
     const approvals = run.approvals || [];
-    out.push(approvals.length ? `<ul>${approvals.map((a) => `<li>${esc(a.action.replace("_", " "))} by Slack user ${esc(a.user)} at ${when(a.at)}</li>`).join("")}</ul>` : `<p class="muted">No approvals yet.</p>`);
+    out.push(approvals.length ? `<ul>${approvals.map((a) => `<li>${esc(a.action.replace("_", " "))} by ${esc(a.name || `Slack user ${a.user}`)} at ${when(a.at)}</li>`).join("")}</ul>` : `<p class="muted">No approvals yet.</p>`);
     out.push(`</section>`);
 
     // Voice, video, cost.

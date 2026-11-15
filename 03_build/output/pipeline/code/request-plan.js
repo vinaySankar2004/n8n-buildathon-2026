@@ -9,7 +9,13 @@ let a = {};
 try {
   a = JSON.parse(raw.replace(/^[\s\S]*?(\{[\s\S]*\})[\s\S]*$/, "$1"));
 } catch {}
-const request = { ...req, parse: { model: res.model ?? null, usage: res.usage ?? null }, matched: a };
+// "Who asked" looks up the name; without Slack's users:read permission it stays the user ID.
+let profile = null;
+try {
+  profile = $("Who asked").first()?.json?.user;
+} catch {}
+const user_name = profile?.profile?.display_name || profile?.real_name || profile?.name || null;
+const request = { ...req, user_name, parse: { model: res.model ?? null, usage: res.usage ?? null }, matched: a };
 const src = menu.find((m) => m.source_id === a.source_id);
 const example = `Try "@Newsroom make a video about graffiti in Mount Pleasant" or "@Newsroom how many noise complaints this week?"`;
 if (a.kind === "unclear" || !src) {

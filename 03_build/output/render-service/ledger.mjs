@@ -19,7 +19,7 @@ export function entryFrom(run = {}, status) {
     updated_at: new Date().toISOString(),
     client: run.client?.name || "",
     trigger: run.request ? "Slack request" : run.trigger || "Pipeline run",
-    requested_by: run.request?.user || null,
+    requested_by: run.request?.user_name || run.request?.user || null,
     asked: run.request?.text || null,
     kind: run.kind || (run.request ? run.request.kind : "video"),
     what: run.spec?.headline || run.answer_line || run.reason || "",
@@ -69,7 +69,7 @@ function ledgerPage(rows) {
   const voiceKnown = rows.every((r) => !r.voice_credits || r.voice_usd !== null);
   const body = rows.map((r) => `<tr>
     <td>${time(r.started_at)}</td>
-    <td>${esc(r.trigger)}${r.requested_by ? `<br><span class="muted">Slack user ${esc(r.requested_by)}</span>` : ""}</td>
+    <td>${esc(r.trigger)}${r.requested_by ? `<br><span class="muted">${esc(r.requested_by)}</span>` : ""}</td>
     <td>${r.asked ? `<em>"${esc(r.asked)}"</em><br>` : ""}${esc(r.what)}</td>
     <td>${esc(r.status)}</td>
     <td>${usd(r.claude_usd)}</td>

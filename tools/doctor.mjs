@@ -81,13 +81,12 @@ if (credentials.length || workflows.length) {
   }
 }
 
-// 5. Slack channels, set in the pipeline's build config.
-const build = path.join(root, "03_build/output/pipeline/build.mjs");
-if (existsSync(build)) {
-  const src = readFileSync(build, "utf8");
+// 5. Slack channels, set in the client's config file.
+const clientFile = path.join(root, "03_build/output/clients", `${process.env.CLIENT || "rain-city-ledger"}.json`);
+if (existsSync(clientFile)) {
+  const slack = JSON.parse(readFileSync(clientFile, "utf8")).slack || {};
   for (const which of ["editor", "outlet"]) {
-    const m = src.match(new RegExp(`${which}:\\s*"([^"]*)"`));
-    m && m[1] ? done(`Slack ${which} channel is set`) : next(`Set SLACK_CHANNELS.${which} in 03_build/output/pipeline/build.mjs to the #${which} channel ID (click the channel name; the ID is at the bottom of About), then npm run pipeline.`);
+    slack[which] ? done(`Slack ${which} channel is set`) : next(`Set slack.${which} in ${path.relative(root, clientFile)} to the #${which} channel ID (click the channel name; the ID is at the bottom of About), then npm run pipeline.`);
   }
 }
 

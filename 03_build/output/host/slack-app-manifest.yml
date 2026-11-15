@@ -22,6 +22,8 @@ oauth_config:
       # Thread replies from the editor reach 7 Chat as message events.
       - channels:history
       - groups:history
+      # The name of whoever asks the bot for something, for the run ledger.
+      - users:read
 settings:
   event_subscriptions:
     # The editor's replies in a review thread. The router checks Slack's signature, then hands them to 7 Chat.

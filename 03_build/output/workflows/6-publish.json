@@ -204,7 +204,7 @@
     },
     {
       "parameters": {
-        "content": "## 6 Publish\n**Save final trace** updates the run trace with the voice, video, edits and approvals. Then it posts the approved video to the outlet channel with its headline, blurb, sources and the public \"How this story was made\" link, then the newsletter draft. The editor approves it in the Slack thread run by **7 Chat**.\n\nCredential: Slack. Channels come from `SLACK_CHANNELS` in the pipeline's build.mjs.\n\nIts test webhook posts straight to the outlet channel, so it needs a run with a real `video_url`, such as 5 Render's output.",
+        "content": "## 6 Publish\n**Save final trace** updates the run trace with the voice, video, edits and approvals. Then it posts the approved video to the outlet channel with its headline, blurb, sources and the public \"How this story was made\" link, then the newsletter draft. The editor approves it in the Slack thread run by **7 Chat**.\n\nCredential: Slack. Channels come from the client's config file.\n\nIts test webhook posts straight to the outlet channel, so it needs a run with a real `video_url`, such as 5 Render's output.",
         "height": 340,
         "width": 460,
         "color": 5

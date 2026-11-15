@@ -27,7 +27,7 @@ if (!route) return [];
 
 const item = { ...run, chat, route };
 // Taps are kept for the run's trace: who approved or rejected what, and when.
-if (route !== "revise") item.approvals = [...(run.approvals || []), { action: route, user: ev.user, at: new Date().toISOString() }];
+if (route !== "revise") item.approvals = [...(run.approvals || []), { action: route, user: ev.user, name: ev.name || null, at: new Date().toISOString() }];
 if (route === "approve_script") {
   item.working_note = "Script approved. Recording the voice and making the video; this takes about 20 seconds.";
 }

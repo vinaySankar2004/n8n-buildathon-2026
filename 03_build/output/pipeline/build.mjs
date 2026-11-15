@@ -79,7 +79,7 @@ const execWf = (name, pos, label, mode = "once", wait = true) =>
 const SLACK_CHANNELS = client.slack ?? {};
 const channel = (which) => {
   const value = SLACK_CHANNELS[which];
-  if (!value) console.warn(`SLACK_CHANNELS.${which} is empty in build.mjs; its Slack nodes deploy with no channel.`);
+  if (!value) console.warn(`slack.${which} is empty in the client file; its Slack nodes deploy with no channel.`);
   return { __rl: true, mode: "id", value };
 };
 
@@ -399,7 +399,7 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
     }, { onError: "continueErrorOutput", ...SLACK }),
     codeNode("Published", [1540, -100], "publish-done.js"),
     codeNode("Failed", [1320, 300], "publish-failed.js"),
-    sticky("About Publish", [-40, -400], "## 6 Publish\n**Save final trace** updates the run trace with the voice, video, edits and approvals. Then it posts the approved video to the outlet channel with its headline, blurb, sources and the public \"How this story was made\" link, then the newsletter draft. The editor approves it in the Slack thread run by **7 Chat**.\n\nCredential: Slack. Channels come from `SLACK_CHANNELS` in the pipeline's build.mjs.\n\nIts test webhook posts straight to the outlet channel, so it needs a run with a real `video_url`, such as 5 Render's output.", 340),
+    sticky("About Publish", [-40, -400], "## 6 Publish\n**Save final trace** updates the run trace with the voice, video, edits and approvals. Then it posts the approved video to the outlet channel with its headline, blurb, sources and the public \"How this story was made\" link, then the newsletter draft. The editor approves it in the Slack thread run by **7 Chat**.\n\nCredential: Slack. Channels come from the client's config file.\n\nIts test webhook posts straight to the outlet channel, so it needs a run with a real `video_url`, such as 5 Render's output.", 340),
   ];
   const c = {};
   link(c, "When Executed by Another Workflow", [["Input"]]);
@@ -565,7 +565,14 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
     jsonNode("Sample request", [220, 200], { kind: "request", text: "make a video about graffiti in Mount Pleasant", user: "U0TEST", ts: "", channel: SLACK_CHANNELS.editor, at: "2026-11-14T20:00:00.000Z" }),
     noop("Input", [440, 100]),
     postSlack("Say looking", [660, -120], thread("'Looking through the data now.'")),
-    clientNode([660, 100]),
+    http("Who asked", [550, 100], {
+      url: "https://slack.com/api/users.info",
+      authentication: "predefinedCredentialType",
+      nodeCredentialType: "slackApi",
+      ...query([["user", "={{ $json.user }}"]]),
+      options: { timeout: 10000 },
+    }, { ...SLACK, maxTries: 1, onError: "continueRegularOutput" }),
+    clientNode([770, 100]),
     node("Data sources", "n8n-nodes-base.code", 2, [880, 100], { jsCode: "// One item per dataset in the client's config, for 1 Collect.\nreturn $('Client').first().json.data_sources.map((json) => ({ json }));\n" }),
     { ...execWf("1 Collect", [1100, 100], "1 Collect", "each"), onError: "continueRegularOutput" },
     reqCode("Menu", [1320, 100], "request-menu.js"),
@@ -608,7 +615,8 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
   link(c, "When Executed by Another Workflow", [["Input"]]);
   link(c, "Test run", [["Sample request"]]);
   link(c, "Sample request", [["Input"]]);
-  link(c, "Input", [["Say looking", "Client"]]);
+  link(c, "Input", [["Say looking", "Who asked"]]);
+  link(c, "Who asked", [["Client"]]);
   link(c, "Client", [["Data sources"]]);
   link(c, "Data sources", [["1 Collect"]]);
   link(c, "1 Collect", [["Menu"]]);

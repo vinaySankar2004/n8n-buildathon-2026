@@ -2,7 +2,7 @@
 <rect x="0" y="0" width="1856" height="912" fill="#f6f7f9"/>
 <text x="40" y="44" font-size="20" font-weight="700" fill="#1c2430">6 Publish</text>
 <text x="40" y="892" font-size="12" fill="#667085">Grey line: the run goes on. Red dashed line: the error or "no" path. Drawn from 03_build/output/workflows/, the JSON deployed to n8n.</text>
-<rect x="40" y="74" width="460" height="224" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
+<rect x="40" y="74" width="460" height="208" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
 <text x="54" y="100" font-size="16" font-weight="700" fill="#4a3f12">6 Publish</text>
 <text x="54" y="122" font-size="12" font-weight="400" fill="#4a3f12">Save final trace updates the run trace with the voice, video,</text>
 <text x="54" y="138" font-size="12" font-weight="400" fill="#4a3f12">edits and approvals. Then it posts the approved video to the</text>
@@ -10,11 +10,10 @@
 <text x="54" y="170" font-size="12" font-weight="400" fill="#4a3f12">&quot;How this story was made&quot; link, then the newsletter draft. The</text>
 <text x="54" y="186" font-size="12" font-weight="400" fill="#4a3f12">editor approves it in the Slack thread run by 7 Chat.</text>
 <text x="54" y="202" font-size="12" font-weight="400" fill="#4a3f12"></text>
-<text x="54" y="218" font-size="12" font-weight="400" fill="#4a3f12">Credential: Slack. Channels come from SLACK_CHANNELS in the</text>
-<text x="54" y="234" font-size="12" font-weight="400" fill="#4a3f12">pipeline's build.mjs.</text>
-<text x="54" y="250" font-size="12" font-weight="400" fill="#4a3f12"></text>
-<text x="54" y="266" font-size="12" font-weight="400" fill="#4a3f12">Its test webhook posts straight to the outlet channel, so it</text>
-<text x="54" y="282" font-size="12" font-weight="400" fill="#4a3f12">needs a run with a real video_url, such as 5 Render's output.</text>
+<text x="54" y="218" font-size="12" font-weight="400" fill="#4a3f12">Credential: Slack. Channels come from the client's config file.</text>
+<text x="54" y="234" font-size="12" font-weight="400" fill="#4a3f12"></text>
+<text x="54" y="250" font-size="12" font-weight="400" fill="#4a3f12">Its test webhook posts straight to the outlet channel, so it</text>
+<text x="54" y="266" font-size="12" font-weight="400" fill="#4a3f12">needs a run with a real video_url, such as 5 Render's output.</text>
 <path d="M276,511 C398,511 398,611 520,611" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M496,711 C536,711 480,611 520,611" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M716,611 C756,611 700,611 740,611" fill="none" stroke="#7d8796" stroke-width="2" />
