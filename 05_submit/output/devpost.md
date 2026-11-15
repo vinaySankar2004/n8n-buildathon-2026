@@ -81,7 +81,11 @@ Pending: the demo video, 3 minutes or less.
 
 ## Image gallery
 
-From `05_submit/output/samples/`: the run trace, the public "How this story was made" page and the run ledger; plus a frame of a video and the n8n orchestrator canvas.
+Uploaded from `05_submit/output/samples/`, with captions: chart types, the n8n orchestrator, the run trace, a request trace, the public page and the run ledger. Thumbnail: `thumbnail.png`.
+
+## Status on Devpost
+
+Draft at https://devpost.com/software/newsreels, entered in the n8n track. Everything above is filled in except the video link. To finish: add the YouTube or Vimeo link, invite teammates with the secret link on Manage team, tick the terms, and submit by 14:30.
 
 ## Tracks
 
