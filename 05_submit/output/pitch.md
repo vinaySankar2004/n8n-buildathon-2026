@@ -28,7 +28,7 @@ The client's editor, in a Slack thread: the script and the data behind it first,
 
 1. Collect: nine weeks of the client's datasets.
 2. Score: this week against the eight before; the biggest real change wins.
-3. Context: recent reports from the client's news feeds.
+3. Context: recent reports from the client's news feeds, and for a requested story, a web search for recent reporting, with every source shown to the editor.
 4. Write: Claude drafts a headline, script, chart and blurb in the client's style; a check confirms every number.
 5. Review: the script and data go to the editor in Slack; replies edit the draft, and after the video is made they can change the chart (bar, line or pie, a colour, which item stands out), which remakes the video in about 20 seconds.
 6. Voice and render: only after the script is approved.

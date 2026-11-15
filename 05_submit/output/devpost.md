@@ -27,7 +27,7 @@ For each client (our demo client is Rain City Ledger, a made-up Vancouver outlet
 5. Sends the script and its data to the editor in a Slack thread before any voice or video is made. The editor replies in plain words ("make the headline calmer", "make it a line chart", "make Mount Pleasant red") and the bot revises, with the same number check.
 6. On "Approve script", ElevenLabs reads it and a Remotion service renders a 20 second vertical video into the thread. On "Approve and publish", it goes to the client's channel with a public "How this story was made" page.
 
-Anyone in the newsroom can also ask in Slack: "@NewsReels how many noise complaints in Kitsilano this week?" gets the numbers in seconds, and "@NewsReels make a video about graffiti in Mount Pleasant" opens a review thread with that story.
+Anyone in the newsroom can also ask in Slack: "@NewsReels how many noise complaints in Kitsilano this week?" gets the numbers in seconds, and "@NewsReels make a video about graffiti in Mount Pleasant" opens a review thread with that story. For a story someone asks for, NewsReels also searches the web for recent reporting on it and shows the editor every source it used.
 
 Every run has a trace (sources, ranking, news used, what Claude was asked and answered, where each number came from, edits, approvals, cost) and a row in a run ledger with who asked and what it cost. A story costs about one cent of Claude.
 
@@ -36,7 +36,7 @@ Example from the week of 7 to 13 November: 218 street flooding reports, 7.4 time
 ### How we built it
 
 - **n8n does the work:** ten workflows built as code and deployed through the n8n API: an orchestrator, Collect, Score, Context, Write, Voice, Render, Publish, a Slack review workflow (7 Chat) with a webhook and an n8n data table per thread, and a request workflow (8 Request). They are joined by Execute Workflow, with error paths that end in a "No story today" note to the editor.
-- **Claude:** Sonnet 5.5 writes each draft; Haiku 5.5 revises drafts from the editor's replies and matches Slack requests to real data categories and neighbourhoods. Code nodes, not the model, build the chart, the quick answers and the number check.
+- **Claude:** Sonnet 5.5 writes each draft; Haiku 5.5 revises drafts from the editor's replies and matches Slack requests to real data categories and neighbourhoods. For requested stories, Claude's web search tool finds recent reporting, and each source is kept with the words it was quoted for. Code nodes, not the model, build the chart, the quick answers and the number check.
 - **Video:** a Remotion template rendered by a small Express service, in the client's name and colour, with bar, line and pie charts.
 - **Hosting:** n8n 2.47.7 self-hosted with the render service and a router on one laptop, behind an ngrok tunnel. The router checks Slack's signature on every event. The same setup runs on a small VPS, so a client can keep their data on their own server.
 - **Each client is one config file:** name and look, Slack channels, data sources, news feeds and a style card.
