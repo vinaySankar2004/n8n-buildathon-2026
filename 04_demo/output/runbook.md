@@ -41,7 +41,7 @@ The words and shots are in [script.md](script.md). Arman records; the agent on t
 
 **Hand-off.** AirDrop the clips and the voice memo to Vinayak's Mac and move them into `04_demo/raw/` in this repository. Git ignores that folder, so nothing large is pushed.
 
-**The edit.** The agent cuts each clip to its beat, lays the voice over it, adds the logo title and end cards and captions (judges may watch muted), and levels the sound. Out comes `04_demo/raw/newsreels-demo.mp4`, under 3:00. Watch it once and send the fixes as times ("1:12 cut the wait"); each round of fixes takes a few minutes.
+**The edit.** `python3 tools/edit_demo.py --look` shows each take's length and a contact sheet, and finds the ten spoken parts of the voice; `python3 tools/edit_demo.py` builds the video. The agent cuts each clip to its beat (parts to keep go in `04_demo/raw/cuts.json`), lays the voice over it, adds the logo title and end cards and captions (judges may watch muted), and levels the sound. Out comes `04_demo/raw/newsreels-demo.mp4`, under 3:00. Watch it once and send the fixes as times ("1:12 cut the wait"); each round of fixes takes a few minutes.
 
 ## If something fails
 
