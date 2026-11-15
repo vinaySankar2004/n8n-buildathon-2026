@@ -7,3 +7,6 @@ dist/
 .DS_Store
 !.env.example
 logs/
+
+# Demo video takes and edits; too large for git.
+04_demo/raw/

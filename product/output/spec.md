@@ -28,7 +28,7 @@ Each row is in [must-work.md](../../02_storyboard/output/must-work.md) with its 
 
 1. **Done 12:20:** account settings. The ElevenLabs key reads the plan, so the ledger prices narration (about $0.000191 a credit), and Slack names who asked.
 2. **Done 12:12:** the guard test live ("Blocked: 38 in script") and three clean runs in a row, logged in `test-log.md` (F17).
-3. **Done:** #editor-demo and an empty run ledger (D24). Left: the storyboard's "Approved" line, the demo video, and Submit on Devpost by 14:45.
+3. **Done:** #editor-demo and an empty run ledger (D24). Left: the demo video ([script](../../04_demo/output/script.md), [runbook](../../04_demo/output/runbook.md#recording-the-video)) and Submit on Devpost by 14:45.
 
 ## After the event
 
@@ -38,4 +38,4 @@ Each row is in [must-work.md](../../02_storyboard/output/must-work.md) with its 
 
 ## Open
 
-- Who narrates the submission video.
+- None. Arman narrates the video ([script](../../04_demo/output/script.md)).
