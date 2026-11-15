@@ -23,25 +23,31 @@ For the judges' tables and for recording the video. Everything runs on the host 
 
 ## Recording the video
 
-The words and shots are in [script.md](script.md). Arman records; the agent on the host laptop edits. Target times for Sunday:
+The words are in [script.md](script.md). Arman records B1 and B4 to B10 and the voice, step by step in [arman.md](arman.md). Vinayak records B3 on the host Mac. B2 is the logo title card. The agent on the host Mac cuts the video. Target times for Sunday:
 
 | By | Step | Who |
 | --- | --- | --- |
-| 13:00 | A fresh review card waits in #editor-demo; the tabs above are open | Vinayak, with the agent |
-| 13:35 | Screen takes, one per beat | Arman |
-| 13:45 | The voice take | Arman |
+| 13:00 | A review card waits in #editor-demo (done 12:47) | Agent |
+| 13:35 | Screen takes B1, B4 to B10 ([arman.md](arman.md)) | Arman |
+| 13:35 | Screen take B3, below | Vinayak |
+| 13:45 | The voice | Arman |
+| 13:50 | All files in `04_demo/raw/` | Vinayak |
 | 14:05 | First cut | Agent |
 | 14:15 | Fixes from one watch-through | Agent |
 | 14:25 | Uploaded to YouTube, unlisted; the link goes to the agent for Devpost | Vinayak |
-| 14:45 | Terms ticked and Submit pressed on Devpost | Vinayak or Arman |
+| 14:45 | Terms ticked and Submit pressed on Devpost | Vinayak |
 
-**Screen takes.** Do Not Disturb on. Slack zoomed to 125% so text reads on a phone, with every channel but #editor-demo and the outlet channel collapsed, so no names or messages from elsewhere show. Record each beat as its own clip with Cmd+Shift+5 (whole screen, 1080p or larger), named `B01.mov` to `B10.mov`. Stay silent; waits are fine, since the edit cuts them. Hold still for two seconds at the start and end of each clip.
+**Vinayak: B3, n8n (about 24 seconds).** Same recording rules as Arman's (whole screen, silent, hold 2 seconds at each end). Close any n8n credentials or settings page first.
 
-**Voice take.** In a quiet room, phone about 15 cm from the mouth, Voice Memos. Read the read-through in [script.md](script.md) once, two seconds of silence between beats. If you stumble, pause and say the sentence again; the edit keeps the last try.
+1. Open the demo run in 0 Orchestrator: http://localhost:5678/workflow/kjZJ4EboduvsCPUg/executions/349. Every step is green; hold 3 seconds, then move the pointer slowly along Collect, Score, Context, Write and Chat.
+2. Open its 2 Score run: http://localhost:5678/workflow/4Yz4ps6sUDrcbUae/executions/353. Click the last node so its output shows: Fireworks, 37 this week against 5.5, 6.7 times, Grandview-Woodland 19. Hold 4 seconds.
+3. Save it as `B03.mov` in `04_demo/raw/`.
 
-**Hand-off.** AirDrop the clips and the voice memo to Vinayak's Mac and move them into `04_demo/raw/` in this repository. Git ignores that folder, so nothing large is pushed.
+If Arman needs a fresh card (after B6 cannot be redone), run `npm run invoke -- orchestrator`; B3's links then change to the newest runs.
 
-**The edit.** `python3 tools/edit_demo.py --look` shows each take's length and a contact sheet, and finds the ten spoken parts of the voice; `python3 tools/edit_demo.py` builds the video. The agent cuts each clip to its beat (parts to keep go in `04_demo/raw/cuts.json`), lays the voice over it, adds the logo title and end cards and captions (judges may watch muted), and levels the sound. Out comes `04_demo/raw/newsreels-demo.mp4`, under 3:00. Watch it once and send the fixes as times ("1:12 cut the wait"); each round of fixes takes a few minutes.
+**Hand-off.** Arman's files go to Vinayak's Mac and into `04_demo/raw/`, which git ignores, so nothing large is pushed. Then tell the agent.
+
+**The edit.** `python3 tools/edit_demo.py --look` shows each take's length and a contact sheet, and finds the ten spoken parts of the voice; `python3 tools/edit_demo.py` builds the video. The agent cuts each clip to its beat (parts to keep go in `04_demo/raw/cuts.json`), lays the voice over it, adds the logo title and end cards and captions (judges may watch muted), and levels the sound. Out comes `04_demo/raw/newsreels-demo.mp4`, under 3:00. Watch it once and send the fixes as times ("1:12 cut the wait"); each round takes a few minutes.
 
 ## If something fails
 

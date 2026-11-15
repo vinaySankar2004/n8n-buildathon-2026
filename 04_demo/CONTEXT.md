@@ -6,7 +6,7 @@ Turn the storyboard into a finished video of three minutes or less that shows th
 
 ## Inputs
 
-`02_storyboard/output/storyboard.md`, `03_build/output/test-log.md`, `_config/rubric.md`.
+`output/script.md` (the words), `output/arman.md` (Arman's takes, step by step), `output/runbook.md` (who does what, B3, the edit), `_config/rubric.md`.
 
 ## Process
 

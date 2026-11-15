@@ -12,7 +12,7 @@ Cities publish data every day, and small newsrooms have nobody to read it. NewsR
 
 ## What problem does it solve, and for whom?
 
-Local news is disappearing: 613 local news outlets have closed in 391 Canadian communities since 2008, about half of them in places under 20,000 people ([Local News Research Project, via The Canadian Press, August 2026](https://www.ctvnews.ca/canada/article/ottawa-commissions-project-to-track-news-deserts-in-canada/)). The outlets that remain, and the solo creators filling the gap on social video, have the public data but no data desk and no video team. Vancouver's 3-1-1 data alone holds 1.33 million requests, refreshed daily.
+Local news is disappearing: 613 local news outlets have closed in 391 Canadian communities since 2008, about half of them in places under 20,000 people ([Local News Research Project, via The Canadian Press, August 2026](https://www.ctvnews.ca/canada/article/ottawa-commissions-project-to-track-news-deserts-in-canada/)). The outlets that remain, and the solo creators filling the gap on social video, have the public data but no data desk and no video team. Vancouver's 3-1-1 data alone holds 1.1 million requests, refreshed daily.
 
 NewsReels is for hyperlocal newsrooms, neighbourhood newsletters and solo news creators. It does the finding and drafting; the editor keeps the judgement.
 

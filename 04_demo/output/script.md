@@ -8,7 +8,7 @@ How to record it and hand it over: [runbook.md](runbook.md#recording-the-video).
 
 | Beat | Time | On screen | Say |
 | --- | --- | --- | --- |
-| B1 | 0:00 to 0:13 | City of Vancouver open data: the 3-1-1 dataset page, scrolling | Since 2008, 613 local news outlets have closed in Canada. The newsrooms that are left have more public data than ever: Vancouver alone has 1.3 million 3-1-1 requests, updated every day. Nobody has time to read them. |
+| B1 | 0:00 to 0:13 | City of Vancouver open data: the 3-1-1 dataset page, scrolling | Since 2008, 613 local news outlets have closed in Canada. The newsrooms that are left have more public data than ever: Vancouver alone has more than a million 3-1-1 requests, updated every day. Nobody has time to read them. |
 | B2 | 0:13 to 0:22 | Title card: the NewsReels logo | This is NewsReels. It turns a newsroom's own data and news feeds into short news videos, and their editor approves every one in Slack. |
 | B3 | 0:22 to 0:46 | n8n: 0 Orchestrator, its latest run with every step green, then 2 Score's output | Each step is its own n8n workflow. Collect pulls nine weeks of the city's data. Score compares this week with the eight before and keeps only real changes. This week, fireworks complaints hit 37, almost seven times the usual, most in Grandview-Woodland. Context adds the client's news feeds, Claude writes the script in the outlet's style, and code checks every number against the data. |
 | B4 | 0:46 to 1:04 | #editor-demo: the review card. Reply in the thread "make the headline calmer"; the new draft arrives | The editor sees the script and the data behind it in a Slack thread, before any voice or video is paid for. They edit in plain words. Claude rewrites it, and the number check runs again. |
@@ -23,7 +23,7 @@ How to record it and hand it over: [runbook.md](runbook.md#recording-the-video).
 
 The same words, without the table, for reading aloud in one take. Leave two seconds of silence between beats.
 
-> Since 2008, 613 local news outlets have closed in Canada. The newsrooms that are left have more public data than ever: Vancouver alone has 1.3 million 3-1-1 requests, updated every day. Nobody has time to read them.
+> Since 2008, 613 local news outlets have closed in Canada. The newsrooms that are left have more public data than ever: Vancouver alone has more than a million 3-1-1 requests, updated every day. Nobody has time to read them.
 >
 > This is NewsReels. It turns a newsroom's own data and news feeds into short news videos, and their editor approves every one in Slack.
 >

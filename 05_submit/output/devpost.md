@@ -14,7 +14,7 @@ NewsReels turns a newsroom's own open data and news feeds into short narrated ne
 
 ### Inspiration
 
-613 local news outlets have closed in 391 Canadian communities since 2008, about half of them in places under 20,000 people (Local News Research Project, via The Canadian Press, August 2026). The newsrooms and solo creators that remain have the public data, such as Vancouver's 1.33 million 3-1-1 service requests, updated daily, but no data desk and no video team. A freelance editor charges $20 to $500 for one short video. We wanted the finding and drafting to cost cents, while the editor keeps the judgement.
+613 local news outlets have closed in 391 Canadian communities since 2008, about half of them in places under 20,000 people (Local News Research Project, via The Canadian Press, August 2026). The newsrooms and solo creators that remain have the public data, such as Vancouver's 1.1 million 3-1-1 service requests, updated daily, but no data desk and no video team. A freelance editor charges $20 to $500 for one short video. We wanted the finding and drafting to cost cents, while the editor keeps the judgement.
 
 ### What it does
 
@@ -85,4 +85,4 @@ Uploaded from `05_submit/output/samples/`, with captions: chart types, the n8n o
 
 ## Status on Devpost
 
-The team's draft, with Vinayak and Arman: https://devpost.com/software/newsreels-f5uegw (submission 1306753), entered in the n8n track. Everything above is filled in except the video link. To finish: add the YouTube or Vimeo link, tick the terms, and submit by 14:45 (edits close at 15:00). Vinayak's earlier solo draft (submission 1306652) is hidden; Devpost does not allow deleting it, and it is not entered.
+The team's draft, with Vinayak and Arman: https://devpost.com/software/newsreels-f5uegw (submission 1306753), entered in the n8n track. Everything above is filled in except the video link. To finish: add the YouTube or Vimeo link, update the 3-1-1 count in Inspiration to 1.1 million (the city's dataset shrank since Saturday's 1.33 million), swap in the logo thumbnail, tick the terms, and submit by 14:45 (edits close at 15:00). Vinayak's earlier solo draft (submission 1306652) is hidden; Devpost does not allow deleting it, and it is not entered.
