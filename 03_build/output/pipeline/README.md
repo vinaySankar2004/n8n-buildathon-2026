@@ -20,6 +20,8 @@ The source for all nine workflows. Written 2026-11-14 by Arman and Vinayak with 
 
 ## Run trace
 
+First full run with all of it, 2026-11-14 at 17:13: the review card linked the trace, Arman approved the script (voice 19.3 seconds, video in 7.7 seconds, with the Environment Canada line), then approved the video, and the outlet post linked the public page. Claude cost $0.0083 for the story.
+
 Every run gets two pages, saved by the render service ([trace-page.mjs](../render-service/trace-page.mjs)). The orchestrator saves them after Write, and the review card in Slack links the editor page: every source checked, how the story was ranked, the news offered and used, what Claude was asked and answered, where each number came from, the edits, approvals and cost. 6 Publish saves them again with the voice, video and approvals, and the outlet post links the public "How this story was made" page, which leaves out prompts, messages and costs.
 
 ## See the workflows
