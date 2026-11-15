@@ -17,7 +17,7 @@ The source for all ten n8n workflows, written by Arman and Vinayak with Claude C
 | 5 Render | The Remotion service beside n8n makes the 9:16 video |
 | 6 Publish | Saves the final trace, then posts the video, blurb and public "How this story was made" link to the outlet channel |
 | 7 Chat | The editor's review in one Slack thread per story: script and data first, then the video. Replies change either one through Claude Haiku 5.5, and the guard checks every change (D14) |
-| 8 Request | Someone mentions @Newsroom in the editor channel; Claude Haiku matches the ask to real categories and a neighbourhood, code builds the story or a quick answer, and a video request opens a review in the same thread (D17) |
+| 8 Request | Someone mentions @NewsReels in the editor channel; Claude Haiku matches the ask to real categories and a neighbourhood, code builds the story or a quick answer, and a video request opens a review in the same thread (D17) |
 
 Every run also has a trace and a row in the run ledger, saved by the render service: see its [README](../render-service/README.md).
 
@@ -66,7 +66,7 @@ A member account on our self-hosted n8n sees only the workflows it made (sharing
 | `npm run invoke -- request req.json` | A quick answer or a review thread; `req.json` is `{ "kind": "request", "text": "...", "user": "...", "ts": "" }` |
 | `npm run invoke -- orchestrator` | The whole run, ending with the review message in the editor channel |
 
-In Slack: reply in a review thread with a change and the bot posts a revised draft; Approve script brings the video into the thread; Approve and publish posts it to the outlet channel. Mention @Newsroom with a question or "make a video about ..." to test requests.
+In Slack: reply in a review thread with a change and the bot posts a revised draft; Approve script brings the video into the thread; Approve and publish posts it to the outlet channel. Mention @NewsReels with a question or "make a video about ..." to test requests.
 
 Failure tests from must-work: set `test_tamper` to `true` in [code/run-options.js](code/run-options.js) and run the orchestrator; the editor gets "No story today. Blocked: 219 in script ..." (row 9). A dataset that does not exist ends at Collect's Failed with a reason (row 10). Problems found in the first live runs are F6 to F14 in [failures.md](../../../memory/failures.md).
 

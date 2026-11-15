@@ -17,7 +17,7 @@ Every step the storyboard shows, in order. Each one is the build scope and has a
 | 11 | **Client.** The video and messages carry the client's name and style from its config file (D15) | B5 | The video shows "Rain City Ledger", not "[Outlet]" | Vinayak |
 | 12 | **Context.** Write adds one sentence from a related news report and names it on screen and in the blurb; a feed that fails does not stop the run | B5 | `npm run test:pipeline` passes the Context and report-guard checks | Vinayak |
 | 13 | **Trace.** The review card links a run trace that follows every number to its source and shows the cost; the outlet post links a public "How this story was made" page | B7 | Open the trace from the card and find 218 traced to the 3-1-1 data | Vinayak |
-| 14 | **Request.** "@Newsroom make a video about graffiti in Mount Pleasant" in the editor channel opens a review thread with that story; a question gets the numbers in the thread | B7 | Both kinds of request work from Slack, and a nonsense one gets a polite "try asking" | Vinayak |
+| 14 | **Request.** "@NewsReels make a video about graffiti in Mount Pleasant" in the editor channel opens a review thread with that story; a question gets the numbers in the thread | B7 | Both kinds of request work from Slack, and a nonsense one gets a polite "try asking" | Vinayak |
 | 15 | **Ledger.** Every run, with who started it, its status and its Claude and ElevenLabs cost, is on one page | B7 | After a request, its row shows the asker, the status and the cost | Vinayak |
 | 16 | **Chart.** After the video is made, a reply such as "make it a line chart" or "make Mount Pleasant red" remakes it with that chart | B6 | The new video shows the asked-for chart within about 30 seconds | Vinayak |
 

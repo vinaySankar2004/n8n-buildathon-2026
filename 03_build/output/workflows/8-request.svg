@@ -4,9 +4,9 @@
 <text x="40" y="1032" font-size="12" fill="#667085">Grey line: the run goes on. Red dashed line: the error or "no" path. Drawn from 03_build/output/workflows/, the JSON deployed to n8n.</text>
 <rect x="40" y="74" width="560" height="240" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
 <text x="54" y="100" font-size="16" font-weight="700" fill="#4a3f12">8 Request</text>
-<text x="54" y="122" font-size="12" font-weight="400" fill="#4a3f12">Anyone in the editor channel can write &quot;@Newsroom make a video about graffiti in</text>
-<text x="54" y="138" font-size="12" font-weight="400" fill="#4a3f12">Mount Pleasant&quot; or ask &quot;@Newsroom how many noise complaints this week?&quot;. 7 Chat</text>
-<text x="54" y="154" font-size="12" font-weight="400" fill="#4a3f12">hands the message here.</text>
+<text x="54" y="122" font-size="12" font-weight="400" fill="#4a3f12">Anyone in the editor channel can write &quot;@NewsReels make a video about graffiti</text>
+<text x="54" y="138" font-size="12" font-weight="400" fill="#4a3f12">in Mount Pleasant&quot; or ask &quot;@NewsReels how many noise complaints this week?&quot;. 7</text>
+<text x="54" y="154" font-size="12" font-weight="400" fill="#4a3f12">Chat hands the message here.</text>
 <text x="54" y="170" font-size="12" font-weight="400" fill="#4a3f12"></text>
 <text x="54" y="186" font-size="12" font-weight="400" fill="#4a3f12">Collect gets every data source; Read request (Claude Haiku) matches the ask to a</text>
 <text x="54" y="202" font-size="12" font-weight="400" fill="#4a3f12">real category and neighbourhood; Plan checks the match. A neighbourhood gets its</text>

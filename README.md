@@ -8,7 +8,7 @@ newsReels turns a newsroom's or creator's own sources, open data and news feeds,
 
 ## A run
 
-1. A run starts by hand, on a daily schedule (off during the event), or when someone writes "@Newsroom make a video about graffiti in Mount Pleasant" in the editor's Slack channel.
+1. A run starts by hand, on a daily schedule (off during the event), or when someone writes "@NewsReels make a video about graffiti in Mount Pleasant" in the editor's Slack channel.
 2. **Collect** pulls nine weeks of the client's datasets. The demo client, Rain City Ledger (made up), uses City of Vancouver 3-1-1 requests, building permits and business licences.
 3. **Score** compares this week with the eight before and keeps a rise to at least 20 and twice the usual level, or a fall to half.
 4. **Context** reads the client's news feeds: BC Government News, Environment Canada weather alerts and DriveBC road events.

@@ -17,7 +17,7 @@ try {
 const user_name = profile?.profile?.display_name || profile?.real_name || profile?.name || null;
 const request = { ...req, user_name, parse: { model: res.model ?? null, usage: res.usage ?? null }, matched: a };
 const src = menu.find((m) => m.source_id === a.source_id);
-const example = `Try "@Newsroom make a video about graffiti in Mount Pleasant" or "@Newsroom how many noise complaints this week?"`;
+const example = `Try "@NewsReels make a video about graffiti in Mount Pleasant" or "@NewsReels how many noise complaints this week?"`;
 if (a.kind === "unclear" || !src) {
   return [{ json: { ok: false, kind: "unclear", request, reply: a.reply || `I could not match that to the data. ${example}` } }];
 }

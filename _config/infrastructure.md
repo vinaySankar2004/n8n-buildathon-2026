@@ -12,7 +12,7 @@ Everything runs on Vinayak's Mac behind one public address, so the n8n API is fu
 | News feeds | BC Government News RSS, Environment Canada alerts API, DriveBC Open511 | Public, no key | A feed that fails is skipped |
 | Claude | Anthropic API: Sonnet 5.5 (3 Write), Haiku 5.5 (7 Chat, 8 Request) | Key in the n8n credential "Anthropic" | Billed per token; each run's cost is in the run ledger |
 | ElevenLabs | ElevenLabs cloud, Multilingual v2 | Key in the n8n credential "ElevenLabs" | Monthly credits; the key needs User: Read for the ledger's price |
-| Slack | Workspace n8n-buildathon, app "Newsroom" made from `03_build/output/host/slack-app-manifest.yml` | Bot token in the n8n credential "Slack"; channel IDs in the client file | Free plan |
+| Slack | Workspace n8n-buildathon, app "NewsReels" made from `03_build/output/host/slack-app-manifest.yml` | Bot token in the n8n credential "Slack"; channel IDs in the client file | Free plan |
 | n8n Cloud | `vsa91.app.n8n.cloud` | Team invited | Trial blocks the API (F3). Not used. |
 
 ## Running the host laptop

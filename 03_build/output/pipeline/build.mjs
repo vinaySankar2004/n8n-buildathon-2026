@@ -596,7 +596,7 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
     codeNode("Requested story", [2860, 0], "request-story.js"),
     ifOk("Story ok?", [3080, 0]),
     ifOk("Answer only?", [3300, 0], "={{ $json.kind === 'answer' }}"),
-    postSlack("Post answer", [3520, -120], thread("$json.answer + '\\n_Want a video? Ask \"@Newsroom make a video about\" the same thing._'", "$json.request.ts")),
+    postSlack("Post answer", [3520, -120], thread("$json.answer + '\\n_Want a video? Ask \"@NewsReels make a video about\" the same thing._'", "$json.request.ts")),
     logLedger("Log answer", [3740, -120], "{ status: 'Answered in Slack', run: $('Requested story').first().json }"),
     execWf("2b Context", [3520, 100], "2b Context"),
     execWf("3 Write", [3740, 100], "3 Write"),
@@ -609,7 +609,7 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
     logLedger("Log stopped", [4400, 320], "{ status: 'Stopped: ' + ($('3 Write').first().json.reason || $('3 Write').first().json.error?.message || 'a step failed'), run: $('Requested story').first().json }"),
     postSlack("Ask again", [2200, 380], thread("$json.reply", "$json.request.ts")),
     logLedger("Log not understood", [2420, 380], "{ status: 'Not understood; asked again', run: { request: $('Plan').first().json.request, run_id: 'request-' + $('Input').first().json.ts, client: { name: $('Client').first().json.name }, reason: $('Plan').first().json.ok === false ? $('Plan').first().json.reply : $('Requested story').first().json.reply } }"),
-    sticky("About Request", [-40, -460], "## 8 Request\nAnyone in the editor channel can write \"@Newsroom make a video about graffiti in Mount Pleasant\" or ask \"@Newsroom how many noise complaints this week?\". **7 Chat** hands the message here.\n\n**Collect** gets every data source; **Read request** (Claude Haiku) matches the ask to a real category and neighbourhood; **Plan** checks the match. A neighbourhood gets its own 9 weeks of data. **Requested story** builds the story and a one-line answer from the numbers.\n\nA question gets the answer in the thread. A video request runs Context and Write, then **Start review** opens the usual review in the same thread through 7 Chat's webhook. Every outcome goes to the run ledger.", 400, 560),
+    sticky("About Request", [-40, -460], "## 8 Request\nAnyone in the editor channel can write \"@NewsReels make a video about graffiti in Mount Pleasant\" or ask \"@NewsReels how many noise complaints this week?\". **7 Chat** hands the message here.\n\n**Collect** gets every data source; **Read request** (Claude Haiku) matches the ask to a real category and neighbourhood; **Plan** checks the match. A neighbourhood gets its own 9 weeks of data. **Requested story** builds the story and a one-line answer from the numbers.\n\nA question gets the answer in the thread. A video request runs Context and Write, then **Start review** opens the usual review in the same thread through 7 Chat's webhook. Every outcome goes to the run ledger.", 400, 560),
   ];
   const c = {};
   link(c, "When Executed by Another Workflow", [["Input"]]);

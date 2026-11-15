@@ -17,7 +17,7 @@ Each row is in [must-work.md](../../02_storyboard/output/must-work.md) with its 
 | News context from BC Government News, Environment Canada alerts and DriveBC | D15 | 12 |
 | Review in one Slack thread: script first, then video; replies edit the draft | D14 | 6, 7 |
 | Run trace and public "How this story was made" page | D16 | 13 |
-| Slack requests: "@Newsroom make a video about ..." or a question | D17 | 14 |
+| Slack requests: "@NewsReels make a video about ..." or a question | D17 | 14 |
 | Run ledger: who, what, status, Claude and ElevenLabs cost | D17 | 15 |
 | Chart edits from the thread: bar, line or pie, a colour, a highlight; the video is remade in about 20 seconds | D18 | 16 |
 
@@ -39,5 +39,4 @@ In order. Each has its test and the stage it touches.
 
 ## Open
 
-- The bot's Slack name: "Newsroom" today, or "newsReels" for one consistent name (a manifest change and a reinstall, which can go with item 1).
 - Who narrates the submission video.
