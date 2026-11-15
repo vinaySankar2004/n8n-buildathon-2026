@@ -4,7 +4,7 @@
 <text x="40" y="1052" font-size="12" fill="#667085">Grey line: the run goes on. Red dashed line: the error or "no" path. Drawn from 03_build/output/workflows/, the JSON deployed to n8n.</text>
 <rect x="40" y="74" width="540" height="240" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
 <text x="54" y="100" font-size="16" font-weight="700" fill="#4a3f12">0 Orchestrator</text>
-<text x="54" y="122" font-size="12" font-weight="400" fill="#4a3f12">Runs newsReels for one client, Rain City Ledger. Client holds its config;</text>
+<text x="54" y="122" font-size="12" font-weight="400" fill="#4a3f12">Runs NewsReels for one client, Rain City Ledger. Client holds its config;</text>
 <text x="54" y="138" font-size="12" font-weight="400" fill="#4a3f12">Data sources lists its datasets. 1 Collect runs once per dataset, 2 Score</text>
 <text x="54" y="154" font-size="12" font-weight="400" fill="#4a3f12">picks the week's strongest change, 2b Context adds recent reports from the</text>
 <text x="54" y="170" font-size="12" font-weight="400" fill="#4a3f12">client's news feeds, 3 Write drafts it, Save trace writes the run trace</text>

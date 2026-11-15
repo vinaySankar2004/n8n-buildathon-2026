@@ -1,4 +1,4 @@
-# newsReels pipeline
+# NewsReels pipeline
 
 The source for all ten n8n workflows, written by Arman and Vinayak with Claude Code and running end to end since the evening of 14 November. Each run serves one client (D13, D15), set in one file in [../clients/](../clients/): its name and look, Slack channels, data sources, news feeds and style card. The build puts that file into a "Client" node.
 

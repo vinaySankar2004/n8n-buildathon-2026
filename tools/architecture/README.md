@@ -1,6 +1,6 @@
 # Architecture page
 
-A live page showing every piece of newsReels, where it runs, who owns it, and its state right now.
+A live page showing every piece of NewsReels, where it runs, who owns it, and its state right now.
 
 ```bash
 npm run architecture

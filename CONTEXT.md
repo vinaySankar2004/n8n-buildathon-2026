@@ -1,8 +1,8 @@
-# newsReels
+# NewsReels
 
 Team workspace for LOOP, the UBC eProjects x n8n Buildathon, 14 and 15 November 2026. It takes one idea to a Devpost submission: a working n8n product, a demo video under three minutes, and this repository.
 
-Status, Saturday evening: newsReels runs end to end for its demo client, from its sources to a published post, with a review thread, Slack requests, a trace and a run ledger (D13 to D17). The spec is in `product/output/spec.md`; the build freezes Sunday 11:00.
+Status, Saturday evening: NewsReels runs end to end for its demo client, from its sources to a published post, with a review thread, Slack requests, a trace and a run ledger (D13 to D17). The spec is in `product/output/spec.md`; the build freezes Sunday 11:00.
 
 Read only the current stage, its declared inputs, and the configuration it names.
 

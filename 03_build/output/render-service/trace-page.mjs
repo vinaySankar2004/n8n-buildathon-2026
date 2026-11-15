@@ -72,20 +72,20 @@ export function tracePage(run, { prompt, editor, ledgerUrl }) {
   const status = published ? "Approved for publishing" : run.video_url ? "Video made, waiting for the editor" : "Script drafted, waiting for the editor";
   const out = [];
 
-  out.push(`<header><p class="kicker">${esc(client.name || "newsReels")} · ${editor ? "Run trace" : "How this story was made"}</p>`);
+  out.push(`<header><p class="kicker">${esc(client.name || "NewsReels")} · ${editor ? "Run trace" : "How this story was made"}</p>`);
   out.push(`<h1>${esc(spec.headline)}</h1>`);
   out.push(`<p>${editor ? `${esc(status)} · run started ${when(run.started_at)} · trace saved ${when(run.trace_saved_at)}` : (published ? `Published ${when(run.approved_at)}` : "Draft: an editor has not approved it yet")}</p></header>`);
 
-  if (editor && run.request) out.push(`<section><h2>The request</h2><p>${esc(run.request.user_name || `Slack user ${run.request.user}`)} asked newsReels: <em>"${esc(run.request.text)}"</em></p><p class="muted">Matched to ${esc(s.dataset)}${(run.request.matched?.categories || []).length ? `, ${esc(run.request.matched.categories.join("; "))}` : ""}${run.request.matched?.area ? `, ${esc(run.request.matched.area)}` : ""}, by ${esc(run.request.parse?.model)}.</p></section>`);
+  if (editor && run.request) out.push(`<section><h2>The request</h2><p>${esc(run.request.user_name || `Slack user ${run.request.user}`)} asked NewsReels: <em>"${esc(run.request.text)}"</em></p><p class="muted">Matched to ${esc(s.dataset)}${(run.request.matched?.categories || []).length ? `, ${esc(run.request.matched.categories.join("; "))}` : ""}${run.request.matched?.area ? `, ${esc(run.request.matched.area)}` : ""}, by ${esc(run.request.parse?.model)}.</p></section>`);
   out.push(`<section><h2>The story</h2><blockquote>${esc(spec.script)}</blockquote>`);
   if (run.video_url) out.push(`<p>${link(run.video_url, "Watch the video")}</p>`);
   out.push(`<p class="muted">${esc(run.blurb)}</p></section>`);
 
   if (!editor) {
     out.push(`<section><h2>How it was made</h2><ol class="steps">`);
-    out.push(`<li>newsReels checked the latest open data: ${esc(run.sources_checked || s.dataset)}.</li>`);
+    out.push(`<li>NewsReels checked the latest open data: ${esc(run.sources_checked || s.dataset)}.</li>`);
     out.push(run.request
-      ? `<li>Someone at ${esc(client.name || "the outlet")} asked for this story in Slack, and newsReels found it in the data: ${esc(s.this_week)} ${esc(s.unit)} this week against an average of ${esc(s.avg_prev_8_weeks)}.</li>`
+      ? `<li>Someone at ${esc(client.name || "the outlet")} asked for this story in Slack, and NewsReels found it in the data: ${esc(s.this_week)} ${esc(s.unit)} this week against an average of ${esc(s.avg_prev_8_weeks)}.</li>`
       : `<li>It compared each category's count this week with its average over the 8 weeks before, and picked the biggest change: ${esc(s.this_week)} ${esc(s.unit)} against ${esc(s.avg_prev_8_weeks)}.</li>`);
     if (usedIds.size) out.push(`<li>It added context from ${[...new Set((run.reports_used || []).map((r) => r.source))].map(esc).join(" and ")}.</li>`);
     out.push(`<li>An AI model (Claude, by Anthropic) wrote the script from those numbers only. A check confirmed every number before anything was recorded.</li>`);
@@ -138,7 +138,7 @@ export function tracePage(run, { prompt, editor, ledgerUrl }) {
     const history = run.chat?.history || [];
     if (history.length) {
       out.push(`<div class="scroll"><table><tr><th>Who</th><th>Said</th></tr>`);
-      for (const h of history) out.push(`<tr><td>${h.editor !== undefined ? "Editor" : "newsReels"}</td><td>${esc(h.editor ?? h.bot)}</td></tr>`);
+      for (const h of history) out.push(`<tr><td>${h.editor !== undefined ? "Editor" : "NewsReels"}</td><td>${esc(h.editor ?? h.bot)}</td></tr>`);
       out.push(`</table></div>`);
     } else out.push(`<p class="muted">No edits.</p>`);
     const approvals = run.approvals || [];
@@ -158,6 +158,6 @@ export function tracePage(run, { prompt, editor, ledgerUrl }) {
     out.push(`</table></div><p>Total: <strong>${usd(claudeTotal + (voice.usd || 0))}</strong>${voice.calls && voice.usd === null ? " plus ElevenLabs, whose price per credit was not available" : ""}. The ElevenLabs price per credit is the account's own: its next invoice divided by its monthly credits.</p></section>`);
   }
 
-  out.push(`<p class="muted" style="margin-top:24px">Made with newsReels, built in n8n for LOOP 2026. ${editor ? `This page is for the editor; the public page leaves out the prompts, messages and costs.${ledgerUrl ? ` Every run is in the <a href="${esc(ledgerUrl)}">run ledger</a>.` : ""}` : ""}</p>`);
+  out.push(`<p class="muted" style="margin-top:24px">Made with NewsReels, built in n8n for LOOP 2026. ${editor ? `This page is for the editor; the public page leaves out the prompts, messages and costs.${ledgerUrl ? ` Every run is in the <a href="${esc(ledgerUrl)}">run ledger</a>.` : ""}` : ""}</p>`);
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>${esc(editor ? "Run trace" : "How this story was made")}: ${esc(spec.headline)}</title><style>${STYLE}</style></head><body><main>${out.join("\n")}</main>${LOCAL_TIMES}</body></html>\n`;
 }

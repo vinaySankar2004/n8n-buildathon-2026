@@ -4,7 +4,7 @@ Agreed Saturday 14 November, evening, from the team's discussion and [Vinayak's 
 
 ## Product
 
-newsReels turns a newsroom's or creator's own sources, open data and news feeds, into short narrated news videos that their editor reviews in Slack (D13). Each client is one config file: name and look, Slack channels, data sources, news feeds and a style card (D15). The demo client is Rain City Ledger, a made-up Vancouver outlet.
+NewsReels turns a newsroom's or creator's own sources, open data and news feeds, into short narrated news videos that their editor reviews in Slack (D13). Each client is one config file: name and look, Slack channels, data sources, news feeds and a style card (D15). The demo client is Rain City Ledger, a made-up Vancouver outlet.
 
 ## Built and working live
 

@@ -1,8 +1,8 @@
 # Product discussion
 
-The working product today (D13 to D17): for Rain City Ledger it checks three Vancouver datasets and three news feeds, picks the week's biggest change and drafts a 20 second script. The editor reviews it in a Slack thread, script first and then the video, and replies change either one. Anyone in the editor channel can ask @Newsroom for a video or a number. Every run has a trace, a public "How this story was made" page and a ledger row with its cost.
+The working product today (D13 to D17): for Rain City Ledger it checks three Vancouver datasets and three news feeds, picks the week's biggest change and drafts a 20 second script. The editor reviews it in a Slack thread, script first and then the video, and replies change either one. Anyone in the editor channel can ask @NewsReels for a video or a number. Every run has a trace, a public "How this story was made" page and a ledger row with its cost.
 
-Settled (D13): the product is newsReels, a service that turns a client's own sources into short news videos. Clients are newsrooms and individual content creators; the demo client is Rain City Ledger, a made-up outlet. Do not ask about the name again.
+Settled (D13): the product is NewsReels, a service that turns a client's own sources into short news videos. Clients are newsrooms and individual content creators; the demo client is Rain City Ledger, a made-up outlet. Do not ask about the name again.
 
 Ask one question at a time. Offer two or three concrete options with a recommendation, push for specifics, and record the person's own words.
 

@@ -4,25 +4,25 @@ For the judges' table and the Devpost page. Short enough to say out loud. The qu
 
 ## One line
 
-newsReels turns a newsroom's or creator's own sources into short narrated news videos, and their editor approves each one in Slack.
+NewsReels turns a newsroom's or creator's own sources into short narrated news videos, and their editor approves each one in Slack.
 
 ## Twenty seconds
 
-Cities publish data every day, and small newsrooms have nobody to read it. newsReels checks a client's open data and news feeds, finds the week's real change, and drafts a 20 second video in their style. Today that is street flooding reports at 7.4 times their usual level, worst in Mount Pleasant, with Environment Canada's flooding statement as context. The editor reviews the script in Slack, asks for changes in plain words, approves the video, and every number links back to its source.
+Cities publish data every day, and small newsrooms have nobody to read it. NewsReels checks a client's open data and news feeds, finds the week's real change, and drafts a 20 second video in their style. Today that is street flooding reports at 7.4 times their usual level, worst in Mount Pleasant, with Environment Canada's flooding statement as context. The editor reviews the script in Slack, asks for changes in plain words, approves the video, and every number links back to its source.
 
 ## What problem does it solve, and for whom?
 
 Local news is disappearing: 613 local news outlets have closed in 391 Canadian communities since 2008, about half of them in places under 20,000 people ([Local News Research Project, via The Canadian Press, August 2026](https://www.ctvnews.ca/canada/article/ottawa-commissions-project-to-track-news-deserts-in-canada/)). The outlets that remain, and the solo creators filling the gap on social video, have the public data but no data desk and no video team. Vancouver's 3-1-1 data alone holds 1.33 million requests, refreshed daily.
 
-newsReels is for hyperlocal newsrooms, neighbourhood newsletters and solo news creators. It does the finding and drafting; the editor keeps the judgement.
+NewsReels is for hyperlocal newsrooms, neighbourhood newsletters and solo news creators. It does the finding and drafting; the editor keeps the judgement.
 
 ## What does it cost?
 
-A finished short video from a freelance editor typically costs $20 to $500, at $20 to $75 an hour (industry rate guides, 2026). A newsReels story costs about one cent of Claude plus a few hundred ElevenLabs credits, and the ledger shows the exact cost of every run. The fixed cost is a small server for n8n and the render service.
+A finished short video from a freelance editor typically costs $20 to $500, at $20 to $75 an hour (industry rate guides, 2026). A NewsReels story costs about one cent of Claude plus a few hundred ElevenLabs credits, and the ledger shows the exact cost of every run. The fixed cost is a small server for n8n and the render service.
 
 ## Who uses it?
 
-The client's editor, in a Slack thread: the script and the data behind it first, then the video. They can reply in plain words to change either, and anyone in the channel can ask "@Newsroom how many noise complaints this week?" or ask for a video on any topic in the data.
+The client's editor, in a Slack thread: the script and the data behind it first, then the video. They can reply in plain words to change either, and anyone in the channel can ask "@NewsReels how many noise complaints this week?" or ask for a video on any topic in the data.
 
 ## What does it do?
 

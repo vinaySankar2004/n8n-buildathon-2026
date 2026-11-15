@@ -1,11 +1,11 @@
-# Slack app for newsReels. The bot is called NewsReels in Slack. In Slack: api.slack.com/apps, Create New App, From a manifest,
+# Slack app for NewsReels. The bot is called NewsReels in Slack. In Slack: api.slack.com/apps, Create New App, From a manifest,
 # pick the n8n-buildathon workspace, paste this file, Create, then Install to Workspace.
 # The bot token it produces goes in .env as SLACK_BOT_TOKEN, never in git. On the host laptop, the
 # Signing Secret from the app's Basic Information page goes in .env as SLACK_SIGNING_SECRET.
 # After changing this file: paste it into the app's App Manifest page, save, then reinstall the app.
 display_information:
   name: NewsReels
-  description: "newsReels: drafts short news videos from your sources for your editor to review in a thread, and answers @NewsReels requests."
+  description: "NewsReels: drafts short news videos from your sources for your editor to review in a thread, and answers @NewsReels requests."
   background_color: "#173332"
 features:
   bot_user:

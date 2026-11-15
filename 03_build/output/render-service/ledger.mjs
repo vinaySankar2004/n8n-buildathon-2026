@@ -76,7 +76,7 @@ function ledgerPage(rows) {
     <td>${r.voice_credits ? `${r.voice_credits} credits<br>${usd(r.voice_usd)}` : "none"}</td>
     <td>${[r.trace_url && `<a href="${esc(r.trace_url)}">trace</a>`, r.story_url && `<a href="${esc(r.story_url)}">public page</a>`, r.video_url && `<a href="${esc(r.video_url)}">video</a>`].filter(Boolean).join("<br>")}</td>
   </tr>`).join("\n");
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>newsReels run ledger</title>
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>NewsReels run ledger</title>
 <style>
   :root { --bg: #f6f7f9; --card: #fff; --text: #1c2430; --muted: #5b6575; --line: #dde2ea; --accent: #b7791f; }
   @media (prefers-color-scheme: dark) { :root { --bg: #11161d; --card: #1a212b; --text: #eef1f5; --muted: #a3adbb; --line: #2c3542; --accent: #f2b33d; } }
@@ -94,7 +94,7 @@ function ledgerPage(rows) {
   .muted { color: var(--muted); }
   a { color: inherit; }
 </style></head><body><main>
-<p class="kicker">newsReels</p><h1>Run ledger</h1>
+<p class="kicker">NewsReels</p><h1>Run ledger</h1>
 <div class="stats">
   <div class="stat"><b>${rows.length}</b>runs</div>
   <div class="stat"><b>${published}</b>published</div>
@@ -104,7 +104,7 @@ function ledgerPage(rows) {
 <div class="scroll"><table><tr><th>Started</th><th>Who</th><th>What</th><th>Status</th><th>Claude</th><th>ElevenLabs</th><th>Links</th></tr>
 ${body}
 </table></div>
-<p class="muted">Every run newsReels makes, newest first: scheduled stories, Slack requests, quick answers and runs that found no story. Each row updates as its run moves on. Rendering runs on our own laptop and costs nothing.</p>
+<p class="muted">Every run NewsReels makes, newest first: scheduled stories, Slack requests, quick answers and runs that found no story. Each row updates as its run moves on. Rendering runs on our own laptop and costs nothing.</p>
 </main><script>document.querySelectorAll("time[datetime]").forEach((t) => { const d = new Date(t.dateTime); if (!isNaN(d)) t.textContent = d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }); });</script></body></html>
 `;
 }

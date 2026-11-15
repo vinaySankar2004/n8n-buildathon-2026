@@ -36,7 +36,7 @@ Run `npm run check` and fix what it reports; git and GitHub run it too. Commit a
 
 ## Writing
 
-The repository is public. Plain and specific: no em or en dashes, no hype, no filler. Never write keys, tokens, passwords, personal details or a single street address.
+The repository is public. Plain and specific: no em or en dashes, no hype, no filler. The product is spelled NewsReels. Never write keys, tokens, passwords, personal details or a single street address.
 
 ## Deadline
 

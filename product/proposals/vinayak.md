@@ -4,11 +4,11 @@ From conversations with Vinayak, Saturday 14 November, evening. His words where 
 
 ## Name
 
-newsReels, the team's choice (D13). It is a service, not an outlet: clients publish under their own names. The demo client is Rain City Ledger, a made-up outlet (D5); a web search found no outlet with that name.
+NewsReels, the team's choice (D13). It is a service, not an outlet: clients publish under their own names. The demo client is Rain City Ledger, a made-up outlet (D5); a web search found no outlet with that name.
 
 ## Who uses it
 
-"Newsrooms" and "individual content creators" who want short videos made from their own material. They are clients of the service; their editor approves each story but does not own newsReels. Each client gives us their input sources, and we tune how the script is written "so that it's optimized for the way they want it". The rest of the pipeline stays the same for every client.
+"Newsrooms" and "individual content creators" who want short videos made from their own material. They are clients of the service; their editor approves each story but does not own NewsReels. Each client gives us their input sources, and we tune how the script is written "so that it's optimized for the way they want it". The rest of the pipeline stays the same for every client.
 
 He wants it kept simple: "we don't want to overcomplicate it" or over-engineer.
 
@@ -75,7 +75,7 @@ Claude: n8n's run history already holds the raw steps; the trace turns it into s
 
 ## Next three hours
 
-"Client config first": the config file, the style card and the news feeds, because that is what makes the pipeline newsReels. Then the run trace, which he wants as the pitch's point about trust. Built Saturday evening (D15).
+"Client config first": the config file, the style card and the news feeds, because that is what makes the pipeline NewsReels. Then the run trace, which he wants as the pitch's point about trust. Built Saturday evening (D15).
 
 ## Anything else
 

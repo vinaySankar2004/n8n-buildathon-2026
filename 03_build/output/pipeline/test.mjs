@@ -207,7 +207,7 @@ const ledgerRow = entryFrom(ledgerRun);
 check(ledgerRow.trigger === "Slack request" && ledgerRow.requested_by === "U1" && ledgerRow.voice_credits === 260 && Math.abs(ledgerRow.voice_usd - 0.0572) < 1e-6 && ledgerRow.claude_usd > 0,
   `Ledger row: ${ledgerRow.trigger} by ${ledgerRow.requested_by}, Claude $${ledgerRow.claude_usd.toFixed(5)}, ElevenLabs ${ledgerRow.voice_credits} credits $${ledgerRow.voice_usd.toFixed(4)}`);
 const tracePageHtml = tracePage(ledgerRun, { editor: true, ledgerUrl: "https://example.test/ledger.html" });
-check(tracePageHtml.includes("asked newsReels") && tracePageHtml.includes("260 credits") && tracePageHtml.includes("run ledger"), "Trace page shows who asked, the ElevenLabs credits and the ledger link");
+check(tracePageHtml.includes("asked NewsReels") && tracePageHtml.includes("260 credits") && tracePageHtml.includes("run ledger"), "Trace page shows who asked, the ElevenLabs credits and the ledger link");
 
 console.log(failures ? `\n${failures} check(s) failed.` : "\nAll checks passed.");
 process.exit(failures ? 1 : 0);
