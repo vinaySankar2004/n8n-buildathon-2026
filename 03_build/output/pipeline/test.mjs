@@ -167,7 +167,7 @@ const noMention = await run(codeOf(chat, "Read Slack event"), mention("make a vi
 check(noMention.length === 0, "Read Slack event ignores a new message that does not mention the bot");
 
 const requestWf = wf("8-request.json");
-const [menu] = await run(codeOf(requestWf, "Menu"), [], { Input: [reqEv], "1 Collect": collected });
+const [menu] = await run(codeOf(requestWf, "Menu"), [], { Input: [reqEv], "1 Collect": collected, Client: [clientCfg] });
 const m311 = menu.menu.find((x) => x.source_id === "311");
 const graffiti = m311?.categories.find((c) => /graffiti/i.test(c));
 check(menu.ok && graffiti && m311.areas.includes("Mount Pleasant"), `Menu lists each source's categories and neighbourhoods (3-1-1: ${m311?.categories.length} categories, ${m311?.areas.length} neighbourhoods), such as "${graffiti}"`);
@@ -194,6 +194,22 @@ const reqModel = { content: [{ type: "text", text: JSON.stringify({
 }) }] };
 const [reqWritten] = await run(codeOf(write, "Build spec and check numbers"), [reqModel], { Input: [{ ...reqStory, test_tamper: false }] });
 check(reqWritten.ok && reqWritten.spec.chart.data.length === 6, `Write takes a requested story (${rs.direction}, callout ${reqWritten.spec?.callout.value})${reqWritten.ok ? "" : ": " + reqWritten.reason}`);
+
+// A time series from Statistics Canada: Vancouver's unemployment rate over 5 years, live.
+const unemp = menu.menu.find((x) => x.kind === "series");
+const [seriesPlan] = await planWith({ kind: "video", source_id: unemp?.source_id, categories: [], topic: "unemployment", area: null, months: 60 });
+check(seriesPlan.ok && seriesPlan.series?.vector && seriesPlan.months === 60, `Plan picks the unemployment series for 60 months: ${seriesPlan.series?.label}`);
+const statcan = await (await fetch("https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestNPeriods", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify([{ vectorId: seriesPlan.series.vector, latestN: 60 }]) })).json();
+const [seriesRun] = await run(codeOf(requestWf, "Series story"), [statcan], { Plan: [seriesPlan], Client: [clientCfg] });
+check(seriesRun.ok && seriesRun.story.values.length === 60 && seriesRun.story.points.length <= 9 && seriesRun.story.points.at(-1).value === seriesRun.story.latest_value, `Series story: ${seriesRun.answer_line}`);
+const ss = seriesRun.story;
+const seriesModel = { content: [{ type: "text", text: JSON.stringify({
+  headline: "Vancouver unemployment over five years",
+  script: `Vancouver's unemployment rate was ${ss.latest_value} percent in ${ss.latest_month}, against ${ss.first_value} percent in ${ss.first_month}. It peaked at ${ss.high_value} percent in ${ss.high_month}. A year earlier it was ${ss.year_ago_value} percent.`,
+  callout_label: `unemployment rate, ${ss.latest_month}`, chart_title: "Unemployment rate, last 5 years", blurb: `Vancouver's unemployment rate was ${ss.latest_value} percent in ${ss.latest_month}.`, reports_used: [],
+}) }] };
+const [seriesWritten] = await run(codeOf(write, "Build spec and check numbers"), [seriesModel], { Input: [{ ...seriesRun, test_tamper: false }] });
+check(seriesWritten.ok && seriesWritten.spec.chart.order === "time" && seriesWritten.spec.callout.value === `${ss.latest_value}%`, `Write takes the series story: big number ${seriesWritten.spec?.callout.value}${seriesWritten.ok ? "" : ", " + seriesWritten.reason}`);
 
 // Costs: ElevenLabs credits at the account's own price, and the ledger row.
 const voiceWf = wf("4-voice.json");

@@ -609,6 +609,16 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
     }, { maxTries: 2, onError: "continueRegularOutput", ...creds("anthropicApi", "Anthropic") }),
     codeNode("Plan", [1760, 100], "request-plan.js"),
     ifOk("Understood?", [1980, 100]),
+    ifOk("Series?", [2090, -300], "={{ !!$json.series }}"),
+    http("Fetch series", [2310, -420], {
+      method: "POST",
+      url: "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestNPeriods",
+      sendBody: true,
+      specifyBody: "json",
+      jsonBody: "={{ JSON.stringify([{ vectorId: $json.series.vector, latestN: $json.months }]) }}",
+      options: { timeout: 20000 },
+    }, { maxTries: 2, onError: "continueRegularOutput" }),
+    codeNode("Series story", [2530, -420], "series-story.js"),
     ifOk("Neighbourhood?", [2200, 0], "={{ !!$json.filtered }}"),
     node("Neighbourhood source", "n8n-nodes-base.code", 2, [2420, -120], { jsCode: "// The source with a filter for the one neighbourhood asked about, for 1 Collect.\nreturn [{ json: $json.filtered }];\n" }),
     { ...execWf("Collect neighbourhood", [2640, -120], "1 Collect"), onError: "continueRegularOutput" },
@@ -616,7 +626,7 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
     ifOk("Story ok?", [3080, 0]),
     ifOk("Answer only?", [3300, 0], "={{ $json.kind === 'answer' }}"),
     postSlack("Post answer", [3520, -120], thread("$json.answer + '\\n_Want a video? Ask \"@NewsReels make a video about\" the same thing._'", "$json.request.ts")),
-    logLedger("Log answer", [3740, -120], "{ status: 'Answered in Slack', run: $('Requested story').first().json }"),
+    logLedger("Log answer", [3740, -120], "{ status: 'Answered in Slack', run: $('Story ok?').first().json }"),
     execWf("2b Context", [3520, 100], "2b Context"),
     execWf("3 Write", [3740, 100], "3 Write"),
     ifOk("Numbers check out?", [3960, 100]),
@@ -624,11 +634,11 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
     codeNode("Add trace link", [4400, 100], "trace-link.js"),
     // Through 7 Chat's webhook, not Execute Workflow: n8n will not switch on two workflows that call each other.
     http("Start review", [4620, 100], { method: "POST", url: "http://127.0.0.1:5678/webhook/step-chat", sendBody: true, specifyBody: "json", jsonBody: "={{ JSON.stringify($json) }}", options: { timeout: 60000 } }, { onError: "continueRegularOutput" }),
-    postSlack("Say it stopped", [4180, 320], thread("'I could not write that one: ' + ($json.reason || 'a step failed') + ' Try asking another way.'", "$('Requested story').first().json.request.ts")),
-    logLedger("Log stopped", [4400, 320], "{ status: 'Stopped: ' + ($('3 Write').first().json.reason || $('3 Write').first().json.error?.message || 'a step failed'), run: $('Requested story').first().json }"),
+    postSlack("Say it stopped", [4180, 320], thread("'I could not write that one: ' + ($json.reason || 'a step failed') + ' Try asking another way.'", "$('Story ok?').first().json.request.ts")),
+    logLedger("Log stopped", [4400, 320], "{ status: 'Stopped: ' + ($('3 Write').first().json.reason || $('3 Write').first().json.error?.message || 'a step failed'), run: $('Story ok?').first().json }"),
     postSlack("Ask again", [2200, 380], thread("$json.reply", "$json.request.ts")),
-    logLedger("Log not understood", [2420, 380], "{ status: 'Not understood; asked again', run: { request: $('Plan').first().json.request, run_id: 'request-' + $('Input').first().json.ts, client: { name: $('Client').first().json.name }, reason: $('Plan').first().json.ok === false ? $('Plan').first().json.reply : $('Requested story').first().json.reply } }"),
-    sticky("About Request", [-40, -460], "## 8 Request\nAnyone in the editor channel can write \"@NewsReels make a video about graffiti in Mount Pleasant\" or ask \"@NewsReels how many noise complaints this week?\". **7 Chat** hands the message here.\n\n**Collect** gets every data source; **Read request** (Claude Haiku) matches the ask to a real category and neighbourhood; **Plan** checks the match. A neighbourhood gets its own 9 weeks of data. **Requested story** builds the story and a one-line answer from the numbers.\n\nA question gets the answer in the thread. A video request runs Context and Write, then **Start review** opens the usual review in the same thread through 7 Chat's webhook. Every outcome goes to the run ledger.", 400, 560),
+    logLedger("Log not understood", [2420, 380], "{ status: 'Not understood; asked again', run: { request: $('Plan').first().json.request, run_id: 'request-' + $('Input').first().json.ts, client: { name: $('Client').first().json.name }, reason: $('Plan').first().json.ok === false ? $('Plan').first().json.reply : $('Story ok?').first().json.reply } }"),
+    sticky("About Request", [-40, -460], "## 8 Request\nAnyone in the editor channel can write \"@NewsReels make a video about graffiti in Mount Pleasant\" or ask \"@NewsReels how many noise complaints this week?\". **7 Chat** hands the message here.\n\n**Collect** gets every data source; **Read request** (Claude Haiku) matches the ask to a real category and neighbourhood; **Plan** checks the match. A neighbourhood gets its own 9 weeks of data. **Requested story** builds the story and a one-line answer from the numbers. A time series, such as the unemployment rate, comes from Statistics Canada (**Fetch series**, **Series story**).\n\nA question gets the answer in the thread. A video request runs Context and Write, then **Start review** opens the usual review in the same thread through 7 Chat's webhook. Every outcome goes to the run ledger.", 400, 560),
   ];
   const c = {};
   link(c, "When Executed by Another Workflow", [["Input"]]);
@@ -642,7 +652,10 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
   link(c, "Menu", [["Read request"]]);
   link(c, "Read request", [["Plan"]]);
   link(c, "Plan", [["Understood?"]]);
-  link(c, "Understood?", [["Neighbourhood?"], ["Ask again"]]);
+  link(c, "Understood?", [["Series?"], ["Ask again"]]);
+  link(c, "Series?", [["Fetch series"], ["Neighbourhood?"]]);
+  link(c, "Fetch series", [["Series story"]]);
+  link(c, "Series story", [["Story ok?"]]);
   link(c, "Neighbourhood?", [["Neighbourhood source"], ["Requested story"]]);
   link(c, "Neighbourhood source", [["Collect neighbourhood"]]);
   link(c, "Collect neighbourhood", [["Requested story"]]);

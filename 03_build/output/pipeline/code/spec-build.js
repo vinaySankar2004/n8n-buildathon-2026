@@ -33,10 +33,11 @@ function buildSpec(story, d, ctx = {}) {
   const ids = Array.isArray(d.reports_used) ? d.reports_used.map(String) : [];
   const used = (ctx.reports || []).filter((r) => ids.includes(r.id));
   const hasAreas = (story.by_area || []).length > 0;
-  const chartKind = d.chart_kind === "weekly" || !hasAreas ? "weekly" : d.chart_kind === "by_area" ? "by_area" : story.chart_kind;
+  const chartKind = story.chart_kind === "series" ? "series" : d.chart_kind === "weekly" || !hasAreas ? "weekly" : d.chart_kind === "by_area" ? "by_area" : story.chart_kind;
   // A drop shows its percentage; anything else its ratio, or the plain count when there is no history.
   const callout = {
-    value: story.direction === "down" ? `${Math.abs(story.pct_change)}%` : story.ratio ? `${story.ratio}×` : String(story.this_week),
+    value: story.kind === "series" ? `${story.latest_value}${story.unit || ""}`
+      : story.direction === "down" ? `${Math.abs(story.pct_change)}%` : story.ratio ? `${story.ratio}×` : String(story.this_week),
     label: d.callout_label,
   };
   // How the chart looks, which an editor can change from the thread: bar, line or pie; one item in
@@ -49,10 +50,12 @@ function buildSpec(story, d, ctx = {}) {
     callout,
     chart: {
       kind: style,
-      order: chartKind === "weekly" ? "time" : "value",
+      order: chartKind === "weekly" || chartKind === "series" ? "time" : "value",
       highlight: d.highlight || null,
       title: d.chart_title,
-      data: chartKind === "weekly"
+      data: chartKind === "series"
+        ? story.points.map((p) => ({ label: p.label, value: p.value }))
+        : chartKind === "weekly"
         ? story.weekly.slice(-6).map((w) => ({ label: new Date(w.week_ending + "T12:00:00Z").toLocaleDateString("en-CA", { month: "short", day: "numeric", timeZone: "UTC" }), value: w.count }))
         : story.by_area.slice(0, 6).map((a) => ({ label: a.area, value: a.count })),
       source_note: [story.source_note, ...new Set(used.map((r) => r.source))].join("; "),

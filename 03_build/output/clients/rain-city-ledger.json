@@ -57,6 +57,18 @@
       "filter": ""
     }
   ],
+  "series_sources": [
+    {
+      "_note": "Monthly time series from Statistics Canada's Web Data Service, for Slack requests such as \"show unemployment over the last 5 years\".",
+      "id": "unemployment",
+      "label": "Vancouver unemployment rate",
+      "topic": "Unemployment rate",
+      "vector": 1643280790,
+      "unit": "%",
+      "source_note": "Statistics Canada, Labour Force Survey, table 14-10-0459-01 (three-month moving average, seasonally adjusted)",
+      "source_url": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410045901"
+    }
+  ],
   "news_feeds": [
     {
       "id": "bc-gov-news",
@@ -83,15 +95,28 @@
   "web_search": {
     "_note": "For a story someone asks for in Slack, 2b Context searches the web for recent reporting on it. Each source is kept with the words it was quoted for, shown to the editor and listed in the trace.",
     "enabled": true,
-    "location": { "city": "Vancouver", "region": "British Columbia", "country": "CA", "timezone": "America/Vancouver" },
+    "location": {
+      "city": "Vancouver",
+      "region": "British Columbia",
+      "country": "CA",
+      "timezone": "America/Vancouver"
+    },
     "max_searches": 3,
     "max_sources": 6
   },
   "style": {
     "audience": "Vancouver residents who follow local news on their phones",
     "tone": "Plain, calm and specific, like a local radio newsreader",
-    "script_words": { "min": 35, "max": 45 },
-    "avoid": ["hype", "exclamation marks", "guessing at causes", "addresses, streets or people"],
+    "script_words": {
+      "min": 35,
+      "max": 45
+    },
+    "avoid": [
+      "hype",
+      "exclamation marks",
+      "guessing at causes",
+      "addresses, streets or people"
+    ],
     "samples": [
       "Vancouver logged 218 street flooding reports this week, against a usual 29.3 a week. Mount Pleasant had the most, with 33. The city data does not say why."
     ]

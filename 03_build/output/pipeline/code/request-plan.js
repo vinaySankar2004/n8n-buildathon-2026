@@ -21,6 +21,13 @@ const example = `Try "@NewsReels make a video about graffiti in Mount Pleasant" 
 if (a.kind === "unclear" || !src) {
   return [{ json: { ok: false, kind: "unclear", request, reply: a.reply || `I could not match that to the data. ${example}` } }];
 }
+const kindOf = a.kind === "answer" ? "answer" : "video";
+// A time series (such as the unemployment rate) is fetched from Statistics Canada, not collected.
+if (src.kind === "series") {
+  const series = (client.series_sources || []).find((s) => s.id === src.source_id);
+  const months = Math.min(Math.max(Math.round(Number(a.months) || 24), 6), 120);
+  return [{ json: { ok: true, kind: kindOf, request: { ...request, kind: kindOf }, source_id: src.source_id, series, months, categories: [], topic: series.topic, area: null, filtered: null } }];
+}
 const categories = [].concat(a.categories ?? a.category ?? []).filter(Boolean);
 if (categories.some((c) => !src.categories.includes(c))) {
   return [{ json: { ok: false, kind: "unclear", request, reply: `I could not find that in ${src.label}. ${example}` } }];

@@ -10,6 +10,10 @@ const menu = collected.map((c) => ({
   categories: [...c.types].sort((a, b) => total(b) - total(a)).map((t) => t.type),
   areas: [...new Set(c.types.flatMap((t) => t.by_area.map((a) => a.area)))].sort(),
 }));
+// Time series (such as the unemployment rate) are listed too; Plan fetches them on demand.
+for (const s of $("Client").first().json.series_sources || []) {
+  menu.push({ source_id: s.id, label: s.label, unit: s.unit, kind: "series", categories: [s.topic], areas: [] });
+}
 if (!menu.length) return [{ json: { ok: false, menu, reason: "None of the data sources answered." } }];
 return [{ json: {
   ok: true,

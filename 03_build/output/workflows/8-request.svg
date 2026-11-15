@@ -2,7 +2,7 @@
 <rect x="0" y="0" width="4936" height="1052" fill="#f6f7f9"/>
 <text x="40" y="44" font-size="20" font-weight="700" fill="#1c2430">8 Request</text>
 <text x="40" y="1032" font-size="12" fill="#667085">Grey line: the run goes on. Red dashed line: the error or "no" path. Drawn from 03_build/output/workflows/, the JSON deployed to n8n.</text>
-<rect x="40" y="74" width="560" height="240" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
+<rect x="40" y="74" width="560" height="256" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
 <text x="54" y="100" font-size="16" font-weight="700" fill="#4a3f12">8 Request</text>
 <text x="54" y="122" font-size="12" font-weight="400" fill="#4a3f12">Anyone in the editor channel can write &quot;@NewsReels make a video about graffiti</text>
 <text x="54" y="138" font-size="12" font-weight="400" fill="#4a3f12">in Mount Pleasant&quot; or ask &quot;@NewsReels how many noise complaints this week?&quot;. 7</text>
@@ -11,11 +11,12 @@
 <text x="54" y="186" font-size="12" font-weight="400" fill="#4a3f12">Collect gets every data source; Read request (Claude Haiku) matches the ask to a</text>
 <text x="54" y="202" font-size="12" font-weight="400" fill="#4a3f12">real category and neighbourhood; Plan checks the match. A neighbourhood gets its</text>
 <text x="54" y="218" font-size="12" font-weight="400" fill="#4a3f12">own 9 weeks of data. Requested story builds the story and a one-line answer from</text>
-<text x="54" y="234" font-size="12" font-weight="400" fill="#4a3f12">the numbers.</text>
-<text x="54" y="250" font-size="12" font-weight="400" fill="#4a3f12"></text>
-<text x="54" y="266" font-size="12" font-weight="400" fill="#4a3f12">A question gets the answer in the thread. A video request runs Context and</text>
-<text x="54" y="282" font-size="12" font-weight="400" fill="#4a3f12">Write, then Start review opens the usual review in the same thread through 7</text>
-<text x="54" y="298" font-size="12" font-weight="400" fill="#4a3f12">Chat's webhook. Every outcome goes to the run ledger.</text>
+<text x="54" y="234" font-size="12" font-weight="400" fill="#4a3f12">the numbers. A time series, such as the unemployment rate, comes from Statistics</text>
+<text x="54" y="250" font-size="12" font-weight="400" fill="#4a3f12">Canada (Fetch series, Series story).</text>
+<text x="54" y="266" font-size="12" font-weight="400" fill="#4a3f12"></text>
+<text x="54" y="282" font-size="12" font-weight="400" fill="#4a3f12">A question gets the answer in the thread. A video request runs Context and</text>
+<text x="54" y="298" font-size="12" font-weight="400" fill="#4a3f12">Write, then Start review opens the usual review in the same thread through 7</text>
+<text x="54" y="314" font-size="12" font-weight="400" fill="#4a3f12">Chat's webhook. Every outcome goes to the run ledger.</text>
 <path d="M276,571 C398,571 398,671 520,671" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M496,771 C536,771 480,671 520,671" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M716,671 C756,671 700,451 740,451" fill="none" stroke="#7d8796" stroke-width="2" />
@@ -27,8 +28,12 @@
 <path d="M1596,671 C1636,671 1580,671 1620,671" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M1816,671 C1856,671 1800,671 1840,671" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M2036,671 C2076,671 2020,671 2060,671" fill="none" stroke="#7d8796" stroke-width="2" />
-<path d="M2256,656 C2296,656 2240,571 2280,571" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M2256,656 C2316,656 2110,271 2170,271" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M2256,686 C2296,686 2240,951 2280,951" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M2366,256 C2406,256 2350,151 2390,151" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M2366,286 C2426,286 2220,571 2280,571" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M2586,151 C2626,151 2570,151 2610,151" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M2806,151 C2983,151 2983,571 3160,571" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M2476,556 C2516,556 2460,451 2500,451" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M2476,586 C2708,586 2708,571 2940,571" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
 <path d="M2696,451 C2736,451 2680,451 2720,451" fill="none" stroke="#7d8796" stroke-width="2" />
@@ -102,6 +107,18 @@
 <rect x="2060" y="634" width="7" height="74" rx="3" fill="#2c9a4b"/>
 <text x="2078" y="658" font-size="13.5" font-weight="700" fill="#1c2430">Understood?</text>
 <text x="2078" y="696" font-size="11" fill="#667085">If</text>
+<rect x="2170" y="234" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="2170" y="234" width="7" height="74" rx="3" fill="#2c9a4b"/>
+<text x="2188" y="258" font-size="13.5" font-weight="700" fill="#1c2430">Series?</text>
+<text x="2188" y="296" font-size="11" fill="#667085">If</text>
+<rect x="2390" y="114" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="2390" y="114" width="7" height="74" rx="3" fill="#0f8bd8"/>
+<text x="2408" y="138" font-size="13.5" font-weight="700" fill="#1c2430">Fetch series</text>
+<text x="2408" y="176" font-size="11" fill="#667085">HTTP Request</text>
+<rect x="2610" y="114" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="2610" y="114" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="2628" y="138" font-size="13.5" font-weight="700" fill="#1c2430">Series story</text>
+<text x="2628" y="176" font-size="11" fill="#667085">Code</text>
 <rect x="2280" y="534" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
 <rect x="2280" y="534" width="7" height="74" rx="3" fill="#2c9a4b"/>
 <text x="2298" y="558" font-size="13.5" font-weight="700" fill="#1c2430">Neighbourhood?</text>
