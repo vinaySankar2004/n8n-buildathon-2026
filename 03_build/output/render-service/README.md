@@ -38,7 +38,9 @@ Preview the composition in Remotion Studio with `npm run dev`.
 }
 ```
 
-The response is `{ "video_url", "duration_s", "render_seconds" }`. The video lasts as long as the audio plus 0.8 seconds, or `duration_s` without audio. `callout` is optional; without it the top chart value is shown. The chart shows the six largest values. Renders run one at a time.
+The response is `{ "video_url", "duration_s", "render_seconds" }`. The video lasts as long as the audio plus 0.8 seconds, or `duration_s` without audio. `callout` is optional; without it the top chart value is shown. `brand` (`name`, `desk`, `accent`) puts the client's name and colour on the video. The chart shows the six largest values. Renders run one at a time.
+
+`POST /trace` with the same header and `{ "run": …, "prompt": "Write's system prompt" }` saves the run trace as two pages in `files/` ([trace-page.mjs](trace-page.mjs)): `trace-<id>.html` for the editor (sources, ranking, news offered, what Claude was asked and answered, where each number came from, edits, approvals, cost) and `story-<id>.html`, the public "How this story was made" page without prompts, messages or costs. It returns `{ "trace_id", "trace_url", "story_url" }`. A run that already has a `trace_id` overwrites its own pages, so the links stay the same.
 
 ## Made with
 

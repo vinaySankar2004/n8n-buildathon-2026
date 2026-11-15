@@ -6,6 +6,7 @@ if (!run.spec || !run.story) throw new Error("Start review needs a run from 3 Wr
 const blocks = [
   section("*New story for review.* Nothing is recorded or published until you approve."),
   ...scriptBlocks(run),
+  ...(run.trace_url ? [context(`<${run.trace_url}|Open the run trace>: every source, the ranking, the news offered, what Claude was asked and answered, where each number came from, and the cost.`)] : []),
   context(HOW_TO_REPLY),
   scriptButtons(),
 ];

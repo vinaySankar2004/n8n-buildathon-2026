@@ -9,6 +9,7 @@ import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { tracePage } from "./trace-page.mjs";
 
 const run = promisify(execFile);
 const root = path.dirname(fileURLToPath(import.meta.url));
@@ -117,6 +118,23 @@ app.post("/render", async (req, res) => {
     console.error(err);
     res.status(500).json({ error: String(err?.message ?? err) });
   }
+});
+
+// Run trace: n8n posts the run (and Write's prompt) after Write and again on publish. Both pages are
+// saved under one id, so the links stay the same while the run moves on.
+app.post("/trace", async (req, res) => {
+  if (!tokenOk(req.get("x-render-token"))) return res.status(401).json({ error: "bad token" });
+  const { run, prompt } = req.body ?? {};
+  if (!run?.story || !run?.spec) return res.status(400).json({ error: "run needs story and spec" });
+  const id = /^[0-9a-f-]{36}$/.test(String(run.trace_id)) ? run.trace_id : randomUUID();
+  const saved = { ...run, trace_saved_at: new Date().toISOString() };
+  try {
+    await writeFile(path.join(FILES, `trace-${id}.html`), tracePage(saved, { prompt, editor: true }));
+    await writeFile(path.join(FILES, `story-${id}.html`), tracePage(saved, { editor: false }));
+  } catch (err) {
+    return res.status(500).json({ error: String(err?.message ?? err) });
+  }
+  res.json({ trace_id: id, trace_url: `${PUBLIC_BASE_URL}/files/trace-${id}.html`, story_url: `${PUBLIC_BASE_URL}/files/story-${id}.html` });
 });
 
 app.listen(PORT, () => console.log(`Render service on http://localhost:${PORT}`));

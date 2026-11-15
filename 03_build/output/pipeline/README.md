@@ -18,6 +18,10 @@ The source for all nine workflows. Written 2026-11-14 by Arman and Vinayak with 
 | 6 Publish | Posts an approved video to the outlet channel with the newsletter blurb |
 | 7 Chat | The editor's review in one Slack thread per story: script and data first, then the video. Replies change either one; Claude revises and the guard checks every number (D14) |
 
+## Run trace
+
+Every run gets two pages, saved by the render service ([trace-page.mjs](../render-service/trace-page.mjs)). The orchestrator saves them after Write, and the review card in Slack links the editor page: every source checked, how the story was ranked, the news offered and used, what Claude was asked and answered, where each number came from, the edits, approvals and cost. 6 Publish saves them again with the voice, video and approvals, and the outlet post links the public "How this story was made" page, which leaves out prompts, messages and costs.
+
 ## See the workflows
 
 On our self-hosted n8n, a member account sees only the workflows it made (sharing is a paid n8n feature), so `npm run pipeline` draws each canvas from the same JSON it deploys. These pictures are always current. Vinayak, as owner, can also show the live editor on the host laptop.

@@ -16,6 +16,7 @@ Every step the storyboard shows, in order. Each one is the build scope and has a
 | 10 | **Quiet.** If the city API fails or no change passes the bar, the editor gets a short "no story today" note in Slack instead of a video | B7 | Pointing Collect at a dead URL produces the note, not an error | |
 | 11 | **Client.** The video and messages carry the client's name and style from its config file (D15) | B5 | The video shows "Rain City Ledger", not "[Outlet]" | Vinayak |
 | 12 | **Context.** Write adds one sentence from a related news report and names it on screen and in the blurb; a feed that fails does not stop the run | B5 | `npm run test:pipeline` passes the Context and report-guard checks | Vinayak |
+| 13 | **Trace.** The review card links a run trace that follows every number to its source and shows the cost; the outlet post links a public "How this story was made" page | B7 | Open the trace from the card and find 218 traced to the 3-1-1 data | Vinayak |
 
 ## Contracts between workflows
 

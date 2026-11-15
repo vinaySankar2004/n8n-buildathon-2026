@@ -3,7 +3,8 @@
 // render spec, builds the chart from the story itself, and lists every problem the guard finds
 // (must-work row 9). A number may come from the story or from a news report the draft says it used.
 // `ctx` is the run's client (name, look, style card) and its recent reports.
-const numbersIn = (text) => (String(text).match(/\d[\d,]*(?:\.\d+)?/g) || []).map((m) => Number(m.replace(/,/g, "")));
+// "3-1-1" is a name, not three numbers.
+const numbersIn = (text) => (String(text).replace(/\b3-1-1\b/g, " ").match(/\d[\d,]*(?:\.\d+)?/g) || []).map((m) => Number(m.replace(/,/g, "")));
 
 // Where each allowed number comes from, most specific place first. The trace shows these.
 function numberOrigins(story, used = []) {

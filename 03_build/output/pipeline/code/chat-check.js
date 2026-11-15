@@ -3,7 +3,9 @@
 // In the video stage, a change to anything on screen or in the script remakes the video.
 const base = $("Decide").first().json;
 const res = $input.first().json;
-const { chat, ...run } = base;
+const { chat, ...prev } = base;
+// Every revision call is kept for the run's trace: what the editor asked, the model and the tokens.
+const run = { ...prev, revisions: [...(prev.revisions || []), { at: new Date().toISOString(), editor: chat.text, model: res.model ?? null, usage: res.usage ?? null }] };
 const raw = String(res.content?.find((c) => c.type === "text")?.text ?? "");
 const history = [...chat.history, { editor: chat.text }];
 const threadTs = chat.thread_ts;

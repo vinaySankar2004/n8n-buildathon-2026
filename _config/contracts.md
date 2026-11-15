@@ -106,16 +106,17 @@ Score gets every `collected` and returns `{ "ok": true, "story": …, "runners_u
 
 | After | Adds |
 | --- | --- |
-| Run options | `client` (the client file without `data_sources`), `test_tamper` |
+| Run options | `client` (the client file without `data_sources`), `started_at`, `test_tamper` |
 | Context | `reports` (up to 12, newest first: `{ "id": "r1", "source", "feed", "title", "summary", "url", "published" }`), `feeds_checked` (`{ "feed", "ok", "items", "recent" }` or `{ "feed", "ok": false, "reason" }`) |
 | Write | `spec`, `blurb`, `script_words`, `chart_kind` (`by_area` or `weekly`, which the editor can change), `reports_used` (the reports the script cites), `write` (`model`, `usage`, `stop_reason`, `answer`, `number_checks`: `{ "field", "number", "from" }` for every number) |
+| Add trace link | `trace_id`, `trace_url` (editor page), `story_page_url` (public page), all null if the save failed |
 | Voice | `audio_base64`, `audio_seconds` |
 | Render | `video_url`, `video_seconds`, `render_seconds` (and drops `audio_base64`) |
 | Publish | `published: true` |
 
-Inside 7 Chat the run also carries `chat`: `{ "thread_ts", "stage", "history", "user", "text" }`. Voice and Render pass it through untouched.
+Inside 7 Chat the run also carries `chat`: `{ "thread_ts", "stage", "history", "user", "text" }`. Voice and Render pass it through untouched. For the trace, 7 Chat adds `revisions` (`{ "at", "editor", "model", "usage" }` per Claude call) and `approvals` (`{ "action": "approve_script" | "approve_video" | "reject", "user", "at" }`), and Publish adds `approved_at` when it saves the final trace.
 
-Render service: `POST /render` with `{ "spec": …, "audio_base64": … }` or `{ "spec": …, "audio_url": … }` returns `{ "video_url", "duration_s", "render_seconds" }`.
+Render service: `POST /render` with `{ "spec": …, "audio_base64": … }` or `{ "spec": …, "audio_url": … }` returns `{ "video_url", "duration_s", "render_seconds" }`. `POST /trace` with `{ "run": …, "prompt": … }` returns `{ "trace_id", "trace_url", "story_url" }`.
 
 ## 7 Chat
 

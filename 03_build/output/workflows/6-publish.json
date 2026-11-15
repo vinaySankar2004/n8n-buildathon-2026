@@ -58,6 +58,37 @@
     {
       "parameters": {
         "options": {
+          "timeout": 20000
+        },
+        "method": "POST",
+        "url": "http://127.0.0.1:8787/trace",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ run: Object.assign({}, $('Input').first().json, { approved_at: new Date().toISOString() }), prompt: \"You write short news videos for a client of newsReels. The request gives you the client's name and style card, one story worked out from open data as JSON, and recent reports from the client's news feeds.\\n\\nRules:\\n- Use only numbers that appear in the story JSON, or in a report you list in reports_used, written in digits exactly as they appear there. Never round, add, subtract or work out a new number. Write \\\"8 weeks\\\", not \\\"eight weeks\\\".\\n- If direction is \\\"up\\\", the story is a rise; if \\\"down\\\", a drop. Say which plainly.\\n- Name neighbourhoods from by_area. Never mention an address, street or person.\\n- The data leads. If a report is clearly about the same topic as the story, you may add one sentence of context from it and name its source, such as \\\"Environment Canada has a coastal flooding statement in effect\\\". Use at most 2 reports, and never one on another topic.\\n- Write for the style card's audience, in its tone, avoiding what it lists. Match the voice of its sample scripts, never their facts.\\n- The video shows the data source on screen, so the script does not name it. In the blurb, name every source: the story's source_note and the source of each report used.\\n- Never guess at causes. If the cause is unknown, say the data does not say why.\\n\\nReturn only a JSON object, no other text, with these keys:\\n- headline: at most 8 words\\n- script: within the style card's script_words, 3 or 4 sentences, read aloud in under 18 seconds. Say \\\"this week\\\", never a date. Name at most 2 neighbourhoods\\n- callout_label: one line under the big number, such as \\\"218 reports this week against an average of 29.3\\\"\\n- chart_title: what the bars show. If chart_kind is \\\"by_area\\\", this week by neighbourhood, such as \\\"Flooding reports by neighbourhood, last 7 days\\\". If \\\"weekly\\\", the count for each of the last 6 weeks, such as \\\"Flooding reports per week\\\"\\n- blurb: 2 sentences for the newsletter\\n- reports_used: the ids of the reports you used, such as [\\\"r2\\\"], or [] for none\\n\" }) }}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        100
+      ],
+      "id": "3e79d981-18b0-5ce3-a8b6-afb4f3a72918",
+      "name": "Save final trace",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "Render token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
           "timeout": 60000,
           "response": {
             "response": {
@@ -79,7 +110,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        660,
+        880,
         100
       ],
       "id": "c84f6757-25aa-5c24-a885-e3b6376144d5",
@@ -99,13 +130,13 @@
             "C0CHVG02PJM"
           ],
           "fileName": "={{ $('Input').first().json.story.topic }}.mp4",
-          "initialComment": "={{ $('Input').first().json.spec.headline }}\n\n{{ $('Input').first().json.blurb }}\n\nSource: {{ $('Input').first().json.story.source_note }}"
+          "initialComment": "={{ $('Input').first().json.spec.headline }}\n\n{{ $('Input').first().json.blurb }}\n\nSource: {{ $('Input').first().json.spec.chart.source_note }}{{ $('Input').first().json.story_page_url ? '\\n\\nHow this story was made: ' + $('Input').first().json.story_page_url : '' }}"
         }
       },
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        880,
+        1100,
         0
       ],
       "id": "6939a7ec-b415-58da-a45b-7cf573acc65c",
@@ -133,7 +164,7 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        1100,
+        1320,
         -100
       ],
       "id": "8ec76f61-1292-5462-a4be-02bc2d2b87d6",
@@ -152,7 +183,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1320,
+        1540,
         -100
       ],
       "id": "62936e0b-a598-5dcf-a1a6-eb5d39a52117",
@@ -165,7 +196,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1100,
+        1320,
         300
       ],
       "id": "7c2e54cd-74ee-5dc9-a80c-df61a029f600",
@@ -173,7 +204,7 @@
     },
     {
       "parameters": {
-        "content": "## 6 Publish\nPosts an approved video to the outlet channel with its headline, blurb and source, then the newsletter draft. The editor approves it in the Slack thread run by **7 Chat**.\n\nCredential: Slack. Channels come from `SLACK_CHANNELS` in the pipeline's build.mjs.\n\nIts test webhook posts straight to the outlet channel, so it needs a run with a real `video_url`, such as 5 Render's output.",
+        "content": "## 6 Publish\n**Save final trace** updates the run trace with the voice, video, edits and approvals. Then it posts the approved video to the outlet channel with its headline, blurb, sources and the public \"How this story was made\" link, then the newsletter draft. The editor approves it in the Slack thread run by **7 Chat**.\n\nCredential: Slack. Channels come from `SLACK_CHANNELS` in the pipeline's build.mjs.\n\nIts test webhook posts straight to the outlet channel, so it needs a run with a real `video_url`, such as 5 Render's output.",
         "height": 340,
         "width": 460,
         "color": 5
@@ -212,6 +243,17 @@
       ]
     },
     "Input": {
+      "main": [
+        [
+          {
+            "node": "Save final trace",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save final trace": {
       "main": [
         [
           {

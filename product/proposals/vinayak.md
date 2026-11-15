@@ -67,7 +67,7 @@ Every run gets a trace, readable by an editor:
 
 The editor's Slack messages link to the full trace. Each published post links to a public "How this story was made" page with the sources and the number checks, without prompts or costs.
 
-Claude: n8n's run history already holds the raw steps; the trace turns it into something a person can read. It speaks to the event page's Trust (15%) and Workflow design (15%) criteria.
+Claude: n8n's run history already holds the raw steps; the trace turns it into something a person can read. It speaks to the event page's Trust (15%) and Workflow design (15%) criteria. Built Saturday evening (D16): both pages are live, linked from the review card and the outlet post.
 
 ## Demo
 

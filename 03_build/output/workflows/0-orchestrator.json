@@ -140,7 +140,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// \"Run options\": adds the client (without its dataset list) to the run, so every later step knows\n// whose name, style and feeds to use. Set test_tamper to true to change one number in the script\n// and watch the guard stop the run.\nconst { data_sources, ...client } = $(\"Client\").first().json;\nreturn [{ json: { ...$input.first().json, client, test_tamper: false } }];\n"
+        "jsCode": "// \"Run options\": adds the client (without its dataset list) to the run, so every later step knows\n// whose name, style and feeds to use. Set test_tamper to true to change one number in the script\n// and watch the guard stop the run.\nconst { data_sources, ...client } = $(\"Client\").first().json;\nreturn [{ json: { ...$input.first().json, client, started_at: new Date().toISOString(), test_tamper: false } }];\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -233,6 +233,50 @@
     },
     {
       "parameters": {
+        "options": {
+          "timeout": 20000
+        },
+        "method": "POST",
+        "url": "http://127.0.0.1:8787/trace",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ run: $json, prompt: \"You write short news videos for a client of newsReels. The request gives you the client's name and style card, one story worked out from open data as JSON, and recent reports from the client's news feeds.\\n\\nRules:\\n- Use only numbers that appear in the story JSON, or in a report you list in reports_used, written in digits exactly as they appear there. Never round, add, subtract or work out a new number. Write \\\"8 weeks\\\", not \\\"eight weeks\\\".\\n- If direction is \\\"up\\\", the story is a rise; if \\\"down\\\", a drop. Say which plainly.\\n- Name neighbourhoods from by_area. Never mention an address, street or person.\\n- The data leads. If a report is clearly about the same topic as the story, you may add one sentence of context from it and name its source, such as \\\"Environment Canada has a coastal flooding statement in effect\\\". Use at most 2 reports, and never one on another topic.\\n- Write for the style card's audience, in its tone, avoiding what it lists. Match the voice of its sample scripts, never their facts.\\n- The video shows the data source on screen, so the script does not name it. In the blurb, name every source: the story's source_note and the source of each report used.\\n- Never guess at causes. If the cause is unknown, say the data does not say why.\\n\\nReturn only a JSON object, no other text, with these keys:\\n- headline: at most 8 words\\n- script: within the style card's script_words, 3 or 4 sentences, read aloud in under 18 seconds. Say \\\"this week\\\", never a date. Name at most 2 neighbourhoods\\n- callout_label: one line under the big number, such as \\\"218 reports this week against an average of 29.3\\\"\\n- chart_title: what the bars show. If chart_kind is \\\"by_area\\\", this week by neighbourhood, such as \\\"Flooding reports by neighbourhood, last 7 days\\\". If \\\"weekly\\\", the count for each of the last 6 weeks, such as \\\"Flooding reports per week\\\"\\n- blurb: 2 sentences for the newsletter\\n- reports_used: the ids of the reports you used, such as [\\\"r2\\\"], or [] for none\\n\" }) }}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2200,
+        0
+      ],
+      "id": "0c9e881a-49d9-5174-a7d7-4f24340b0fa6",
+      "name": "Save trace",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "Render token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// \"Add trace link\": keeps the run and adds the links to its trace pages, if the render service saved\n// them. A failed save leaves the links empty; the run goes on.\nconst run = $(\"Numbers check out?\").first().json;\nconst r = $input.first().json;\nreturn [{ json: { ...run, trace_id: r.trace_id ?? null, trace_url: r.trace_url ?? null, story_page_url: r.story_url ?? null } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        0
+      ],
+      "id": "95cdc3eb-7b9f-5a0e-ad07-6c9cf9822a7a",
+      "name": "Add trace link"
+    },
+    {
+      "parameters": {
         "workflowId": {
           "__rl": true,
           "value": "",
@@ -247,7 +291,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2200,
+        2640,
         0
       ],
       "id": "5d88ca8e-9c29-5dc6-a202-ede3849a1266",
@@ -296,7 +340,7 @@
     },
     {
       "parameters": {
-        "content": "## 0 Orchestrator\nRuns newsReels for one client, **Rain City Ledger**. **Client** holds its config; **Data sources** lists its datasets. **1 Collect** runs once per dataset, **2 Score** picks the week's strongest change, **2b Context** adds recent reports from the client's news feeds, **3 Write** drafts it, and **7 Chat** posts the draft and its data to the editor in Slack. From there the editor's thread drives Voice, Render and Publish.\n\nIf any step says `ok: false`, or errors, **No story today** tells the editor why in Slack.\n\n**Every morning** stays off while building. To test the guard, set `test_tamper` to true in **Run options**.",
+        "content": "## 0 Orchestrator\nRuns newsReels for one client, **Rain City Ledger**. **Client** holds its config; **Data sources** lists its datasets. **1 Collect** runs once per dataset, **2 Score** picks the week's strongest change, **2b Context** adds recent reports from the client's news feeds, **3 Write** drafts it, **Save trace** writes the run trace pages, and **7 Chat** posts the draft, its data and the trace link to the editor in Slack. From there the editor's thread drives Voice, Render and Publish.\n\nIf any step says `ok: false`, or errors, **No story today** tells the editor why in Slack.\n\n**Every morning** stays off while building. To test the guard, set `test_tamper` to true in **Run options**.",
         "height": 400,
         "width": 540,
         "color": 5
@@ -471,7 +515,7 @@
       "main": [
         [
           {
-            "node": "7 Chat",
+            "node": "Save trace",
             "type": "main",
             "index": 0
           }
@@ -479,6 +523,28 @@
         [
           {
             "node": "Why it stopped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save trace": {
+      "main": [
+        [
+          {
+            "node": "Add trace link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add trace link": {
+      "main": [
+        [
+          {
+            "node": "7 Chat",
             "type": "main",
             "index": 0
           }

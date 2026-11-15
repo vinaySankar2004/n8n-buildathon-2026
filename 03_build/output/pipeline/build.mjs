@@ -156,6 +156,20 @@ const sampleBlurb = "Street flooding reports to 3-1-1 reached 218 this week, aga
 
 const out = {};
 
+// The run trace (render service, POST /trace): an editor page and a public "How this story was made" page.
+const TRACE_URL = RENDER_URL.replace(/\/render$/, "/trace");
+const WRITE_PROMPT = code("write-prompt.md");
+const saveTrace = (name, pos, runExpr) => http(name, pos, {
+  method: "POST",
+  url: TRACE_URL,
+  authentication: "genericCredentialType",
+  genericAuthType: "httpHeaderAuth",
+  sendBody: true,
+  specifyBody: "json",
+  jsonBody: `={{ JSON.stringify({ run: ${runExpr}, prompt: ${JSON.stringify(WRITE_PROMPT)} }) }}`,
+  options: { timeout: 20000 },
+}, { maxTries: 2, onError: "continueRegularOutput", ...creds("httpHeaderAuth", "Render token") });
+
 // ---------- 1 Collect ----------
 {
   const n = [
@@ -331,30 +345,32 @@ const out = {};
     calledBy([0, 0]), testRun([0, 200]),
     jsonNode("Sample run", [220, 200], { ok: true, story: sampleStory, spec: sampleSpec, blurb: sampleBlurb, video_url: "replace with a video_url from 5 Render" }),
     noop("Input", [440, 100]),
-    http("Download video", [660, 100], {
+    saveTrace("Save final trace", [660, 100], "Object.assign({}, $('Input').first().json, { approved_at: new Date().toISOString() })"),
+    http("Download video", [880, 100], {
       url: "={{ $('Input').first().json.video_url }}",
       sendHeaders: true,
       headerParameters: { parameters: [{ name: "ngrok-skip-browser-warning", value: "1" }] },
       options: { timeout: 60000, response: { response: { responseFormat: "file" } } },
     }),
-    node("Post to outlet", "n8n-nodes-base.slack", 2.3, [880, 0], {
+    node("Post to outlet", "n8n-nodes-base.slack", 2.3, [1100, 0], {
       resource: "file",
       binaryData: true,
       binaryPropertyName: "data",
-      options: { channelIds: SLACK_CHANNELS.outlet ? [SLACK_CHANNELS.outlet] : [], fileName: "={{ $('Input').first().json.story.topic }}.mp4", initialComment: "={{ $('Input').first().json.spec.headline }}\n\n{{ $('Input').first().json.blurb }}\n\nSource: {{ $('Input').first().json.story.source_note }}" },
+      options: { channelIds: SLACK_CHANNELS.outlet ? [SLACK_CHANNELS.outlet] : [], fileName: "={{ $('Input').first().json.story.topic }}.mp4", initialComment: "={{ $('Input').first().json.spec.headline }}\n\n{{ $('Input').first().json.blurb }}\n\nSource: {{ $('Input').first().json.spec.chart.source_note }}{{ $('Input').first().json.story_page_url ? '\\n\\nHow this story was made: ' + $('Input').first().json.story_page_url : '' }}" },
     }, { onError: "continueErrorOutput", ...SLACK }),
-    node("Newsletter draft", "n8n-nodes-base.slack", 2.3, [1100, -100], {
+    node("Newsletter draft", "n8n-nodes-base.slack", 2.3, [1320, -100], {
       select: "channel", channelId: channel("outlet"), text: "=Newsletter draft: {{ $('Input').first().json.blurb }}", otherOptions: { includeLinkToWorkflow: false },
     }, { onError: "continueErrorOutput", ...SLACK }),
-    codeNode("Published", [1320, -100], "publish-done.js"),
-    codeNode("Failed", [1100, 300], "publish-failed.js"),
-    sticky("About Publish", [-40, -400], "## 6 Publish\nPosts an approved video to the outlet channel with its headline, blurb and source, then the newsletter draft. The editor approves it in the Slack thread run by **7 Chat**.\n\nCredential: Slack. Channels come from `SLACK_CHANNELS` in the pipeline's build.mjs.\n\nIts test webhook posts straight to the outlet channel, so it needs a run with a real `video_url`, such as 5 Render's output.", 340),
+    codeNode("Published", [1540, -100], "publish-done.js"),
+    codeNode("Failed", [1320, 300], "publish-failed.js"),
+    sticky("About Publish", [-40, -400], "## 6 Publish\n**Save final trace** updates the run trace with the voice, video, edits and approvals. Then it posts the approved video to the outlet channel with its headline, blurb, sources and the public \"How this story was made\" link, then the newsletter draft. The editor approves it in the Slack thread run by **7 Chat**.\n\nCredential: Slack. Channels come from `SLACK_CHANNELS` in the pipeline's build.mjs.\n\nIts test webhook posts straight to the outlet channel, so it needs a run with a real `video_url`, such as 5 Render's output.", 340),
   ];
   const c = {};
   link(c, "When Executed by Another Workflow", [["Input"]]);
   link(c, "Test run", [["Sample run"]]);
   link(c, "Sample run", [["Input"]]);
-  link(c, "Input", [["Download video"]]);
+  link(c, "Input", [["Save final trace"]]);
+  link(c, "Save final trace", [["Download video"]]);
   link(c, "Download video", [["Post to outlet"], ["Failed"]]);
   link(c, "Post to outlet", [["Newsletter draft"], ["Failed"]]);
   link(c, "Newsletter draft", [["Published"], ["Failed"]]);
@@ -508,10 +524,12 @@ const out = {};
     execWf("2b Context", [1540, 0], "2b Context"),
     execWf("3 Write", [1760, 0], "3 Write"),
     ifOk("Numbers check out?", [1980, 0]),
-    execWf("7 Chat", [2200, 0], "7 Chat"),
+    saveTrace("Save trace", [2200, 0], "$json"),
+    codeNode("Add trace link", [2420, 0], "trace-link.js"),
+    execWf("7 Chat", [2640, 0], "7 Chat"),
     codeNode("Why it stopped", [1980, 400], "why-stopped.js"),
     node("No story today", "n8n-nodes-base.slack", 2.3, [2200, 400], { select: "channel", channelId: channel("editor"), text: "={{ $json.text }}", otherOptions: { includeLinkToWorkflow: false } }, SLACK),
-    sticky("About the newsroom", [-40, -460], `## 0 Orchestrator\nRuns newsReels for one client, **${client.name}**. **Client** holds its config; **Data sources** lists its datasets. **1 Collect** runs once per dataset, **2 Score** picks the week's strongest change, **2b Context** adds recent reports from the client's news feeds, **3 Write** drafts it, and **7 Chat** posts the draft and its data to the editor in Slack. From there the editor's thread drives Voice, Render and Publish.\n\nIf any step says \`ok: false\`, or errors, **No story today** tells the editor why in Slack.\n\n**Every morning** stays off while building. To test the guard, set \`test_tamper\` to true in **Run options**.`, 400, 540),
+    sticky("About the newsroom", [-40, -460], `## 0 Orchestrator\nRuns newsReels for one client, **${client.name}**. **Client** holds its config; **Data sources** lists its datasets. **1 Collect** runs once per dataset, **2 Score** picks the week's strongest change, **2b Context** adds recent reports from the client's news feeds, **3 Write** drafts it, **Save trace** writes the run trace pages, and **7 Chat** posts the draft, its data and the trace link to the editor in Slack. From there the editor's thread drives Voice, Render and Publish.\n\nIf any step says \`ok: false\`, or errors, **No story today** tells the editor why in Slack.\n\n**Every morning** stays off while building. To test the guard, set \`test_tamper\` to true in **Run options**.`, 400, 540),
   ];
   const c = {};
   link(c, "Test run", [["Client"]]);
@@ -524,7 +542,9 @@ const out = {};
   link(c, "Run options", [["2b Context"]]);
   link(c, "2b Context", [["3 Write"], ["Why it stopped"]]);
   link(c, "3 Write", [["Numbers check out?"], ["Why it stopped"]]);
-  link(c, "Numbers check out?", [["7 Chat"], ["Why it stopped"]]);
+  link(c, "Numbers check out?", [["Save trace"], ["Why it stopped"]]);
+  link(c, "Save trace", [["Add trace link"]]);
+  link(c, "Add trace link", [["7 Chat"]]);
   link(c, "7 Chat", [[], ["Why it stopped"]]);
   link(c, "Why it stopped", [["No story today"]]);
   out["0-orchestrator"] = workflow("0 Orchestrator", n, c);

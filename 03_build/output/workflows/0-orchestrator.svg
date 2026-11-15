@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2516" height="1072" viewBox="0 0 2516 1072" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
-<rect x="0" y="0" width="2516" height="1072" fill="#f6f7f9"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="2956" height="1072" viewBox="0 0 2956 1072" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+<rect x="0" y="0" width="2956" height="1072" fill="#f6f7f9"/>
 <text x="40" y="44" font-size="20" font-weight="700" fill="#1c2430">0 Orchestrator</text>
 <text x="40" y="1052" font-size="12" fill="#667085">Grey line: the run goes on. Red dashed line: the error or "no" path. Drawn from 03_build/output/workflows/, the JSON deployed to n8n.</text>
 <rect x="40" y="74" width="540" height="240" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
@@ -7,9 +7,9 @@
 <text x="54" y="122" font-size="12" font-weight="400" fill="#4a3f12">Runs newsReels for one client, Rain City Ledger. Client holds its config;</text>
 <text x="54" y="138" font-size="12" font-weight="400" fill="#4a3f12">Data sources lists its datasets. 1 Collect runs once per dataset, 2 Score</text>
 <text x="54" y="154" font-size="12" font-weight="400" fill="#4a3f12">picks the week's strongest change, 2b Context adds recent reports from the</text>
-<text x="54" y="170" font-size="12" font-weight="400" fill="#4a3f12">client's news feeds, 3 Write drafts it, and 7 Chat posts the draft and its</text>
-<text x="54" y="186" font-size="12" font-weight="400" fill="#4a3f12">data to the editor in Slack. From there the editor's thread drives Voice,</text>
-<text x="54" y="202" font-size="12" font-weight="400" fill="#4a3f12">Render and Publish.</text>
+<text x="54" y="170" font-size="12" font-weight="400" fill="#4a3f12">client's news feeds, 3 Write drafts it, Save trace writes the run trace</text>
+<text x="54" y="186" font-size="12" font-weight="400" fill="#4a3f12">pages, and 7 Chat posts the draft, its data and the trace link to the editor</text>
+<text x="54" y="202" font-size="12" font-weight="400" fill="#4a3f12">in Slack. From there the editor's thread drives Voice, Render and Publish.</text>
 <text x="54" y="218" font-size="12" font-weight="400" fill="#4a3f12"></text>
 <text x="54" y="234" font-size="12" font-weight="400" fill="#4a3f12">If any step says ok: false, or errors, No story today tells the editor why in</text>
 <text x="54" y="250" font-size="12" font-weight="400" fill="#4a3f12">Slack.</text>
@@ -32,7 +32,9 @@
 <path d="M2036,586 C2076,586 2020,971 2060,971" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
 <path d="M2256,556 C2296,556 2240,571 2280,571" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M2256,586 C2316,586 2000,971 2060,971" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
-<path d="M2476,586 C2536,586 2000,971 2060,971" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M2476,571 C2516,571 2460,571 2500,571" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M2696,571 C2736,571 2680,571 2720,571" fill="none" stroke="#7d8796" stroke-width="2" />
+<path d="M2916,586 C2976,586 2000,971 2060,971" fill="none" stroke="#c2534a" stroke-width="2" stroke-dasharray="6 4"/>
 <path d="M2256,971 C2296,971 2240,971 2280,971" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M276,971 C316,971 260,671 300,671" fill="none" stroke="#7d8796" stroke-width="2" />
 <rect x="80" y="734" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
@@ -80,9 +82,17 @@
 <text x="2078" y="558" font-size="13.5" font-weight="700" fill="#1c2430">Numbers check out?</text>
 <text x="2078" y="596" font-size="11" fill="#667085">If</text>
 <rect x="2280" y="534" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
-<rect x="2280" y="534" width="7" height="74" rx="3" fill="#c27b0e"/>
-<text x="2298" y="558" font-size="13.5" font-weight="700" fill="#1c2430">7 Chat</text>
-<text x="2298" y="596" font-size="11" fill="#667085">Runs 7 Chat</text>
+<rect x="2280" y="534" width="7" height="74" rx="3" fill="#0f8bd8"/>
+<text x="2298" y="558" font-size="13.5" font-weight="700" fill="#1c2430">Save trace</text>
+<text x="2298" y="596" font-size="11" fill="#667085">HTTP Request</text>
+<rect x="2500" y="534" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="2500" y="534" width="7" height="74" rx="3" fill="#ff6d5a"/>
+<text x="2518" y="558" font-size="13.5" font-weight="700" fill="#1c2430">Add trace link</text>
+<text x="2518" y="596" font-size="11" fill="#667085">Code</text>
+<rect x="2720" y="534" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
+<rect x="2720" y="534" width="7" height="74" rx="3" fill="#c27b0e"/>
+<text x="2738" y="558" font-size="13.5" font-weight="700" fill="#1c2430">7 Chat</text>
+<text x="2738" y="596" font-size="11" fill="#667085">Runs 7 Chat</text>
 <rect x="2060" y="934" width="196" height="74" rx="10" fill="#ffffff" stroke="#cfd5de" stroke-width="1.5" />
 <rect x="2060" y="934" width="7" height="74" rx="3" fill="#ff6d5a"/>
 <text x="2078" y="958" font-size="13.5" font-weight="700" fill="#1c2430">Why it stopped</text>
