@@ -321,7 +321,8 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
     jsonBody: `={{ JSON.stringify($json.${bodyField}) }}`,
     options: { timeout: 60000 },
   }, { maxTries: 2, onError: "continueRegularOutput", ...creds("anthropicApi", "Anthropic") });
-  const n = [
+  const viaApi = client.reddit?.via === "api";
+  const n = viaApi ? [
     calledBy([0, 0]), testRun([0, 200]),
     jsonNode("Sample run", [220, 200], { ok: true, story: sampleStory, client: runClient }),
     noop("Input", [440, 100]),
@@ -352,8 +353,27 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
     haiku("Read the mood", [2420, 0], "mood_body"),
     rCode("Reactions", [2640, 100], "reddit-reactions.js"),
     sticky("About Reddit", [-40, -440], "## 2c Reddit\nHow people are reacting to the story, from the client's subreddits. **Opinion only:** nothing from Reddit is a source for numbers, and the number guard never looks at it.\n\n**Search terms with Claude** (Haiku) turns the story into one or two short searches. **Search Reddit** and **Read comments** are n8n's Reddit node (credential \"Reddit\", read-only: it never posts). **Pick threads** keeps recent, open threads; **Read the mood** sums up how people feel, with quotes checked word for word against the comments. No usernames are kept.\n\n2b Context calls this for every story; if Reddit fails, the story goes on without it.", 400, 540),
+  ] : [
+    // Reddit's own API needs an app Reddit has approved (Responsible Builder Policy). Until then,
+    // Claude's web search limited to reddit.com finds the threads and quotes them word for word.
+    calledBy([0, 0]), testRun([0, 200]),
+    jsonNode("Sample run", [220, 200], { ok: true, story: sampleStory, client: runClient }),
+    noop("Input", [440, 100]),
+    codeWith("Reddit search request", [660, 100], "reddit-ws-ask.js", [], { __MODEL__: MODEL, __REDDIT_WS_PROMPT__: JSON.stringify(code("reddit-ws-prompt.md")) }),
+    { ...haiku("Search Reddit", [880, 100], "reddit_body"), parameters: { ...haiku("x", [0, 0], "reddit_body").parameters, options: { timeout: 120000 } } },
+    codeNode("Reactions", [1100, 100], "reddit-ws-reactions.js"),
+    sticky("About Reddit", [-40, -440], "## 2c Reddit\nHow people are reacting to the story on Reddit. **Opinion only:** nothing from Reddit is a source for numbers, and the number guard never looks at it.\n\n**Search Reddit** is Claude with Anthropic's web search, limited to reddit.com, preferring the client's subreddits. **Reactions** keeps each thread it cites and the exact words it cited, with usernames taken out.\n\nReddit's own API (n8n's Reddit node) needs an app Reddit has approved; set `reddit.via` to `api` in the client config to use it once there is one.\n\n2b Context calls this for every story; if the search fails, the story goes on without it.", 400, 540),
   ];
   const c = {};
+  if (!viaApi) {
+    link(c, "When Executed by Another Workflow", [["Input"]]);
+    link(c, "Test run", [["Sample run"]]);
+    link(c, "Sample run", [["Input"]]);
+    link(c, "Input", [["Reddit search request"]]);
+    link(c, "Reddit search request", [["Search Reddit"]]);
+    link(c, "Search Reddit", [["Reactions"], ["Reactions"]]);
+    out["2c-reddit"] = workflow("2c Reddit", n, c);
+  } else {
   link(c, "When Executed by Another Workflow", [["Input"]]);
   link(c, "Test run", [["Sample run"]]);
   link(c, "Sample run", [["Input"]]);
@@ -368,6 +388,7 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
   link(c, "Mood request", [["Read the mood"]]);
   link(c, "Read the mood", [["Reactions"]]);
   out["2c-reddit"] = workflow("2c Reddit", n, c);
+  }
 }
 
 // ---------- 3 Write ----------

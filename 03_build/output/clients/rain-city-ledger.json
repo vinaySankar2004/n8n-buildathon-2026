@@ -105,8 +105,10 @@
     "max_sources": 6
   },
   "reddit": {
-    "_note": "For every story, 2c Reddit reads how people are reacting in these subreddits. Opinion only: never a source for numbers. Stays false until the Reddit credential is connected in n8n, since n8n will not switch on 2b Context while 2c Reddit cannot run.",
+    "_note": "For every story, 2c Reddit reads how people are reacting in these subreddits. Opinion only: never a source for numbers. Off for now: Reddit's API needs an app Reddit has approved, and Reddit blocks Anthropic's web search. Once Reddit approves an app, set via to api (n8n's Reddit node, credential Reddit connected) and enabled to true.",
     "enabled": false,
+    "via": "web_search",
+    "max_searches": 2,
     "subreddits": ["vancouver", "britishcolumbia"],
     "days": 30,
     "max_threads": 4,

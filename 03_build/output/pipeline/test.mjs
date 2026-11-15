@@ -272,25 +272,29 @@ check(webCardText.includes("Web sources to check") && webCardText.includes(pageA
 
 // 2c Reddit: how people are reacting. Opinion only, never a source for numbers.
 const reddit = wf("2c-reddit.json");
+// The Reddit API version (n8n's Reddit node) is built only when the client sets reddit.via to "api",
+// so its Code nodes are tested from their source files.
+const apiCode = (file) => readFileSync(path.join(here, "code", file), "utf8").split("__REQUEST_MODEL__").join("claude-haiku-5-5").split("__MOOD_PROMPT__").join('"mood prompt"').split("__TERMS_PROMPT__").join('"terms prompt"');
+const apiNode = { "What to search": "reddit-what.js", "Pick threads": "reddit-pick.js", "Mood request": "reddit-mood-ask.js", "Reactions": "reddit-reactions.js" };
 const rdRun = { ...writeIn, client: { ...runClient, reddit: { enabled: true, subreddits: ["vancouver", "britishcolumbia"], days: 30, max_threads: 4, comments_per_thread: 6 } } };
-const whatToSearch = await run(codeOf(reddit, "What to search"), [{ content: [{ type: "text", text: '{"queries": ["flooding", "flooded street"]}' }] }], { Input: [rdRun] });
+const whatToSearch = await run(apiCode(apiNode["What to search"]), [{ content: [{ type: "text", text: '{"queries": ["flooding", "flooded street"]}' }] }], { Input: [rdRun] });
 check(whatToSearch.length === 4 && whatToSearch[0].subreddit === "vancouver" && whatToSearch[0].keyword === "flooding", "What to search makes one search per subreddit and term");
-const [fallback] = await run(codeOf(reddit, "What to search"), [{ error: { message: "529" } }], { Input: [rdRun] });
+const [fallback] = await run(apiCode(apiNode["What to search"]), [{ error: { message: "529" } }], { Input: [rdRun] });
 check(fallback.keyword && !/case/i.test(fallback.keyword), `What to search falls back to the topic words: "${fallback.keyword}"`);
 const now = Date.now() / 1000;
 const post = (id, extra = {}) => ({ id, subreddit: "vancouver", title: `Thread ${id}`, selftext: "", permalink: `/r/vancouver/comments/${id}/x/`, score: 50, num_comments: 30, created_utc: now - 86400, author: "someone", ...extra });
-const picked = await run(codeOf(reddit, "Pick threads"), [post("a", { num_comments: 80 }), post("b"), post("a"), post("old", { created_utc: now - 90 * 86400 }), post("nsfw", { over_18: true }), { error: { message: "x" } }], { Input: [rdRun] });
+const picked = await run(apiCode(apiNode["Pick threads"]), [post("a", { num_comments: 80 }), post("b"), post("a"), post("old", { created_utc: now - 90 * 86400 }), post("nsfw", { over_18: true }), { error: { message: "x" } }], { Input: [rdRun] });
 check(picked.length === 2 && picked[0].id === "a" && !("author" in picked[0]) && picked[0].url.startsWith("https://www.reddit.com/r/vancouver/"), "Pick threads keeps recent, open threads, most discussed first, without usernames");
-const [nothing] = await run(codeOf(reddit, "Pick threads"), [{ error: { message: "credential" } }], { Input: [rdRun] });
+const [nothing] = await run(apiCode(apiNode["Pick threads"]), [{ error: { message: "credential" } }], { Input: [rdRun] });
 check(nothing.none === true, "Pick threads marks a search with nothing to read");
 const comment = (link, body, score = 10, extra = {}) => ({ link_id: `t3_${link}`, body, score, author: "resident", ...extra });
-const [moodAsk] = await run(codeOf(reddit, "Mood request"), [comment("a", "The drain on my block clogs every single fall."), comment("a", "removed by mods", 99, { distinguished: "moderator" }), comment("b", "City crews came by within a day, honestly impressed."), comment("zzz", "other thread")], { Input: [rdRun], "Pick threads": picked });
+const [moodAsk] = await run(apiCode(apiNode["Mood request"]), [comment("a", "The drain on my block clogs every single fall."), comment("a", "removed by mods", 99, { distinguished: "moderator" }), comment("b", "City crews came by within a day, honestly impressed."), comment("zzz", "other thread")], { Input: [rdRun], "Pick threads": picked });
 const moodText = moodAsk.mood_body.messages[0].content;
 check(moodAsk.threads[0].ref === "p1" && moodAsk.threads[0].comments.length === 1 && !moodText.includes("resident") && !moodText.includes("removed by mods"), "Mood request sends each thread's comments without usernames or moderator posts");
 const moodRes = { model: "claude-haiku-5-5", usage: { input_tokens: 900, output_tokens: 120 }, content: [{ type: "text", text: JSON.stringify({ relevant: true, summary: "Residents describe drains that clog every fall.", themes: ["clogged drains"], quotes: [{ thread: "p1", text: "The drain on my block clogs every single fall." }, { thread: "p2", text: "Made-up words nobody wrote." }] }) }] };
-const [rx] = await run(codeOf(reddit, "Reactions"), [moodRes], { Input: [rdRun], "What to search": whatToSearch, "Search Reddit": [post("a"), post("b")], "Mood request": [moodAsk], "Search terms with Claude": [{ model: "claude-haiku-5-5", usage: { input_tokens: 200, output_tokens: 20 } }] });
+const [rx] = await run(apiCode(apiNode["Reactions"]), [moodRes], { Input: [rdRun], "What to search": whatToSearch, "Search Reddit": [post("a"), post("b")], "Mood request": [moodAsk], "Search terms with Claude": [{ model: "claude-haiku-5-5", usage: { input_tokens: 200, output_tokens: 20 } }] });
 check(rx.reactions.relevant && rx.reactions.quotes.length === 1 && rx.reactions.quotes[0].thread === "p1" && rx.reactions.calls.length === 2 && !rx.terms_body, "Reactions keeps only quotes found word for word in a comment, and records both Claude calls");
-const [rxNone] = await run(codeOf(reddit, "Reactions"), [{ none: true }], { Input: [rdRun], "What to search": whatToSearch, "Search Reddit": [{ error: { message: "Credentials not found" } }] });
+const [rxNone] = await run(apiCode(apiNode["Reactions"]), [{ none: true }], { Input: [rdRun], "What to search": whatToSearch, "Search Reddit": [{ error: { message: "Credentials not found" } }] });
 check(rxNone.reactions.relevant === false && rxNone.reactions.error === "Credentials not found", `Reactions without threads goes on and says why: ${rxNone.reactions.error}`);
 // "Add reactions" is only in 2b Context once the client turns Reddit on, so test its source file.
 const addReactions = readFileSync(path.join(here, "code", "context-reactions.js"), "utf8");
@@ -307,6 +311,29 @@ check(opinion.ok && opinion.reddit_used === true, `Write may add an opinion sent
 const [rxCard] = await run(codeOf(chat, "Start review"), [opinion]);
 const rxCardText = JSON.stringify(rxCard.post.blocks);
 check(rxCardText.includes("How people are reacting") && rxCardText.includes("opinion only") && rxCardText.includes("clogs every single fall") && rxCardText.includes("Mentioned in the script"), "The review card shows the Reddit reactions, marked opinion only");
+
+// 2c Reddit as built today: Claude's web search limited to reddit.com.
+const rdWsRun = { ...rdRun, client: { ...rdRun.client, reddit: { ...rdRun.client.reddit, via: "web_search", max_searches: 2 } } };
+const [rdAsk] = await run(codeOf(reddit, "Reddit search request"), [rdWsRun]);
+check(rdAsk.reddit_body.tools[0].allowed_domains[0] === "reddit.com" && rdAsk.reddit_body.messages[0].content.includes("r/vancouver"), "Reddit search request searches only reddit.com, preferring the client's subreddits");
+const thread = "https://www.reddit.com/r/vancouver/comments/abc123/flooded_streets_again/";
+const rdRes = {
+  model: "claude-sonnet-5-5",
+  usage: { input_tokens: 15000, output_tokens: 300, server_tool_use: { web_search_requests: 2 } },
+  content: [
+    { type: "server_tool_use", id: "s1", name: "web_search", input: { query: "vancouver flooding reddit" } },
+    { type: "web_search_tool_result", tool_use_id: "s1", content: [{ type: "web_search_result", url: thread, title: "Flooded streets again : r/vancouver", page_age: "4 days ago" }, { type: "web_search_result", url: "https://www.example.com/x", title: "Not Reddit" }] },
+    { type: "text", text: "Residents in r/vancouver describe drains that clog every fall.", citations: [{ type: "web_search_result_location", url: thread, title: "Flooded streets again : r/vancouver", cited_text: "u/rainydays said: the drain on my block clogs every single fall" }] },
+  ],
+};
+const [rdWs] = await run(codeOf(reddit, "Reactions"), [rdRes], { "Reddit search request": [rdAsk] });
+const rw = rdWs.reactions;
+check(rw.relevant && rw.threads.length === 1 && rw.threads[0].subreddit === "vancouver" && rw.threads[0].title === "Flooded streets again" && !rdWs.reddit_body, "Reactions keeps each Reddit thread the search cites");
+check(rw.quotes.length === 1 && !rw.quotes[0].text.includes("rainydays") && rw.quotes[0].text.includes("clogs every single fall") && rw.calls[0].searches === 2, `Reactions quotes the cited words without usernames: "${rw.quotes[0]?.text}"`);
+const [rdWsFail] = await run(codeOf(reddit, "Reactions"), [{ error: { message: "529 overloaded" } }], { "Reddit search request": [rdAsk] });
+check(rdWsFail.reactions.relevant === false && rdWsFail.reactions.error === "529 overloaded" && rdWsFail.story, "A failed Reddit search goes on without reactions");
+const [rdCard] = await run(codeOf(chat, "Start review"), [{ ...opinion, reactions: rw }]);
+check(JSON.stringify(rdCard.post.blocks).includes("4 days ago") && !JSON.stringify(rdCard.post.blocks).includes("undefined"), "The review card shows a web-found thread's age, with no missing fields");
 
 console.log(failures ? `\n${failures} check(s) failed.` : "\nAll checks passed.");
 process.exit(failures ? 1 : 0);

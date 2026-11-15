@@ -44,7 +44,7 @@ function reactionBlocks(run) {
     return [context(`*How people are reacting (Reddit):* ${why} ${searched}`.trim())];
   }
   const byRef = new Map((r.threads || []).map((t) => [t.ref, t]));
-  const threads = (r.threads || []).map((t) => `• <${t.url}|${t.title}> (r/${t.subreddit}, ${t.num_comments} comments)`).join("\n");
+  const threads = (r.threads || []).map((t) => `• <${t.url}|${t.title}> (r/${t.subreddit}${t.num_comments != null ? `, ${t.num_comments} comments` : ""}${t.page_age ? `, ${t.page_age}` : ""})`).join("\n");
   const quotes = (r.quotes || []).map((q) => `>_"${q.text}"_ (${byRef.get(q.thread) ? `r/${byRef.get(q.thread).subreddit}` : "Reddit"})`).join("\n");
   return [
     section(`*How people are reacting (Reddit, opinion only, not used for numbers)*${run.reddit_used ? " *Mentioned in the script.*" : ""}\n${r.summary}${r.themes?.length ? `\nThemes: ${r.themes.join("; ")}.` : ""}`),
