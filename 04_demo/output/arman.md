@@ -45,8 +45,8 @@ For every take: start recording, hold still 2 seconds, do the steps, hold still 
 
 **B6, publish (about 30 seconds).** Same thread.
 1. Click **Approve and publish** under the newest video. Wait for "Published to #outlet" in the thread.
-2. Click #outlet in the sidebar: the video, its headline and blurb, and the "How this story was made" link. Hold 3 seconds.
-3. Click "How this story was made". Scroll the page slowly for 5 seconds.
+2. Click #outlet in the sidebar: the video, its headline and blurb. Hold 3 seconds.
+3. The post's text ends with "How this story was made:" and a link. It only exists once you publish. Click the link and scroll the page slowly for 5 seconds. (The same page, in case the link is hard to click: https://paratactical-professionally-yasuko.ngrok-free.dev/files/story-67685038-960b-4236-9914-f89be9536c5a.html)
 
 **B7, the run trace (about 25 seconds).** Browser, tab 2, reload it (Cmd+R) so it shows the approvals. Scroll slowly, pausing about 3 seconds on each of these headings:
 1. "The story"
