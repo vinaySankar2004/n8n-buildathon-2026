@@ -29,4 +29,4 @@ const write = { ...call, answer: w, number_checks: built.number_checks };
 if (built.problems.length) {
   return [{ json: { ok: false, step: "Write", reason: `Blocked: ${built.problems[0]}.`, spec: built.spec, write } }];
 }
-return [{ json: { ...input, ok: true, spec: built.spec, chart_kind: built.chart_kind, blurb: w.blurb, script_words: built.words, reports_used: built.used, write } }];
+return [{ json: { ...input, ok: true, spec: built.spec, chart_kind: built.chart_kind, blurb: w.blurb, script_words: built.words, reports_used: built.used, reddit_used: w.reddit_used === true && !!input.reactions?.relevant, write } }];

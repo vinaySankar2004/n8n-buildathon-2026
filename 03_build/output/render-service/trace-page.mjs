@@ -141,6 +141,21 @@ export function tracePage(run, { prompt, editor, ledgerUrl }) {
       out.push(`<p class="muted">Only the exact words cited from a page count for the number guard; Claude's finding is shown for reference.</p></section>`);
     }
 
+    // Reddit: how people are reacting. Opinion only, never a source for numbers.
+    const rx = run.reactions;
+    if (rx) {
+      out.push(`<section><h2>How people are reacting (Reddit)</h2><p class="muted">Opinion only. Nothing from Reddit counts as a source for a number, and no username is kept.</p>`);
+      out.push(`<p>Searched ${esc((rx.searched || []).join(", ") || "nothing")}. ${esc(rx.threads_found ?? 0)} threads found, ${esc((rx.threads || []).length)} recent ones read.${rx.error ? ` <span class="bad">${esc(rx.error)}</span>` : ""}${run.reddit_used ? ' <span class="ok">Mentioned in the script.</span>' : ""}</p>`);
+      if (rx.relevant) out.push(`<p>${esc(rx.summary)}</p>${(rx.quotes || []).map((q) => `<blockquote>${esc(q.text)}</blockquote>`).join("")}`);
+      else out.push(`<p class="muted">No recent thread was about this story.</p>`);
+      if ((rx.threads || []).length) {
+        out.push(`<div class="scroll"><table><tr><th>Thread</th><th>Subreddit</th><th>Comments</th><th>Posted</th></tr>`);
+        for (const t of rx.threads) out.push(`<tr><td>${link(t.url, t.title)}</td><td>r/${esc(t.subreddit)}</td><td>${esc(t.num_comments)}</td><td>${esc(String(t.created || "").slice(0, 10))}</td></tr>`);
+        out.push(`</table></div>`);
+      }
+      out.push(`</section>`);
+    }
+
     // Claude.
     out.push(`<section><h2>What Claude was asked</h2><p>Model: ${esc(run.write?.model)}. It got the client's style card, the story data and the reports above.</p>`);
     if (prompt) out.push(`<details><summary>Instructions (system prompt)</summary><pre>${esc(prompt)}</pre></details>`);

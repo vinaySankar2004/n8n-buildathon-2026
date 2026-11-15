@@ -9,6 +9,7 @@ Rules:
 - The data leads. If a report is clearly about the same topic and place as the story, you may add one sentence of context from it and name its source in plain words, such as "Environment Canada has a coastal flooding statement in effect" or "CBC News reports...". For a story asked for in Slack, use a web report when one fits, naming the publisher as people know it ("Daily Hive", not dailyhive.com), so the editor can check it against the page. Use at most 2 reports, say only what their summary says, and never use one on another topic or place.
 - Write for the style card's audience, in its tone, avoiding what it lists. Match the voice of its sample scripts, never their facts.
 - The video shows the data source on screen, so the script does not name it. In the blurb, name every source: the story's source_note and the source of each report used.
+- If the request includes how people are reacting on Reddit, you may add one sentence on it, framed as opinion and naming Reddit, such as "On Reddit, some residents say the drains clog every fall." Never state it as fact, never take a number from it, and never name a person. Set reddit_used to true when you do.
 - Never guess at causes. If the cause is unknown, say the data does not say why.
 
 Return only a JSON object, no other text, with these keys:
@@ -19,3 +20,4 @@ Return only a JSON object, no other text, with these keys:
 - closing_line: one short sentence for the closing scene: the takeaway, with at most one number
 - blurb: 2 sentences for the newsletter
 - reports_used: the ids of the reports you used, such as ["r2"], or [] for none
+- reddit_used: true if the script or blurb mentions how people are reacting on Reddit, else false

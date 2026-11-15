@@ -272,7 +272,9 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
       options: { timeout: 120000 },
     }, { maxTries: 2, ...creds("anthropicApi", "Anthropic") }),
     codeNode("Web sources", [1980, 0], "search-sources.js"),
-    sticky("About Context", [-40, -420], "## 2b Context\nFetches every news feed in the client's config (RSS, Environment Canada weather alerts, DriveBC road events) and adds the newest 12 items since the story's week began to the run as `reports`. Write decides which, if any, fit the story.\n\nFor a story someone asked for in Slack, **Search the web** has Claude search for recent reporting on it (Anthropic web search). **Web sources** keeps each page it cited, with the exact words cited, as reports `w1`, `w2`... They go to Write, the editor's review card and the trace.\n\nA feed or search that fails is listed in `feeds_checked` and skipped: news never stops a run.\n\nAn empty test body uses **Sample run**.", 400),
+    execWf("2c Reddit", [2200, 100], "2c Reddit"),
+    codeNode("Add reactions", [2420, 100], "context-reactions.js"),
+    sticky("About Context", [-40, -420], "## 2b Context\nFetches every news feed in the client's config (RSS, Environment Canada weather alerts, DriveBC road events) and adds the newest 12 items since the story's week began to the run as `reports`. Write decides which, if any, fit the story.\n\nFor a story someone asked for in Slack, **Search the web** has Claude search for recent reporting on it (Anthropic web search). **Web sources** keeps each page it cited, with the exact words cited, as reports `w1`, `w2`... They go to Write, the editor's review card and the trace.\n\nFor every story, **2c Reddit** adds how people are reacting on Reddit (opinion only, never data).\n\nA feed, search or Reddit read that fails is listed in `feeds_checked` and skipped: news never stops a run.\n\nAn empty test body uses **Sample run**.", 400),
   ];
   const c = {};
   link(c, "When Executed by Another Workflow", [["Input"]]);
@@ -282,10 +284,85 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
   link(c, "Feeds", [["Fetch feed"]]);
   link(c, "Fetch feed", [["Recent reports"]]);
   link(c, "Recent reports", [["Asked in Slack?"]]);
-  link(c, "Asked in Slack?", [["Search request"]]);
   link(c, "Search request", [["Search the web"]]);
   link(c, "Search the web", [["Web sources"], ["Web sources"]]);
+  link(c, "Asked in Slack?", [["Search request"], ["2c Reddit"]]);
+  link(c, "Web sources", [["2c Reddit"]]);
+  link(c, "2c Reddit", [["Add reactions"], ["Add reactions"]]);
   out["2b-context"] = workflow("2b Context", n, c);
+}
+
+// ---------- 2c Reddit ----------
+// How people are reacting, from Reddit, for every story: opinion only, never a source for numbers.
+// n8n's Reddit node (credential "Reddit", read-only use) searches the client's subreddits and reads
+// the top comments; Claude Haiku picks the searches and reads the mood.
+{
+  const fill = {
+    __REQUEST_MODEL__: REQUEST_MODEL,
+    __TERMS_PROMPT__: JSON.stringify(code("reddit-terms-prompt.md")),
+    __MOOD_PROMPT__: JSON.stringify(code("reddit-mood-prompt.md")),
+  };
+  const rCode = (name, pos, file) => codeWith(name, pos, file, [], fill);
+  const REDDIT = creds("redditOAuth2Api", "Reddit");
+  const haiku = (name, pos, bodyField) => http(name, pos, {
+    method: "POST",
+    url: "https://api.anthropic.com/v1/messages",
+    authentication: "predefinedCredentialType",
+    nodeCredentialType: "anthropicApi",
+    sendHeaders: true,
+    headerParameters: { parameters: [{ name: "anthropic-version", value: "2023-06-01" }] },
+    sendBody: true,
+    specifyBody: "json",
+    jsonBody: `={{ JSON.stringify($json.${bodyField}) }}`,
+    options: { timeout: 60000 },
+  }, { maxTries: 2, onError: "continueRegularOutput", ...creds("anthropicApi", "Anthropic") });
+  const n = [
+    calledBy([0, 0]), testRun([0, 200]),
+    jsonNode("Sample run", [220, 200], { ok: true, story: sampleStory, client: runClient }),
+    noop("Input", [440, 100]),
+    rCode("Search terms", [660, 100], "reddit-terms.js"),
+    haiku("Search terms with Claude", [880, 100], "terms_body"),
+    rCode("What to search", [1100, 100], "reddit-what.js"),
+    node("Search Reddit", "n8n-nodes-base.reddit", 1, [1320, 100], {
+      resource: "post",
+      operation: "search",
+      location: "subreddit",
+      subreddit: "={{ $json.subreddit }}",
+      keyword: "={{ $json.keyword }}",
+      returnAll: false,
+      limit: 8,
+      additionalFields: { sort: "relevance" },
+    }, { ...REDDIT, onError: "continueRegularOutput", alwaysOutputData: true }),
+    rCode("Pick threads", [1540, 100], "reddit-pick.js"),
+    ifOk("Any threads?", [1760, 100], "={{ $json.none !== true }}"),
+    node("Read comments", "n8n-nodes-base.reddit", 1, [1980, 0], {
+      resource: "postComment",
+      operation: "getAll",
+      subreddit: "={{ $json.subreddit }}",
+      postId: "={{ $json.id }}",
+      returnAll: false,
+      limit: 20,
+    }, { ...REDDIT, onError: "continueRegularOutput", alwaysOutputData: true }),
+    rCode("Mood request", [2200, 0], "reddit-mood-ask.js"),
+    haiku("Read the mood", [2420, 0], "mood_body"),
+    rCode("Reactions", [2640, 100], "reddit-reactions.js"),
+    sticky("About Reddit", [-40, -440], "## 2c Reddit\nHow people are reacting to the story, from the client's subreddits. **Opinion only:** nothing from Reddit is a source for numbers, and the number guard never looks at it.\n\n**Search terms with Claude** (Haiku) turns the story into one or two short searches. **Search Reddit** and **Read comments** are n8n's Reddit node (credential \"Reddit\", read-only: it never posts). **Pick threads** keeps recent, open threads; **Read the mood** sums up how people feel, with quotes checked word for word against the comments. No usernames are kept.\n\n2b Context calls this for every story; if Reddit fails, the story goes on without it.", 400, 540),
+  ];
+  const c = {};
+  link(c, "When Executed by Another Workflow", [["Input"]]);
+  link(c, "Test run", [["Sample run"]]);
+  link(c, "Sample run", [["Input"]]);
+  link(c, "Input", [["Search terms"]]);
+  link(c, "Search terms", [["Search terms with Claude"]]);
+  link(c, "Search terms with Claude", [["What to search"]]);
+  link(c, "What to search", [["Search Reddit"]]);
+  link(c, "Search Reddit", [["Pick threads"]]);
+  link(c, "Pick threads", [["Any threads?"]]);
+  link(c, "Any threads?", [["Read comments"], ["Reactions"]]);
+  link(c, "Read comments", [["Mood request"]]);
+  link(c, "Mood request", [["Read the mood"]]);
+  link(c, "Read the mood", [["Reactions"]]);
+  out["2c-reddit"] = workflow("2c Reddit", n, c);
 }
 
 // ---------- 3 Write ----------
@@ -295,6 +372,7 @@ const clientNode = (pos) => node("Client", "n8n-nodes-base.code", 2, pos, { jsCo
   const request = "'Client: ' + JSON.stringify({ name: $('Input').first().json.client?.name, style: $('Input').first().json.client?.style }, null, 2)"
     + " + '\\n\\nStory JSON:\\n' + JSON.stringify($('Input').first().json.story, null, 2)"
     + " + '\\n\\nReports from the client news feeds (ids r1, r2...) and, for a story asked for in Slack, from a web search (ids w1, w2...; summary is the exact words quoted from the page):\\n' + JSON.stringify(($('Input').first().json.reports || []).map(r => ({ id: r.id, from: r.feed === 'web' ? 'web search' : 'news feed', source: r.source, published: r.published || r.page_age || null, title: r.title, summary: r.summary })), null, 2)"
+    + " + (($('Input').first().json.reactions || {}).relevant ? '\\n\\nHow people are reacting on Reddit (opinion only, never data; never use a number from it):\\n' + JSON.stringify({ summary: $('Input').first().json.reactions.summary, themes: $('Input').first().json.reactions.themes, quotes: ($('Input').first().json.reactions.quotes || []).map(q => q.text) }, null, 2) : '')"
     + " + ($('Input').first().json.request ? '\\n\\nAsked for in Slack: ' + $('Input').first().json.request.text : '')";
   const write = http("Write script", [660, 100], {
     method: "POST",

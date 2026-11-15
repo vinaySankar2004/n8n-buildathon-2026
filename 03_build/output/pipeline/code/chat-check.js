@@ -36,7 +36,7 @@ if (built.problems.length) {
   return [reply(threadTs, text, null, chat.stage, run, [...history, { bot: text }])];
 }
 
-const revised = { ...run, spec: built.spec, chart_kind: built.chart_kind, blurb: draft.blurb, script_words: built.words, reports_used: built.used };
+const revised = { ...run, spec: built.spec, chart_kind: built.chart_kind, blurb: draft.blurb, script_words: built.words, reports_used: built.used, reddit_used: typeof answer.draft.reddit_used === "boolean" ? answer.draft.reddit_used && !!run.reactions?.relevant : !!run.reddit_used };
 const after = [...history, { bot: said }];
 const videoChanged = JSON.stringify(built.spec) !== JSON.stringify(run.spec);
 

@@ -12,6 +12,7 @@ The source for all ten n8n workflows, written by Arman and Vinayak with Claude C
 | 1 Collect | 9 weeks of one dataset, grouped by category, day and neighbourhood |
 | 2 Score | Picks the week's strongest change across all sources |
 | 2b Context | Reads the client's news feeds and adds the newest reports since the story's week began. For a story asked for in Slack, also searches the web and keeps every cited page with the exact words cited, for Write, the editor and the trace (D20) |
+| 2c Reddit | How people are reacting on Reddit, for every story: n8n's Reddit node searches the client's subreddits and reads top comments, and Claude Haiku sums up the mood. Opinion only, never a source for numbers (D21) |
 | 3 Write | Claude Sonnet 5.5 writes the headline, script, chart title and blurb in the client's style, with at most one sentence from a report it names; the guard checks every number and records where it came from |
 | 4 Voice | ElevenLabs reads the script, stops if it runs 22 seconds or longer, and records the credits used |
 | 5 Render | The Remotion service beside n8n makes the 9:16 video |
@@ -47,6 +48,7 @@ A member account on our self-hosted n8n sees only the workflows it made (sharing
 | Anthropic | Anthropic | 3 Write, 7 Chat, 8 Request |
 | ElevenLabs | Header Auth, header `xi-api-key`; the key needs User: Read for the ledger's price | 4 Voice |
 | Render token | Header Auth, header `x-render-token` | 5 Render, and the trace and ledger saves |
+| Reddit | Reddit OAuth2 API: a Reddit web app's client ID and secret (`REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`), then Connect my account once in n8n | 2c Reddit, read-only |
 | Slack | Slack API, bot token | 6 Publish, 7 Chat, 8 Request, "No story today" |
 
 4. **Slack, once, on the host laptop.** Put the Signing Secret from the Slack app's Basic Information page in `.env` as `SLACK_SIGNING_SECRET` and restart the router (`npm run host -- stop`, then `npm run host`). Paste [slack-app-manifest.yml](../host/slack-app-manifest.yml) into the app's App Manifest page, save, and reinstall the app (F14).

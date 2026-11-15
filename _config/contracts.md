@@ -136,6 +136,8 @@ The orchestrator hands 7 Chat the run from Write. 7 Chat posts it to the editor 
 
 The router on the host laptop checks Slack's signature and posts to n8n's `/webhook/slack-events` either `{ "source": "events", "body": Slack's event_callback }` for a message, or `{ "source": "interactivity", "payload": Slack's block_actions }` for a tap on a button whose `action_id` starts with `newsroom_` (`newsroom_approve_script`, `newsroom_approve_video`, `newsroom_reject`).
 
+2c Reddit adds `reactions` to every run: `{ "source": "Reddit", "searched": ["r/vancouver: \"flooding\""], "threads_found", "threads": [{ "ref": "p1", "id", "subreddit", "title", "url", "score", "num_comments", "created", "comments_read" }], "relevant", "summary", "themes", "quotes": [{ "thread": "p1", "text" }], "calls": [Claude calls with `model` and `usage`], "error" }`. Opinion only: the number guard never reads it, and no username is kept. Write adds `reddit_used` (true when the script or blurb mentions it). The client config's `reddit` block sets `enabled`, `subreddits`, `days`, `max_threads` and `comments_per_thread`.
+
 The client config's `web_search` block sets the search: `enabled`, `location` (`city`, `region`, `country`, `timezone`), `max_searches`, `max_sources`, and optional `blocked_domains`.
 
 Revise with Claude returns `{ "reply": "...", "draft": { "headline", "script", "callout_label", "chart_title", "chart_kind", "chart_style", "highlight", "accent_color", "bar_colors", "scenes", "closing_line", "blurb", "reports_used" } or null }`. `spec.chart` also carries `kind` (`bar`, `line` or `pie`), `order`, `highlight` and `colors` (a hex colour per label). The draft passes the same number guard as Write before it is used.

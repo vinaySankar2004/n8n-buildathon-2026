@@ -16,6 +16,7 @@ The draft has these fields:
 - closing_line: one sentence for the closing scene
 - blurb: 2 sentences for the newsletter, naming the sources
 - reports_used: the ids of the news reports the draft draws on, such as ["r1"] or ["w2"], or []
+- reddit_used: true if the draft mentions how people are reacting on Reddit (from reddit_reactions), else false. That mention is one sentence framed as opinion, naming Reddit, with no number from it and no person named
 
 Numbers: use only numbers that appear in the story JSON, or in a report listed in reports_used, written in digits exactly as they appear there. Never round, add, subtract or work out a new one. This applies to your reply too.
 

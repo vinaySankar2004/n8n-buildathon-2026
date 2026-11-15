@@ -270,5 +270,41 @@ const webCardText = JSON.stringify(webCard.post.blocks);
 check(webCardText.includes("Web sources to check") && webCardText.includes(pageA) && webCardText.includes(pageB) && webCardText.includes("Used in the script") && webCardText.includes("250 millimetres"),
   "The review card lists every web source with its quoted words and which the script uses");
 
+// 2c Reddit: how people are reacting. Opinion only, never a source for numbers.
+const reddit = wf("2c-reddit.json");
+const rdRun = { ...writeIn, client: { ...runClient, reddit: { enabled: true, subreddits: ["vancouver", "britishcolumbia"], days: 30, max_threads: 4, comments_per_thread: 6 } } };
+const whatToSearch = await run(codeOf(reddit, "What to search"), [{ content: [{ type: "text", text: '{"queries": ["flooding", "flooded street"]}' }] }], { Input: [rdRun] });
+check(whatToSearch.length === 4 && whatToSearch[0].subreddit === "vancouver" && whatToSearch[0].keyword === "flooding", "What to search makes one search per subreddit and term");
+const [fallback] = await run(codeOf(reddit, "What to search"), [{ error: { message: "529" } }], { Input: [rdRun] });
+check(fallback.keyword && !/case/i.test(fallback.keyword), `What to search falls back to the topic words: "${fallback.keyword}"`);
+const now = Date.now() / 1000;
+const post = (id, extra = {}) => ({ id, subreddit: "vancouver", title: `Thread ${id}`, selftext: "", permalink: `/r/vancouver/comments/${id}/x/`, score: 50, num_comments: 30, created_utc: now - 86400, author: "someone", ...extra });
+const picked = await run(codeOf(reddit, "Pick threads"), [post("a", { num_comments: 80 }), post("b"), post("a"), post("old", { created_utc: now - 90 * 86400 }), post("nsfw", { over_18: true }), { error: { message: "x" } }], { Input: [rdRun] });
+check(picked.length === 2 && picked[0].id === "a" && !("author" in picked[0]) && picked[0].url.startsWith("https://www.reddit.com/r/vancouver/"), "Pick threads keeps recent, open threads, most discussed first, without usernames");
+const [nothing] = await run(codeOf(reddit, "Pick threads"), [{ error: { message: "credential" } }], { Input: [rdRun] });
+check(nothing.none === true, "Pick threads marks a search with nothing to read");
+const comment = (link, body, score = 10, extra = {}) => ({ link_id: `t3_${link}`, body, score, author: "resident", ...extra });
+const [moodAsk] = await run(codeOf(reddit, "Mood request"), [comment("a", "The drain on my block clogs every single fall."), comment("a", "removed by mods", 99, { distinguished: "moderator" }), comment("b", "City crews came by within a day, honestly impressed."), comment("zzz", "other thread")], { Input: [rdRun], "Pick threads": picked });
+const moodText = moodAsk.mood_body.messages[0].content;
+check(moodAsk.threads[0].ref === "p1" && moodAsk.threads[0].comments.length === 1 && !moodText.includes("resident") && !moodText.includes("removed by mods"), "Mood request sends each thread's comments without usernames or moderator posts");
+const moodRes = { model: "claude-haiku-5-5", usage: { input_tokens: 900, output_tokens: 120 }, content: [{ type: "text", text: JSON.stringify({ relevant: true, summary: "Residents describe drains that clog every fall.", themes: ["clogged drains"], quotes: [{ thread: "p1", text: "The drain on my block clogs every single fall." }, { thread: "p2", text: "Made-up words nobody wrote." }] }) }] };
+const [rx] = await run(codeOf(reddit, "Reactions"), [moodRes], { Input: [rdRun], "What to search": whatToSearch, "Search Reddit": [post("a"), post("b")], "Mood request": [moodAsk], "Search terms with Claude": [{ model: "claude-haiku-5-5", usage: { input_tokens: 200, output_tokens: 20 } }] });
+check(rx.reactions.relevant && rx.reactions.quotes.length === 1 && rx.reactions.quotes[0].thread === "p1" && rx.reactions.calls.length === 2 && !rx.terms_body, "Reactions keeps only quotes found word for word in a comment, and records both Claude calls");
+const [rxNone] = await run(codeOf(reddit, "Reactions"), [{ none: true }], { Input: [rdRun], "What to search": whatToSearch, "Search Reddit": [{ error: { message: "Credentials not found" } }] });
+check(rxNone.reactions.relevant === false && rxNone.reactions.error === "Credentials not found", `Reactions without threads goes on and says why: ${rxNone.reactions.error}`);
+const [merged] = await run(codeOf(context, "Add reactions"), [rx], { "Recent reports": [writeIn] });
+const [mergedFail] = await run(codeOf(context, "Add reactions"), [{ error: { message: "2c Reddit failed" } }], { "Recent reports": [writeIn] });
+check(merged.reactions.relevant && merged.reports.length === writeIn.reports.length && mergedFail.reactions.relevant === false && mergedFail.story, "Context adds the reactions, and goes on without them if 2c Reddit fails");
+
+const redditScript = answer.script.replace("The city data does not say why.", "On Reddit, 400 residents say the drains clog.");
+const [redditNumber] = await run(codeOf(write, "Build spec and check numbers"), [webModel({ ...answer, script: redditScript, reddit_used: true })], { Input: [{ ...merged, reactions: { ...merged.reactions, summary: "400 residents say the drains clog." } }] });
+check(redditNumber.ok === false, `Guard blocks a number taken from Reddit: ${redditNumber.reason}`);
+const opinionScript = answer.script.replace("The city data does not say why.", "On Reddit, some residents say the drains clog every fall.");
+const [opinion] = await run(codeOf(write, "Build spec and check numbers"), [webModel({ ...answer, script: opinionScript, reddit_used: true })], { Input: [merged] });
+check(opinion.ok && opinion.reddit_used === true, `Write may add an opinion sentence from Reddit${opinion.ok ? "" : `: ${opinion.reason}`}`);
+const [rxCard] = await run(codeOf(chat, "Start review"), [opinion]);
+const rxCardText = JSON.stringify(rxCard.post.blocks);
+check(rxCardText.includes("How people are reacting") && rxCardText.includes("opinion only") && rxCardText.includes("clogs every single fall") && rxCardText.includes("Mentioned in the script"), "The review card shows the Reddit reactions, marked opinion only");
+
 console.log(failures ? `\n${failures} check(s) failed.` : "\nAll checks passed.");
 process.exit(failures ? 1 : 0);

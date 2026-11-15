@@ -104,6 +104,14 @@
     "max_searches": 3,
     "max_sources": 6
   },
+  "reddit": {
+    "_note": "For every story, 2c Reddit reads how people are reacting in these subreddits. Opinion only: never a source for numbers.",
+    "enabled": true,
+    "subreddits": ["vancouver", "britishcolumbia"],
+    "days": 30,
+    "max_threads": 4,
+    "comments_per_thread": 6
+  },
   "style": {
     "audience": "Vancouver residents who follow local news on their phones",
     "tone": "Plain, calm and specific, like a local radio newsreader",

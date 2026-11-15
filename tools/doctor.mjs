@@ -92,7 +92,7 @@ if (existsSync(clientFile)) {
 
 // 6. Workflows deployed and switched on.
 if (credentials.length || workflows.length) {
-  const names = ["0 Orchestrator", "1 Collect", "2 Score", "2b Context", "3 Write", "4 Voice", "5 Render", "6 Publish", "7 Chat", "8 Request"];
+  const names = ["0 Orchestrator", "1 Collect", "2 Score", "2b Context", "2c Reddit", "3 Write", "4 Voice", "5 Render", "6 Publish", "7 Chat", "8 Request"];
   const byName = new Map(workflows.map((w) => [w.name, w]));
   const missing = names.filter((n) => !byName.has(n));
   const off = names.filter((n) => byName.has(n) && !byName.get(n).active);

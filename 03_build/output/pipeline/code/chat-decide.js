@@ -37,6 +37,7 @@ if (route === "revise") {
     client: { name: run.client?.name, style: run.client?.style },
     story: run.story,
     news_reports: (run.reports || []).map(({ id, source, title, summary, feed, url }) => ({ id, from: feed === "web" ? "web search" : "news feed", source, title, summary, url })),
+    reddit_reactions: run.reactions?.relevant ? { note: "opinion only, never data", summary: run.reactions.summary, themes: run.reactions.themes, quotes: (run.reactions.quotes || []).map((q) => q.text) } : null,
     current_draft: draftOf(run),
     conversation: history,
     editor_message: ev.text,

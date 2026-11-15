@@ -13,6 +13,7 @@ export function claudeCalls(run) {
   const calls = [];
   if (run.request?.parse?.usage) calls.push({ what: "Read the Slack request", ...run.request.parse });
   if (run.web_search?.usage) calls.push({ what: `Search the web (${run.web_search.searches || 0} searches)`, model: run.web_search.model, usage: run.web_search.usage, searches: run.web_search.searches || 0 });
+  for (const c of run.reactions?.calls || []) if (c.usage) calls.push(c);
   if (run.write?.usage) calls.push({ what: "Write the draft", model: run.write.model, usage: run.write.usage });
   for (const r of run.revisions || []) if (r.usage) calls.push({ what: `Revise: "${r.editor}"`, model: r.model, usage: r.usage });
   return calls.map((c) => {

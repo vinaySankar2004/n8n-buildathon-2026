@@ -34,6 +34,25 @@ function webSourceBlocks(run) {
   ];
 }
 
+// How people are reacting on Reddit: opinion only, shown so the editor can judge it. Never data.
+function reactionBlocks(run) {
+  const r = run.reactions;
+  if (!r) return [];
+  const searched = r.searched?.length ? `Searched ${r.searched.join(", ")}.` : "";
+  if (!r.relevant) {
+    const why = r.error ? `Reddit could not be read: ${r.error}` : "No recent Reddit threads were about this story.";
+    return [context(`*How people are reacting (Reddit):* ${why} ${searched}`.trim())];
+  }
+  const byRef = new Map((r.threads || []).map((t) => [t.ref, t]));
+  const threads = (r.threads || []).map((t) => `• <${t.url}|${t.title}> (r/${t.subreddit}, ${t.num_comments} comments)`).join("\n");
+  const quotes = (r.quotes || []).map((q) => `>_"${q.text}"_ (${byRef.get(q.thread) ? `r/${byRef.get(q.thread).subreddit}` : "Reddit"})`).join("\n");
+  return [
+    section(`*How people are reacting (Reddit, opinion only, not used for numbers)*${run.reddit_used ? " *Mentioned in the script.*" : ""}\n${r.summary}${r.themes?.length ? `\nThemes: ${r.themes.join("; ")}.` : ""}`),
+    ...(quotes ? [section(quotes)] : []),
+    section(`${threads}\n${searched}`),
+  ];
+}
+
 function scriptBlocks(run) {
   const s = run.story;
   const spec = run.spec;
@@ -53,6 +72,7 @@ function scriptBlocks(run) {
       ? [section(`*Context from the news*\n${run.reports_used.filter((r) => r.feed !== "web").map((r) => `• ${r.url ? `<${r.url}|${r.title}>` : r.title} (${r.source})`).join("\n")}`)]
       : []),
     ...webSourceBlocks(run),
+    ...reactionBlocks(run),
     section(`*On screen*\n• Big number: ${spec.callout.value}, "${spec.callout.label}"\n• Chart: ${spec.chart.title} (${spec.chart.kind || "bar"} chart${spec.chart.highlight ? `, ${spec.chart.highlight} highlighted` : ""}${spec.brand?.accent ? `, colour ${spec.brand.accent}` : ""})\n• Values: ${chart}`),
     ...(spec.closing_line ? [section(`*Closing scene*\n${spec.closing_line}`)] : []),
     section(`*Newsletter blurb*\n${run.blurb}`),

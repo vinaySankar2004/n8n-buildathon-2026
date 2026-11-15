@@ -5,7 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-export const STEPS = ["orchestrator", "collect", "score", "context", "write", "voice", "render", "publish", "chat", "request"];
+export const STEPS = ["orchestrator", "collect", "score", "context", "reddit", "write", "voice", "render", "publish", "chat", "request"];
 export const WORKFLOW_DIR = path.join(root, "03_build/output/workflows");
 
 function fromEnvFile(name) {
