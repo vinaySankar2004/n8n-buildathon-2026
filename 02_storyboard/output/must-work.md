@@ -21,6 +21,8 @@ Every step the storyboard shows, in order. Each one is the build scope and has a
 | 15 | **Ledger.** Every run, with who started it, its status and its Claude and ElevenLabs cost, is on one page | B7 | After a request, its row shows the asker, the status and the cost | Vinayak |
 | 16 | **Chart.** After the video is made, a reply such as "make it a line chart" or "make Mount Pleasant red" remakes it with that chart | B6 | The new video shows the asked-for chart within about 30 seconds | Vinayak |
 | 17 | **Web sources.** A video request also searches the web for recent reporting; the review card lists each source with the words it was cited for, and the script may name one (D20) | B7 | The review card shows the web sources with links and quotes, the trace lists the searches and their cost, and a number from a page passes the guard only if the script cites it | Arman |
+| 18 | **Unemployment.** "@NewsReels show unemployment over the last 5 years" answers in the thread, and as a video draws Vancouver's monthly rate as a line | B9 | The answer's latest rate and month match Statistics Canada's table 14-10-0459-01 | Vinayak |
+| 19 | **Free edits and scenes.** Videos run about 30 seconds in three scenes; a reply can change colours per bar, length, scenes or the closing line, and only a made-up number is refused | B6 | "Make Downtown green and drop the closing scene" remakes the video that way | Vinayak |
 
 ## Contracts between workflows
 

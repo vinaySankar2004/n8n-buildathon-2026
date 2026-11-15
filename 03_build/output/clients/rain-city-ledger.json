@@ -108,8 +108,8 @@
     "audience": "Vancouver residents who follow local news on their phones",
     "tone": "Plain, calm and specific, like a local radio newsreader",
     "script_words": {
-      "min": 35,
-      "max": 45
+      "min": 60,
+      "max": 75
     },
     "avoid": [
       "hype",

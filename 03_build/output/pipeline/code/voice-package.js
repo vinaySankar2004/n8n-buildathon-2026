@@ -3,7 +3,7 @@
 const input = $("Input").first().json;
 const buf = await this.helpers.getBinaryDataBuffer(0, "data");
 const seconds = Math.round(((buf.length * 8) / 128000) * 10) / 10;
-if (seconds > 22) {
-  return [{ json: { ok: false, step: "Voice", reason: `The narration is ${seconds} seconds; it must be under 22.` } }];
+if (seconds > 48) {
+  return [{ json: { ok: false, step: "Voice", reason: `The narration is ${seconds} seconds; it must be under 48.` } }];
 }
 return [{ json: { ...input, ok: true, audio_base64: buf.toString("base64"), audio_seconds: seconds } }];

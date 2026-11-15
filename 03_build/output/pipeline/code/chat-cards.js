@@ -54,6 +54,7 @@ function scriptBlocks(run) {
       : []),
     ...webSourceBlocks(run),
     section(`*On screen*\n• Big number: ${spec.callout.value}, "${spec.callout.label}"\n• Chart: ${spec.chart.title} (${spec.chart.kind || "bar"} chart${spec.chart.highlight ? `, ${spec.chart.highlight} highlighted` : ""}${spec.brand?.accent ? `, colour ${spec.brand.accent}` : ""})\n• Values: ${chart}`),
+    ...(spec.closing_line ? [section(`*Closing scene*\n${spec.closing_line}`)] : []),
     section(`*Newsletter blurb*\n${run.blurb}`),
   ];
 }

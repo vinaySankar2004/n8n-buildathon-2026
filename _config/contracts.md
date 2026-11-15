@@ -96,6 +96,8 @@ Score gets every `collected` and returns `{ "ok": true, "story": …, "runners_u
     "source_note": "City of Vancouver open data, 3-1-1 service requests"
   },
   "brand": { "name": "Rain City Ledger", "desk": "City data desk", "accent": "#F2B33D" },
+  "scenes": ["intro", "chart", "close"],
+  "closing_line": "Reports this week came in at 218, well above the usual level.",
   "duration_s": 20
 }
 ```
@@ -136,4 +138,4 @@ The router on the host laptop checks Slack's signature and posts to n8n's `/webh
 
 The client config's `web_search` block sets the search: `enabled`, `location` (`city`, `region`, `country`, `timezone`), `max_searches`, `max_sources`, and optional `blocked_domains`.
 
-Revise with Claude returns `{ "reply": "...", "draft": { "headline", "script", "callout_label", "chart_title", "chart_kind", "blurb", "reports_used" } or null }`. The draft passes the same number guard as Write before it is used.
+Revise with Claude returns `{ "reply": "...", "draft": { "headline", "script", "callout_label", "chart_title", "chart_kind", "chart_style", "highlight", "accent_color", "bar_colors", "scenes", "closing_line", "blurb", "reports_used" } or null }`. `spec.chart` also carries `kind` (`bar`, `line` or `pie`), `order`, `highlight` and `colors` (a hex colour per label). The draft passes the same number guard as Write before it is used.

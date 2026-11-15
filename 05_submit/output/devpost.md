@@ -24,10 +24,10 @@ For each client (our demo client is Rain City Ledger, a made-up Vancouver outlet
 2. Compares this week with the eight before and keeps only real changes: at least 20 and twice the usual level, or a fall to half.
 3. Reads the client's news feeds (BC Government News, Environment Canada weather alerts, DriveBC road events) for context.
 4. Has Claude draft a headline, a 35 to 45 word script, a chart and a newsletter blurb in the client's style. A code check blocks any number that is not in the data or in a report the script names.
-5. Sends the script and its data to the editor in a Slack thread before any voice or video is made. The editor replies in plain words ("make the headline calmer", "make it a line chart", "make Mount Pleasant red") and the bot revises, with the same number check.
-6. On "Approve script", ElevenLabs reads it and a Remotion service renders a 20 second vertical video into the thread. On "Approve and publish", it goes to the client's channel with a public "How this story was made" page.
+5. Sends the script and its data to the editor in a Slack thread before any voice or video is made. The editor replies in plain words and can change anything but the numbers ("make the headline calmer", "make it a line chart", "make Mount Pleasant red and Downtown green", "make it shorter") and the bot revises, with the same number check.
+6. On "Approve script", ElevenLabs reads it and a Remotion service renders a vertical video of about 30 seconds, in three scenes (a title card with the big number, the chart, a closing line), into the thread. On "Approve and publish", it goes to the client's channel with a public "How this story was made" page.
 
-Anyone in the newsroom can also ask in Slack: "@NewsReels how many noise complaints in Kitsilano this week?" gets the numbers in seconds, and "@NewsReels make a video about graffiti in Mount Pleasant" opens a review thread with that story. For a story someone asks for, NewsReels also searches the web for recent reporting on it and shows the editor every source it used.
+Anyone in the newsroom can also ask in Slack: "@NewsReels how many noise complaints in Kitsilano this week?" gets the numbers in seconds, "@NewsReels show unemployment over the last 5 years" draws Vancouver's rate from Statistics Canada, and "@NewsReels make a video about graffiti in Mount Pleasant" opens a review thread with that story. For a story someone asks for, NewsReels also searches the web for recent reporting on it and shows the editor every source it used.
 
 Every run has a trace (sources, ranking, news used, what Claude was asked and answered, where each number came from, edits, approvals, cost) and a row in a run ledger with who asked and what it cost. A story costs about one cent of Claude.
 

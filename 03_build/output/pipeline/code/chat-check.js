@@ -29,7 +29,7 @@ if (!answer.draft || typeof answer.draft !== "object") {
 }
 
 const draft = { ...draftOf(run), ...answer.draft };
-for (const k of ["headline", "script", "callout_label", "chart_title", "blurb"]) draft[k] = String(draft[k] ?? "").trim();
+for (const k of ["headline", "script", "callout_label", "chart_title", "blurb", "closing_line"]) draft[k] = String(draft[k] ?? "").trim();
 const built = buildSpec(run.story, draft, { client: run.client, reports: run.reports });
 if (built.problems.length) {
   const text = `I did not make that change: ${built.problems.join("; ")}. Every number has to come from the data or a news report the script cites. The draft is as it was.`;

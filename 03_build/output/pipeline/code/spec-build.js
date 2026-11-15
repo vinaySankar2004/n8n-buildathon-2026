@@ -63,7 +63,16 @@ function buildSpec(story, d, ctx = {}) {
     brand: { name: client.name || "", desk: client.look?.desk || "", accent: color || client.look?.accent || null },
     duration_s: 20,
   };
-  const fields = { headline: d.headline, script: d.script, callout_value: callout.value, callout_label: d.callout_label, chart_title: d.chart_title, blurb: d.blurb };
+  // Scenes, a closing line and per-label colours, which the editor can change from the thread.
+  const SCENES = ["intro", "chart", "close"];
+  const scenes = Array.isArray(d.scenes) ? d.scenes.filter((x) => SCENES.includes(x)) : [];
+  spec.scenes = scenes.length ? [...new Set(scenes)] : SCENES;
+  spec.closing_line = String(d.closing_line || "").trim();
+  const labels = new Set(spec.chart.data.map((x) => x.label));
+  const colors = Object.fromEntries(Object.entries(d.bar_colors && typeof d.bar_colors === "object" ? d.bar_colors : {})
+    .filter(([k, v]) => labels.has(k) && /^#[0-9a-f]{6}$/i.test(String(v))));
+  spec.chart.colors = Object.keys(colors).length ? colors : null;
+  const fields = { headline: d.headline, script: d.script, callout_value: callout.value, callout_label: d.callout_label, chart_title: d.chart_title, blurb: d.blurb, closing_line: spec.closing_line };
   const origin = numberOrigins(story, used);
   const number_checks = [];
   for (const [field, text] of Object.entries(fields)) {
@@ -74,9 +83,9 @@ function buildSpec(story, d, ctx = {}) {
   const unknown = number_checks.filter((c) => !c.from).map((c) => `${c.number} in ${c.field}`);
   if (unknown.length) problems.push(`${unknown.join(", ")} is not in the story or a report it uses`);
   const words = String(d.script).trim().split(/\s+/).length;
-  const range = client.style?.script_words || { min: 35, max: 45 };
-  const lo = Math.max(20, range.min - 10);
-  const hi = Math.min(50, range.max + 5); // past 50 words the narration runs over 22 seconds
+  // Any length the editor wants, up to about 45 seconds of narration.
+  const lo = 15;
+  const hi = 115;
   if (words < lo || words > hi) problems.push(`the script is ${words} words; it needs ${lo} to ${hi}`);
   return { spec, chart_kind: chartKind, words, problems, used, number_checks };
 }
@@ -93,4 +102,7 @@ const draftOf = (run) => ({
   chart_style: run.spec.chart.kind || "bar",
   highlight: run.spec.chart.highlight || null,
   accent_color: run.spec.brand?.accent && run.spec.brand.accent !== run.client?.look?.accent ? run.spec.brand.accent : null,
+  bar_colors: run.spec.chart.colors || null,
+  scenes: run.spec.scenes || ["intro", "chart", "close"],
+  closing_line: run.spec.closing_line || "",
 });

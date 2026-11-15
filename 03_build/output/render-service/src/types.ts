@@ -13,7 +13,12 @@ export type Spec = {
     order?: "time" | "value";
     // The label drawn in the accent colour; by default the largest value, or the latest week.
     highlight?: string | null;
+    // A colour per label, such as { "Mount Pleasant": "#E53935" }, set from the Slack thread.
+    colors?: Record<string, string> | null;
   };
+  // The scenes in order: "intro" (title card with the big number), "chart", "close" (closing line).
+  scenes?: ("intro" | "chart" | "close")[];
+  closing_line?: string;
   // Optional big number shown under the headline, e.g. { value: "7.3×", label: "..." }.
   // When missing, the top chart value is used.
   callout?: { value: string; label: string };

@@ -19,7 +19,7 @@ const OUT = path.join(here, "..", "workflows");
 // n8n and the render service share Vinayak's Mac (see _config/infrastructure.md).
 const RENDER_URL = "http://127.0.0.1:8787/render";
 const MODEL = "claude-sonnet-5-5"; // writes each story
-const CHAT_MODEL = "claude-haiku-5-5"; // revises drafts in the review thread: many small edits, so the low-cost model
+const CHAT_MODEL = "claude-sonnet-5-5"; // revises drafts in the review thread: open-ended edits, so the stronger model (D21)
 const REQUEST_MODEL = "claude-haiku-5-5"; // matches Slack requests to the data
 const VOICE_ID = "JBFqnCBsd6RMkjVDRZzb"; // an ElevenLabs premade voice; change in "Speak script"
 

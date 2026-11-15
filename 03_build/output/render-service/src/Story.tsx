@@ -40,10 +40,10 @@ const splitSentences = (script: string) =>
 const formatValue = (v: number) =>
   Number.isInteger(v) ? v.toLocaleString("en-CA") : v.toFixed(1);
 
-type ChartProps = { data: { label: string; value: number }[]; accent: string; hiLabel?: string; start: number };
+type ChartProps = { data: { label: string; value: number }[]; accent: string; hiLabel?: string; start: number; colors?: Record<string, string> | null };
 
 // A line across the weeks (or items), drawn left to right, with each value above its point.
-const LineChart: React.FC<ChartProps & { max: number }> = ({ data, max, accent, hiLabel, start }) => {
+const LineChart: React.FC<ChartProps & { max: number }> = ({ data, max, accent, hiLabel, start, colors }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const W = 920, H = 460, padX = 46, top = 70, bottom = 80;
@@ -67,7 +67,7 @@ const LineChart: React.FC<ChartProps & { max: number }> = ({ data, max, accent, 
         const hi = q.d.label === hiLabel;
         return (
           <g key={q.d.label} opacity={on ? 1 : 0}>
-            <circle cx={q.x} cy={q.y} r={hi ? 17 : 12} fill={hi ? accent : C.bar} stroke={C.bg} strokeWidth={4} />
+            <circle cx={q.x} cy={q.y} r={hi ? 17 : 12} fill={colors?.[q.d.label] || (hi ? accent : C.bar)} stroke={C.bg} strokeWidth={4} />
             <text x={q.x} y={q.y - 30} textAnchor="middle" fill={C.text} fontSize={36} fontWeight={700}>{formatValue(q.d.value)}</text>
             <text x={q.x} y={H - bottom + 46} textAnchor="middle" fill={hi ? C.text : C.muted} fontSize={27} fontWeight={hi ? 700 : 500}>{q.d.label}</text>
           </g>
@@ -78,7 +78,7 @@ const LineChart: React.FC<ChartProps & { max: number }> = ({ data, max, accent, 
 };
 
 // A donut of each item's share, slices sweeping in, with a legend of labels and values.
-const PieChart: React.FC<ChartProps> = ({ data, accent, hiLabel, start }) => {
+const PieChart: React.FC<ChartProps> = ({ data, accent, hiLabel, start, colors }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const total = data.reduce((n, d) => n + d.value, 0) || 1;
@@ -94,7 +94,7 @@ const PieChart: React.FC<ChartProps> = ({ data, accent, hiLabel, start }) => {
     const a1 = (acc / total) * 2 * Math.PI * p;
     const big = a1 - a0 > Math.PI ? 1 : 0;
     const [x0, y0] = pt(a0, R), [x1, y1] = pt(a1, R), [x2, y2] = pt(a1, r), [x3, y3] = pt(a0, r);
-    const color = d.label === hiLabel ? accent : shades[shade++ % shades.length];
+    const color = colors?.[d.label] || (d.label === hiLabel ? accent : shades[shade++ % shades.length]);
     const path = a1 - a0 < 0.0001 ? "" : `M${x0} ${y0} A${R} ${R} 0 ${big} 1 ${x1} ${y1} L${x2} ${y2} A${r} ${r} 0 ${big} 0 ${x3} ${y3} Z`;
     return { d, color, path };
   });
@@ -147,7 +147,13 @@ export const Story: React.FC<StoryProps> = ({ spec, audioSrc }) => {
   });
   const current = timed.find((t) => frame >= t.from && frame < t.to);
 
-  const barsStart = 1.6 * fps;
+  // Scenes: a title card, the chart, a closing card. Each card takes about a fifth of the video.
+  const scenes = spec.scenes && spec.scenes.length ? spec.scenes : ["intro", "chart", "close"];
+  const hasIntro = scenes.includes("intro");
+  const hasClose = scenes.includes("close") && Boolean(spec.closing_line);
+  const introEnd = hasIntro ? Math.max(3 * fps, Math.round(durationInFrames * 0.22)) : 0;
+  const closeStart = hasClose ? durationInFrames - Math.max(3 * fps, Math.round(durationInFrames * 0.2)) : durationInFrames;
+  const barsStart = introEnd + 1.6 * fps;
   const stagger = 0.22 * fps;
   const grow = 0.9 * fps;
 
@@ -252,15 +258,15 @@ export const Story: React.FC<StoryProps> = ({ spec, audioSrc }) => {
             fontWeight: 700,
             color: C.muted,
             marginBottom: 32,
-            opacity: interpolate(frame, [1.3 * fps, 1.8 * fps], [0, 1], clamp),
+            opacity: interpolate(frame, [introEnd + 1.3 * fps, introEnd + 1.8 * fps], [0, 1], clamp),
           }}
         >
           {spec.chart.title}
         </div>
         {kind === "line" ? (
-          <LineChart data={data} max={max} accent={accent} hiLabel={hiLabel} start={barsStart} />
+          <LineChart data={data} max={max} accent={accent} hiLabel={hiLabel} start={barsStart} colors={spec.chart.colors} />
         ) : kind === "pie" ? (
-          <PieChart data={data} accent={accent} hiLabel={hiLabel} start={barsStart} />
+          <PieChart data={data} accent={accent} hiLabel={hiLabel} start={barsStart} colors={spec.chart.colors} />
         ) : (
           <>
           {data.map((d, i) => {
@@ -303,7 +309,7 @@ export const Story: React.FC<StoryProps> = ({ spec, audioSrc }) => {
                     style={{
                       height: "100%",
                       width: `${(d.value / max) * 100 * progress}%`,
-                      background: d.label === hiLabel ? accent : C.bar,
+                      background: spec.chart.colors?.[d.label] || (d.label === hiLabel ? accent : C.bar),
                       borderRadius: 8,
                     }}
                   />
@@ -329,6 +335,78 @@ export const Story: React.FC<StoryProps> = ({ spec, audioSrc }) => {
           </>
         )}
       </div>
+
+      {/* Intro: title card with the big number */}
+      {hasIntro && frame < introEnd + 0.5 * fps ? (
+        <AbsoluteFill
+          style={{
+            background: `linear-gradient(180deg, ${C.bgTop} 0%, ${C.bg} 60%)`,
+            padding: "160px 80px",
+            justifyContent: "center",
+            opacity: interpolate(frame, [introEnd - 0.2 * fps, introEnd + 0.5 * fps], [1, 0], clamp),
+          }}
+        >
+          <div style={{ fontSize: 34, letterSpacing: 5, textTransform: "uppercase", fontWeight: 800, opacity: interpolate(frame, [0, 0.4 * fps], [0, 1], clamp) }}>
+            {spec.brand?.name || "[Outlet]"}
+          </div>
+          <div style={{ height: 6, width: interpolate(frame, [0.2 * fps, 0.9 * fps], [0, 220], { ...clamp, easing: ease }), background: accent, marginTop: 24, borderRadius: 3 }} />
+          <div
+            style={{
+              fontSize: headlineSize(spec.headline) + 16,
+              fontWeight: 800,
+              lineHeight: 1.08,
+              marginTop: 56,
+              opacity: interpolate(frame, [0.3 * fps, 0.9 * fps], [0, 1], clamp),
+              transform: `translateY(${interpolate(frame, [0.3 * fps, 1.1 * fps], [40, 0], { ...clamp, easing: ease })}px)`,
+            }}
+          >
+            {spec.headline}
+          </div>
+          <div
+            style={{
+              fontSize: 230,
+              fontWeight: 800,
+              color: accent,
+              lineHeight: 1,
+              marginTop: 70,
+              transform: `scale(${interpolate(frame, [0.9 * fps, 1.6 * fps], [0.6, 1], { ...clamp, easing: ease })})`,
+              transformOrigin: "left center",
+              opacity: interpolate(frame, [0.9 * fps, 1.3 * fps], [0, 1], clamp),
+            }}
+          >
+            {callout.value}
+          </div>
+          <div style={{ fontSize: 44, color: C.muted, marginTop: 24, maxWidth: 860, lineHeight: 1.25, opacity: interpolate(frame, [1.4 * fps, 2 * fps], [0, 1], clamp) }}>
+            {callout.label}
+          </div>
+        </AbsoluteFill>
+      ) : null}
+
+      {/* Close: the closing line and the source */}
+      {hasClose && frame >= closeStart - 0.5 * fps ? (
+        <AbsoluteFill
+          style={{
+            background: `linear-gradient(180deg, ${C.bg} 0%, ${C.bgTop} 100%)`,
+            padding: "160px 80px",
+            justifyContent: "center",
+            opacity: interpolate(frame, [closeStart - 0.5 * fps, closeStart], [0, 1], clamp),
+          }}
+        >
+          <div style={{ height: 6, width: 160, background: accent, borderRadius: 3, marginBottom: 48 }} />
+          <div
+            style={{
+              fontSize: 76,
+              fontWeight: 800,
+              lineHeight: 1.15,
+              transform: `translateY(${interpolate(frame, [closeStart, closeStart + 0.8 * fps], [30, 0], { ...clamp, easing: ease })}px)`,
+            }}
+          >
+            {spec.closing_line}
+          </div>
+          <div style={{ fontSize: 30, color: C.muted, marginTop: 60, lineHeight: 1.3 }}>Source: {spec.chart.source_note}</div>
+          <div style={{ fontSize: 32, letterSpacing: 5, textTransform: "uppercase", fontWeight: 800, marginTop: 40 }}>{spec.brand?.name || ""}</div>
+        </AbsoluteFill>
+      ) : null}
 
       {/* Captions */}
       <div
