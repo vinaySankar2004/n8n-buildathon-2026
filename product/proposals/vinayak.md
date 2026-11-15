@@ -75,7 +75,7 @@ Claude: n8n's run history already holds the raw steps; the trace turns it into s
 
 ## Next three hours
 
-Not discussed yet.
+"Client config first": the config file, the style card and the news feeds, because that is what makes the pipeline newsReels. Then the run trace, which he wants as the pitch's point about trust. Built Saturday evening (D15).
 
 ## Anything else
 

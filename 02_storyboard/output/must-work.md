@@ -14,6 +14,8 @@ Every step the storyboard shows, in order. Each one is the build scope and has a
 | 8 | **Canvas.** Five named workflows with sticky notes, joined by Execute Workflow nodes | B8 | A cold viewer can name each stage | |
 | 9 | **Guard.** Before voicing, a check compares every number in the script with the story and stops the run on a mismatch. A story needs at least 20 reports and at least twice the usual weekly level | B5 | A script with one changed number is blocked | |
 | 10 | **Quiet.** If the city API fails or no change passes the bar, the editor gets a short "no story today" note in Slack instead of a video | B7 | Pointing Collect at a dead URL produces the note, not an error | |
+| 11 | **Client.** The video and messages carry the client's name and style from its config file (D15) | B5 | The video shows "Rain City Ledger", not "[Outlet]" | Vinayak |
+| 12 | **Context.** Write adds one sentence from a related news report and names it on screen and in the blurb; a feed that fails does not stop the run | B5 | `npm run test:pipeline` passes the Context and report-guard checks | Vinayak |
 
 ## Contracts between workflows
 
