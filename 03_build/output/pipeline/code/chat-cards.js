@@ -29,6 +29,9 @@ function scriptBlocks(run) {
         (weeks ? `\n• Last 6 weeks: ${weeks}` : "") +
         `\n• Source: <${s.source_url}|${s.source_note}>`,
     ),
+    ...((run.reports_used || []).length
+      ? [section(`*Context from the news*\n${run.reports_used.map((r) => `• ${r.url ? `<${r.url}|${r.title}>` : r.title} (${r.source})`).join("\n")}`)]
+      : []),
     section(`*On screen*\n• Big number: ${spec.callout.value}, "${spec.callout.label}"\n• Chart: ${spec.chart.title}\n• Bars: ${chart}`),
     section(`*Newsletter blurb*\n${run.blurb}`),
   ];
@@ -36,7 +39,7 @@ function scriptBlocks(run) {
 
 const scriptButtons = () => ({ type: "actions", elements: [button("Approve script", "approve_script", "primary"), button("Reject", "reject", "danger")] });
 const videoButtons = () => ({ type: "actions", elements: [button("Approve and publish", "approve_video", "primary"), button("Reject", "reject", "danger")] });
-const HOW_TO_REPLY = "Reply in this thread to change anything: the script, headline, big number label, chart or blurb. Every number has to come from the city data.";
+const HOW_TO_REPLY = "Reply in this thread to change anything: the script, headline, big number label, chart or blurb. Every number has to come from the data or a news report the script cites.";
 
 // The run without the parts that are large or only for this message.
 function keep(run) {

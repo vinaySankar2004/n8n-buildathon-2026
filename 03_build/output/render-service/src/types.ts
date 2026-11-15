@@ -12,6 +12,8 @@ export type Spec = {
   // Optional big number shown under the headline, e.g. { value: "7.3×", label: "..." }.
   // When missing, the top chart value is used.
   callout?: { value: string; label: string };
+  // The client's name, desk and accent colour from its newsReels config.
+  brand?: { name?: string; desk?: string; accent?: string | null };
   duration_s?: number;
 };
 

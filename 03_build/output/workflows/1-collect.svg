@@ -2,16 +2,17 @@
 <rect x="0" y="0" width="1856" height="872" fill="#f6f7f9"/>
 <text x="40" y="44" font-size="20" font-weight="700" fill="#1c2430">1 Collect</text>
 <text x="40" y="852" font-size="12" fill="#667085">Grey line: the run goes on. Red dashed line: the error or "no" path. Drawn from 03_build/output/workflows/, the JSON deployed to n8n.</text>
-<rect x="40" y="74" width="460" height="176" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
+<rect x="40" y="74" width="460" height="192" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
 <text x="54" y="100" font-size="16" font-weight="700" fill="#4a3f12">1 Collect</text>
-<text x="54" y="122" font-size="12" font-weight="400" fill="#4a3f12">Pulls 9 weeks of one City of Vancouver dataset, grouped by</text>
-<text x="54" y="138" font-size="12" font-weight="400" fill="#4a3f12">category, day and neighbourhood. Public, no key, never addresses.</text>
+<text x="54" y="122" font-size="12" font-weight="400" fill="#4a3f12">Pulls 9 weeks of one open dataset, grouped by category, day and</text>
+<text x="54" y="138" font-size="12" font-weight="400" fill="#4a3f12">neighbourhood. Public, no key, never addresses.</text>
 <text x="54" y="154" font-size="12" font-weight="400" fill="#4a3f12"></text>
-<text x="54" y="170" font-size="12" font-weight="400" fill="#4a3f12">The orchestrator calls it once per source in Vancouver sources.</text>
-<text x="54" y="186" font-size="12" font-weight="400" fill="#4a3f12">Its test webhook takes a source object; an empty body uses 3-1-1.</text>
-<text x="54" y="202" font-size="12" font-weight="400" fill="#4a3f12"></text>
-<text x="54" y="218" font-size="12" font-weight="400" fill="#4a3f12">Any failure or stale data ends at Failed with ok: false and a</text>
-<text x="54" y="234" font-size="12" font-weight="400" fill="#4a3f12">reason.</text>
+<text x="54" y="170" font-size="12" font-weight="400" fill="#4a3f12">The orchestrator calls it once per entry in the client's Data</text>
+<text x="54" y="186" font-size="12" font-weight="400" fill="#4a3f12">sources. Its test webhook takes a source object; an empty body</text>
+<text x="54" y="202" font-size="12" font-weight="400" fill="#4a3f12">uses 3-1-1.</text>
+<text x="54" y="218" font-size="12" font-weight="400" fill="#4a3f12"></text>
+<text x="54" y="234" font-size="12" font-weight="400" fill="#4a3f12">Any failure or stale data ends at Failed with ok: false and a</text>
+<text x="54" y="250" font-size="12" font-weight="400" fill="#4a3f12">reason.</text>
 <path d="M276,571 C316,571 260,671 300,671" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M496,671 C536,671 480,671 520,671" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M716,656 C756,656 700,571 740,571" fill="none" stroke="#7d8796" stroke-width="2" />

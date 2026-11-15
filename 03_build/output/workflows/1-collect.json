@@ -239,7 +239,7 @@
     },
     {
       "parameters": {
-        "content": "## 1 Collect\nPulls 9 weeks of one City of Vancouver dataset, grouped by category, day and neighbourhood. Public, no key, never addresses.\n\nThe orchestrator calls it once per source in **Vancouver sources**. Its test webhook takes a source object; an empty body uses 3-1-1.\n\nAny failure or stale data ends at **Failed** with `ok: false` and a reason.",
+        "content": "## 1 Collect\nPulls 9 weeks of one open dataset, grouped by category, day and neighbourhood. Public, no key, never addresses.\n\nThe orchestrator calls it once per entry in the client's **Data sources**. Its test webhook takes a source object; an empty body uses 3-1-1.\n\nAny failure or stale data ends at **Failed** with `ok: false` and a reason.",
         "height": 300,
         "width": 460,
         "color": 5

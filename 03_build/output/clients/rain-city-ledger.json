@@ -1,0 +1,92 @@
+{
+  "id": "rain-city-ledger",
+  "name": "Rain City Ledger",
+  "about": "A made-up Vancouver outlet, the demo client (D5, D13).",
+  "look": {
+    "desk": "City data desk",
+    "accent": "#F2B33D"
+  },
+  "slack": {
+    "editor": "C0CHNAKERA9",
+    "outlet": "C0CHVG02PJM"
+  },
+  "data_sources": [
+    {
+      "id": "311",
+      "portal": "https://opendata.vancouver.ca",
+      "dataset": "3-1-1-service-requests",
+      "label": "3-1-1 service requests",
+      "source_note": "City of Vancouver open data, 3-1-1 service requests",
+      "source_url": "https://opendata.vancouver.ca/explore/dataset/3-1-1-service-requests/",
+      "unit": "reports",
+      "date_field": "service_request_open_timestamp",
+      "category_field": "service_request_type",
+      "area_field": "local_area",
+      "date_only": false,
+      "max_age_hours": 48,
+      "filter": ""
+    },
+    {
+      "id": "permits",
+      "portal": "https://opendata.vancouver.ca",
+      "dataset": "issued-building-permits",
+      "label": "issued building permits",
+      "source_note": "City of Vancouver open data, issued building permits",
+      "source_url": "https://opendata.vancouver.ca/explore/dataset/issued-building-permits/",
+      "unit": "permits",
+      "date_field": "issuedate",
+      "category_field": "typeofwork",
+      "area_field": "geolocalarea",
+      "date_only": true,
+      "max_age_hours": 120,
+      "filter": ""
+    },
+    {
+      "id": "licences",
+      "portal": "https://opendata.vancouver.ca",
+      "dataset": "business-licences",
+      "label": "business licences",
+      "source_note": "City of Vancouver open data, business licences",
+      "source_url": "https://opendata.vancouver.ca/explore/dataset/business-licences/",
+      "unit": "licences",
+      "date_field": "issueddate",
+      "category_field": "businesstype",
+      "area_field": "localarea",
+      "date_only": false,
+      "max_age_hours": 120,
+      "filter": ""
+    }
+  ],
+  "news_feeds": [
+    {
+      "id": "bc-gov-news",
+      "kind": "rss",
+      "label": "BC Government News",
+      "source_note": "BC Government News",
+      "url": "https://news.gov.bc.ca/feed"
+    },
+    {
+      "id": "weather-alerts",
+      "kind": "weather_alerts",
+      "label": "Environment Canada weather alerts, Vancouver",
+      "source_note": "Environment Canada",
+      "url": "https://api.weather.gc.ca/collections/weather-alerts/items?f=json&bbox=-123.27,49.19,-123.02,49.32&limit=50"
+    },
+    {
+      "id": "drivebc",
+      "kind": "open511",
+      "label": "DriveBC road events, Vancouver",
+      "source_note": "DriveBC",
+      "url": "https://api.open511.gov.bc.ca/events?format=json&status=ACTIVE&bbox=-123.27,49.19,-123.02,49.32&limit=50"
+    }
+  ],
+  "style": {
+    "audience": "Vancouver residents who follow local news on their phones",
+    "tone": "Plain, calm and specific, like a local radio newsreader",
+    "script_words": { "min": 35, "max": 45 },
+    "avoid": ["hype", "exclamation marks", "guessing at causes", "addresses, streets or people"],
+    "samples": [
+      "Vancouver logged 218 street flooding reports this week, against a usual 29.3 a week. Mount Pleasant had the most, with 33. The city data does not say why."
+    ]
+  }
+}

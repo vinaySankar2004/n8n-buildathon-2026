@@ -43,6 +43,7 @@ const formatValue = (v: number) =>
 export const Story: React.FC<StoryProps> = ({ spec, audioSrc }) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
+  const accent = spec.brand?.accent || C.accent;
 
   const data = [...spec.chart.data]
     .sort((a, b) => b.value - a.value)
@@ -95,14 +96,14 @@ export const Story: React.FC<StoryProps> = ({ spec, audioSrc }) => {
           opacity: interpolate(frame, [0, 0.5 * fps], [0, 1], clamp),
         }}
       >
-        <span style={{ fontWeight: 800, color: C.text }}>[Outlet]</span>
-        <span style={{ fontWeight: 500 }}>City data desk</span>
+        <span style={{ fontWeight: 800, color: C.text }}>{spec.brand?.name || "[Outlet]"}</span>
+        <span style={{ fontWeight: 500 }}>{spec.brand?.desk || "City data desk"}</span>
       </div>
       <div
         style={{
           height: 4,
           marginTop: 24,
-          background: C.accent,
+          background: accent,
           width: interpolate(frame, [0.1 * fps, 0.9 * fps], [0, 160], {
             ...clamp,
             easing: ease,
@@ -144,7 +145,7 @@ export const Story: React.FC<StoryProps> = ({ spec, audioSrc }) => {
           style={{
             fontSize: 150,
             fontWeight: 800,
-            color: C.accent,
+            color: accent,
             lineHeight: 1,
             letterSpacing: -4,
           }}
@@ -217,7 +218,7 @@ export const Story: React.FC<StoryProps> = ({ spec, audioSrc }) => {
                   style={{
                     height: "100%",
                     width: `${(d.value / max) * 100 * progress}%`,
-                    background: i === 0 ? C.barTop : C.bar,
+                    background: i === 0 ? accent : C.bar,
                     borderRadius: 8,
                   }}
                 />

@@ -18,8 +18,15 @@ const id = (seed) => {
 const OUT = path.join(here, "..", "workflows");
 // n8n and the render service share Vinayak's Mac (see _config/infrastructure.md).
 const RENDER_URL = "http://127.0.0.1:8787/render";
-const MODEL = "claude-sonnet-5-5";
+const MODEL = "claude-sonnet-5-5"; // writes each story
+const CHAT_MODEL = "claude-haiku-5-5"; // revises drafts in the review thread: many small edits, so the low-cost model
 const VOICE_ID = "JBFqnCBsd6RMkjVDRZzb"; // an ElevenLabs premade voice; change in "Speak script"
+
+// The client this build serves (D13): name, look, Slack channels, data sources, news feeds and style card.
+// One file per client in ../clients/; CLIENT=<file name> picks another.
+const CLIENT_ID = process.env.CLIENT || "rain-city-ledger";
+const client = JSON.parse(readFileSync(path.join(here, "..", "clients", `${CLIENT_ID}.json`), "utf8"));
+const { data_sources: _sources, ...runClient } = client; // what travels with each run
 
 // ---------- node helpers ----------
 const node = (name, type, typeVersion, position, parameters = {}, extra = {}) =>
@@ -65,13 +72,10 @@ const execWf = (name, pos, label, mode = "once", wait = true) =>
     mode,
     options: { waitForSubWorkflow: wait },
   }, { onError: "continueErrorOutput" });
-// Slack channels, by ID (in Slack: open the channel, then its name, then the ID at the bottom).
-// Deploy sets every Slack node from these, so nobody picks a channel in the editor.
+// Slack channels, by ID, from the client file (in Slack: open the channel, then its name, then the ID at the bottom).
+// editor: review, approval and "No story today" notes. outlet: stands in for the client's page.
 // Channel IDs are not secret; the bot token lives only in the n8n "Slack" credential.
-const SLACK_CHANNELS = {
-  editor: "C0CHNAKERA9", // review, approval and "No story today" notes
-  outlet: "C0CHVG02PJM", // stands in for the outlet page: approved videos and newsletter drafts
-};
+const SLACK_CHANNELS = client.slack ?? {};
 const channel = (which) => {
   const value = SLACK_CHANNELS[which];
   if (!value) console.warn(`SLACK_CHANNELS.${which} is empty in build.mjs; its Slack nodes deploy with no channel.`);
@@ -140,8 +144,14 @@ const sampleSpec = {
     data: sampleStory.by_area.map((a) => ({ label: a.area, value: a.count })),
     source_note: sampleStory.source_note,
   },
+  brand: { name: client.name, desk: client.look?.desk ?? "", accent: client.look?.accent ?? null },
   duration_s: 20,
 };
+// Sample reports, the shape Context hands to Write (from the live feeds on 2026-11-14).
+const sampleReports = [
+  { id: "r1", source: "Environment Canada", feed: "weather-alerts", title: "Coastal flooding statement for Coastline of Metro Vancouver incl. Vancouver and Musqueam FN", summary: "Elevated ocean water levels are expected with enhanced wave activity and strong winds at times. Hazard: Possible coastal flooding due to storm surge.", url: "https://weather.gc.ca/warnings/index_e.html", published: "2026-11-14T23:54:38.360Z" },
+  { id: "r2", source: "BC Government News", feed: "bc-gov-news", title: "People advised to plan for storm, possible flood conditions on South Coast highways", summary: "People travelling on South Coast highways are advised to plan ahead for a storm.", url: "https://news.gov.bc.ca/", published: "2026-11-10T23:20:00.000Z" },
+];
 const sampleBlurb = "Street flooding reports to 3-1-1 reached 218 this week, against a usual 29.3. Mount Pleasant and Downtown had the most.";
 
 const out = {};
@@ -164,7 +174,7 @@ const out = {};
     }, { executeOnce: true }),
     codeNode("Build collected", [1540, -200], "collect-build.js"),
     codeNode("Failed", [1320, 200], "collect-failed.js"),
-    sticky("About Collect", [-40, -460], "## 1 Collect\nPulls 9 weeks of one City of Vancouver dataset, grouped by category, day and neighbourhood. Public, no key, never addresses.\n\nThe orchestrator calls it once per source in **Vancouver sources**. Its test webhook takes a source object; an empty body uses 3-1-1.\n\nAny failure or stale data ends at **Failed** with `ok: false` and a reason."),
+    sticky("About Collect", [-40, -460], "## 1 Collect\nPulls 9 weeks of one open dataset, grouped by category, day and neighbourhood. Public, no key, never addresses.\n\nThe orchestrator calls it once per entry in the client's **Data sources**. Its test webhook takes a source object; an empty body uses 3-1-1.\n\nAny failure or stale data ends at **Failed** with `ok: false` and a reason."),
   ];
   const c = {};
   link(c, "When Executed by Another Workflow", [["Source config"]]);
@@ -193,9 +203,39 @@ const out = {};
   out["2-score"] = workflow("2 Score", n, c);
 }
 
+// ---------- 2b Context ----------
+{
+  const n = [
+    calledBy([0, 0]), testRun([0, 200]),
+    jsonNode("Sample run", [220, 200], { ok: true, story: sampleStory, client: runClient }),
+    noop("Input", [440, 100]),
+    codeNode("Feeds", [660, 100], "context-feeds.js"),
+    http("Fetch feed", [880, 100], {
+      url: "={{ $json.url }}",
+      sendHeaders: true,
+      headerParameters: { parameters: [{ name: "accept", value: "application/json, application/rss+xml, application/xml, text/xml" }] },
+      options: { timeout: 20000, response: { response: { responseFormat: "text", outputPropertyName: "data" } } },
+    }, { maxTries: 2, onError: "continueRegularOutput" }),
+    codeNode("Recent reports", [1100, 100], "context-related.js"),
+    sticky("About Context", [-40, -380], "## 2b Context\nFetches every news feed in the client's config (RSS, Environment Canada weather alerts, DriveBC road events) and adds the newest 12 items since the story's week began to the run as `reports`. Write decides which, if any, fit the story.\n\nA feed that fails is listed in `feeds_checked` and skipped: news never stops a run.\n\nAn empty test body uses **Sample run**.", 320),
+  ];
+  const c = {};
+  link(c, "When Executed by Another Workflow", [["Input"]]);
+  link(c, "Test run", [["Sample run"]]);
+  link(c, "Sample run", [["Input"]]);
+  link(c, "Input", [["Feeds"]]);
+  link(c, "Feeds", [["Fetch feed"]]);
+  link(c, "Fetch feed", [["Recent reports"]]);
+  out["2b-context"] = workflow("2b Context", n, c);
+}
+
 // ---------- 3 Write ----------
 {
   const prompt = code("write-prompt.md");
+  // What Claude is given: the client's name and style card, the story, and the recent reports.
+  const request = "'Client: ' + JSON.stringify({ name: $('Input').first().json.client?.name, style: $('Input').first().json.client?.style }, null, 2)"
+    + " + '\\n\\nStory JSON:\\n' + JSON.stringify($('Input').first().json.story, null, 2)"
+    + " + '\\n\\nReports from the client news feeds, newest first:\\n' + JSON.stringify(($('Input').first().json.reports || []).map(r => ({ id: r.id, source: r.source, published: r.published, title: r.title, summary: r.summary })), null, 2)";
   const write = http("Write script", [660, 100], {
     method: "POST",
     url: "https://api.anthropic.com/v1/messages",
@@ -205,17 +245,17 @@ const out = {};
     headerParameters: { parameters: [{ name: "anthropic-version", value: "2023-06-01" }] },
     sendBody: true,
     specifyBody: "json",
-    jsonBody: `={{ JSON.stringify({ model: '${MODEL}', max_tokens: 4000, output_config: { effort: 'low' }, system: ${JSON.stringify(prompt)}, messages: [{ role: 'user', content: 'Story JSON:\\n' + JSON.stringify($('Input').first().json.story, null, 2) }] }) }}`,
+    jsonBody: `={{ JSON.stringify({ model: '${MODEL}', max_tokens: 4000, output_config: { effort: 'low' }, system: ${JSON.stringify(prompt)}, messages: [{ role: 'user', content: ${request} }] }) }}`,
     options: { timeout: 60000 },
   }, { maxTries: 2, ...creds("anthropicApi", "Anthropic") });
   const n = [
     calledBy([0, 0]), testRun([0, 200]),
-    jsonNode("Sample story", [220, 200], { ok: true, story: sampleStory, test_tamper: false }),
+    jsonNode("Sample story", [220, 200], { ok: true, story: sampleStory, client: runClient, reports: sampleReports, test_tamper: false }),
     noop("Input", [440, 100]),
     write,
     codeWith("Build spec and check numbers", [900, 0], "write-check.js", ["spec-build.js"]),
     codeNode("Failed", [900, 240], "write-failed.js"),
-    sticky("About Write", [-40, -380], "## 3 Write\nClaude (Anthropic API, credential \"Anthropic\") turns the story into a headline, a script of 35 to 45 words, a chart title and a newsletter blurb.\n\n**Build spec and check numbers** builds the chart from the story itself and stops the run if any number in the text is not in the story (the guard).\n\nIts test webhook takes a `story` run; an empty body uses **Sample story**.", 320),
+    sticky("About Write", [-40, -380], "## 3 Write\nClaude (Anthropic API, credential \"Anthropic\") turns the story into a headline, a short script, a chart title and a newsletter blurb, in the client's style. It may add one sentence of context from a related report and must say which.\n\n**Build spec and check numbers** builds the chart from the story itself and stops the run if any number is not in the story or a report it used (the guard). It records where each number came from.\n\nAn empty test body uses **Sample story**.", 340),
   ];
   const c = {};
   link(c, "When Executed by Another Workflow", [["Input"]]);
@@ -330,7 +370,7 @@ const out = {};
   const fill = {
     __EDITOR_CHANNEL__: SLACK_CHANNELS.editor,
     __OUTLET_CHANNEL__: SLACK_CHANNELS.outlet,
-    __MODEL__: MODEL,
+    __MODEL__: CHAT_MODEL,
     __CHAT_PROMPT__: JSON.stringify(code("chat-prompt.md")),
   };
   const chatCode = (name, pos, file) => codeWith(name, pos, file, SHARED, fill);
@@ -459,26 +499,30 @@ const out = {};
   const n = [
     testRun([0, 200]),
     node("Every morning", "n8n-nodes-base.scheduleTrigger", 1.2, [0, 0], { rule: { interval: [{ triggerAtHour: 7 }] } }, { disabled: true }),
-    codeNode("Vancouver sources", [220, 100], "sources.js"),
-    { ...execWf("1 Collect", [440, 100], "1 Collect", "each"), onError: "continueRegularOutput" },
-    execWf("2 Score", [660, 100], "2 Score", "once"),
-    ifOk("Story found?", [880, 100]),
-    codeNode("Run options", [1100, 0], "run-options.js"),
-    execWf("3 Write", [1320, 0], "3 Write"),
-    ifOk("Numbers check out?", [1540, 0]),
-    execWf("7 Chat", [1760, 0], "7 Chat"),
-    codeNode("Why it stopped", [1760, 400], "why-stopped.js"),
-    node("No story today", "n8n-nodes-base.slack", 2.3, [1980, 400], { select: "channel", channelId: channel("editor"), text: "={{ $json.text }}", otherOptions: { includeLinkToWorkflow: false } }, SLACK),
-    sticky("About the newsroom", [-40, -460], "## 0 Orchestrator\n**Vancouver sources** lists the datasets to watch. **1 Collect** runs once per source, **2 Score** picks the week's strongest change, **3 Write** drafts it, and **7 Chat** posts the draft and its data to the editor in Slack. From there the editor's thread drives Voice, Render and Publish.\n\nIf any step says `ok: false`, or errors, **No story today** tells the editor why in Slack.\n\n**Every morning** stays off while building.\n\nTo test the guard, set `test_tamper` to true in **Run options**.", 380),
+    node("Client", "n8n-nodes-base.code", 2, [220, 100], { jsCode: `// The client this run serves, from 03_build/output/clients/${CLIENT_ID}.json. Change the file, not this node.\nreturn [{ json: ${JSON.stringify(client, null, 2)} }];\n` }),
+    node("Data sources", "n8n-nodes-base.code", 2, [440, 100], { jsCode: "// One item per dataset in the client's config, for 1 Collect.\nreturn $('Client').first().json.data_sources.map((json) => ({ json }));\n" }),
+    { ...execWf("1 Collect", [660, 100], "1 Collect", "each"), onError: "continueRegularOutput" },
+    execWf("2 Score", [880, 100], "2 Score", "once"),
+    ifOk("Story found?", [1100, 100]),
+    codeNode("Run options", [1320, 0], "run-options.js"),
+    execWf("2b Context", [1540, 0], "2b Context"),
+    execWf("3 Write", [1760, 0], "3 Write"),
+    ifOk("Numbers check out?", [1980, 0]),
+    execWf("7 Chat", [2200, 0], "7 Chat"),
+    codeNode("Why it stopped", [1980, 400], "why-stopped.js"),
+    node("No story today", "n8n-nodes-base.slack", 2.3, [2200, 400], { select: "channel", channelId: channel("editor"), text: "={{ $json.text }}", otherOptions: { includeLinkToWorkflow: false } }, SLACK),
+    sticky("About the newsroom", [-40, -460], `## 0 Orchestrator\nRuns newsReels for one client, **${client.name}**. **Client** holds its config; **Data sources** lists its datasets. **1 Collect** runs once per dataset, **2 Score** picks the week's strongest change, **2b Context** adds recent reports from the client's news feeds, **3 Write** drafts it, and **7 Chat** posts the draft and its data to the editor in Slack. From there the editor's thread drives Voice, Render and Publish.\n\nIf any step says \`ok: false\`, or errors, **No story today** tells the editor why in Slack.\n\n**Every morning** stays off while building. To test the guard, set \`test_tamper\` to true in **Run options**.`, 400, 540),
   ];
   const c = {};
-  link(c, "Test run", [["Vancouver sources"]]);
-  link(c, "Every morning", [["Vancouver sources"]]);
-  link(c, "Vancouver sources", [["1 Collect"]]);
+  link(c, "Test run", [["Client"]]);
+  link(c, "Every morning", [["Client"]]);
+  link(c, "Client", [["Data sources"]]);
+  link(c, "Data sources", [["1 Collect"]]);
   link(c, "1 Collect", [["2 Score"]]);
   link(c, "2 Score", [["Story found?"], ["Why it stopped"]]);
   link(c, "Story found?", [["Run options"], ["Why it stopped"]]);
-  link(c, "Run options", [["3 Write"]]);
+  link(c, "Run options", [["2b Context"]]);
+  link(c, "2b Context", [["3 Write"], ["Why it stopped"]]);
   link(c, "3 Write", [["Numbers check out?"], ["Why it stopped"]]);
   link(c, "Numbers check out?", [["7 Chat"], ["Why it stopped"]]);
   link(c, "7 Chat", [[], ["Why it stopped"]]);

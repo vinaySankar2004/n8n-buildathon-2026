@@ -25,7 +25,10 @@ const check = (ok, what) => { console.log(`${ok ? "pass" : "FAIL"}  ${what}`); i
 
 const collect = wf("1-collect.json");
 const orch = wf("0-orchestrator.json");
-const sources = await run(codeOf(orch, "Vancouver sources"), []);
+const [clientCfg] = await run(codeOf(orch, "Client"), []);
+const sources = await run(codeOf(orch, "Data sources"), [], { Client: [clientCfg] });
+const { data_sources: _ds, ...runClient } = clientCfg;
+check(sources.length > 0 && clientCfg.name, `Client: ${clientCfg.name}, ${sources.length} data sources, ${clientCfg.news_feeds?.length ?? 0} news feeds`);
 
 async function collectOne(source, overrideBase) {
   const [cfg] = await run(codeOf(collect, "Source config"), [source]);
@@ -66,6 +69,23 @@ check(quiet.ok === false, `Score with nothing unusual says: ${quiet.reason}`);
 // Guard: a model answer that only uses story numbers passes; one changed number is blocked.
 const write = wf("3-write.json");
 const story = scored.ok ? scored.story : JSON.parse(codeOf(write, "Sample story").replace(/^[\s\S]*?return \[\{ json: /, "").replace(/ \}\];\s*$/, "")).story;
+
+// Context: every news feed in the client's config, live, then a dead one.
+const context = wf("2b-context.json");
+const ctxRun = { ok: true, story, client: runClient };
+const feeds = await run(codeOf(context, "Feeds"), [], { Input: [ctxRun] });
+const answers = [];
+for (const f of feeds) {
+  try {
+    const r = await fetch(f.url, { signal: AbortSignal.timeout(20000) });
+    answers.push(r.ok ? { data: await r.text() } : { error: { message: `${r.status}` } });
+  } catch (e) { answers.push({ error: { message: e.message } }); }
+}
+const [ctx] = await run(codeOf(context, "Recent reports"), answers, { Input: [ctxRun], Feeds: feeds });
+check(ctx.ok && ctx.feeds_checked.length === feeds.length && ctx.feeds_checked.every((f) => f.ok), `Context: ${ctx.feeds_checked.map((f) => `${f.feed}, ${f.ok ? `${f.recent} of ${f.items} recent` : f.reason}`).join("; ")}`);
+for (const r of ctx.reports.slice(0, 5)) console.log(`      ${r.id} ${r.source}: ${r.title}`);
+const [ctxDead] = await run(codeOf(context, "Recent reports"), [{ error: { message: "404" } }], { Input: [ctxRun], Feeds: [feeds[0]] });
+check(ctxDead.ok && ctxDead.reports.length === 0 && !ctxDead.feeds_checked[0].ok, `Context with a dead feed goes on with no reports: ${ctxDead.feeds_checked[0].reason}`);
 const top = story.by_area[0] ?? { area: "No neighbourhood", count: story.this_week };
 const answer = {
   headline: `${story.topic} ${story.direction === "up" ? "up" : "down"} sharply`,
@@ -73,11 +93,22 @@ const answer = {
   callout_label: `${story.this_week} ${story.unit} this week against an average of ${story.avg_prev_8_weeks}`,
   chart_title: `${story.topic} by neighbourhood, last 7 days`,
   blurb: `${story.this_week} ${story.unit} this week. ${top.area} had the most.`,
+  reports_used: [],
 };
 const model = { content: [{ type: "text", text: "```json\n" + JSON.stringify(answer) + "\n```" }] };
-const [good] = await run(codeOf(write, "Build spec and check numbers"), [model], { Input: [{ ok: true, story, test_tamper: false }] });
-check(good.ok && good.spec.chart.data.length > 0, `Guard passes a script with only story numbers${good.ok ? "" : `: ${good.reason}`}`);
-const [bad] = await run(codeOf(write, "Build spec and check numbers"), [model], { Input: [{ ok: true, story, test_tamper: true }] });
+const writeIn = { ok: true, story, client: runClient, reports: ctx.reports, test_tamper: false };
+const [good] = await run(codeOf(write, "Build spec and check numbers"), [model], { Input: [writeIn] });
+check(good.ok && good.spec.chart.data.length > 0 && good.spec.brand.name === clientCfg.name, `Guard passes a script with only story numbers${good.ok ? `, branded ${good.spec.brand.name}` : `: ${good.reason}`}`);
+check(good.ok && good.write.number_checks.every((c) => c.from), `Trace: every number has a source, such as ${good.ok ? good.write.number_checks.map((c) => `${c.number} from ${c.from}`).slice(0, 3).join(", ") : "none"}`);
+// A number from a report is allowed only when the script lists that report.
+const fake = { id: "r99", source: "Test feed", title: "Test feed counts 9876 more", summary: "" };
+const cited = { content: [{ type: "text", text: JSON.stringify({ ...answer, script: answer.script.replace(/Source:.*$/, "A test feed counts 9876 more."), reports_used: ["r99"] }) }] };
+const [withReport] = await run(codeOf(write, "Build spec and check numbers"), [cited], { Input: [{ ...writeIn, reports: [fake] }] });
+check(withReport.ok && withReport.spec.chart.source_note.includes("Test feed"), `Guard allows a number from a report the script uses${withReport.ok ? "" : `: ${withReport.reason}`}`);
+const uncited = { content: [{ type: "text", text: JSON.stringify({ ...JSON.parse(cited.content[0].text), reports_used: [] }) }] };
+const [noReport] = await run(codeOf(write, "Build spec and check numbers"), [uncited], { Input: [{ ...writeIn, reports: [fake] }] });
+check(noReport.ok === false, `Guard blocks it when the report is not listed: ${noReport.reason}`);
+const [bad] = await run(codeOf(write, "Build spec and check numbers"), [model], { Input: [{ ...writeIn, test_tamper: true }] });
 check(bad.ok === false, `Guard blocks one changed number: ${bad.reason}`);
 const [junk] = await run(codeOf(write, "Build spec and check numbers"), [{ content: [{ type: "text", text: "Sorry, I cannot." }] }], { Input: [{ ok: true, story }] });
 check(junk.ok === false, `Write without JSON: ${junk.reason}`);

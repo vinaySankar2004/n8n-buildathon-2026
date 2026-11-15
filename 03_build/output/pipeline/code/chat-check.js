@@ -18,7 +18,7 @@ try {
 
 let said = String(answer.reply || "").trim() || "Done.";
 // The reply is checked too, so the bot never states a number the data does not have.
-if (unknownNumbers(run.story, { reply: said }).length) {
+if (unknownNumbers(run.story, { reply: said }, run.reports_used || []).length) {
   said = answer.draft ? "Here is the new version." : "I can only use numbers that are in the city data for this story.";
 }
 
@@ -28,13 +28,13 @@ if (!answer.draft || typeof answer.draft !== "object") {
 
 const draft = { ...draftOf(run), ...answer.draft };
 for (const k of ["headline", "script", "callout_label", "chart_title", "blurb"]) draft[k] = String(draft[k] ?? "").trim();
-const built = buildSpec(run.story, draft);
+const built = buildSpec(run.story, draft, { client: run.client, reports: run.reports });
 if (built.problems.length) {
-  const text = `I did not make that change: ${built.problems.join("; ")}. Every number has to come from the city data. The draft is as it was.`;
+  const text = `I did not make that change: ${built.problems.join("; ")}. Every number has to come from the data or a news report the script cites. The draft is as it was.`;
   return [reply(threadTs, text, null, chat.stage, run, [...history, { bot: text }])];
 }
 
-const revised = { ...run, spec: built.spec, chart_kind: built.chart_kind, blurb: draft.blurb, script_words: built.words };
+const revised = { ...run, spec: built.spec, chart_kind: built.chart_kind, blurb: draft.blurb, script_words: built.words, reports_used: built.used };
 const after = [...history, { bot: said }];
 const videoChanged = JSON.stringify(built.spec) !== JSON.stringify(run.spec);
 

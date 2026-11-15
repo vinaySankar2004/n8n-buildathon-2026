@@ -2,7 +2,9 @@
 
 The JSON each workflow hands to the next. Agree a change here before building on it, so four people can build in parallel.
 
-`source` (Orchestrator to Collect), one per dataset in "Vancouver sources". Draft of 2026-11-14:
+`client` (D13): one file per newsReels client in `03_build/output/clients/`, built into the orchestrator's "Client" node. It holds `id`, `name`, `look` (`desk`, `accent`), `slack` (`editor`, `outlet` channel IDs), `data_sources` (a list of `source`, below), `news_feeds` (`{ "id", "kind": "rss" | "weather_alerts" | "open511", "label", "source_note", "url" }`) and `style` (`audience`, `tone`, `script_words` `{ "min", "max" }`, `avoid`, `samples`). See [rain-city-ledger.json](../03_build/output/clients/rain-city-ledger.json).
+
+`source` (Orchestrator to Collect), one per entry in the client's `data_sources`:
 
 ```json
 {
@@ -93,15 +95,20 @@ Score gets every `collected` and returns `{ "ok": true, "story": …, "runners_u
     "data": [{ "label": "Mount Pleasant", "value": 33 }],
     "source_note": "City of Vancouver open data, 3-1-1 service requests"
   },
+  "brand": { "name": "Rain City Ledger", "desk": "City data desk", "accent": "#F2B33D" },
   "duration_s": 20
 }
 ```
+
+`source_note` on the chart also names the source of every report the script uses, separated by "; ".
 
 `run`: from Write on, each step returns what it got plus its own part, with `ok` saying whether to go on, or `{ "ok": false, "step": "...", "reason": "..." }`.
 
 | After | Adds |
 | --- | --- |
-| Write | `spec`, `blurb`, `script_words`, `chart_kind` (`by_area` or `weekly`, which the editor can change) |
+| Run options | `client` (the client file without `data_sources`), `test_tamper` |
+| Context | `reports` (up to 12, newest first: `{ "id": "r1", "source", "feed", "title", "summary", "url", "published" }`), `feeds_checked` (`{ "feed", "ok", "items", "recent" }` or `{ "feed", "ok": false, "reason" }`) |
+| Write | `spec`, `blurb`, `script_words`, `chart_kind` (`by_area` or `weekly`, which the editor can change), `reports_used` (the reports the script cites), `write` (`model`, `usage`, `stop_reason`, `answer`, `number_checks`: `{ "field", "number", "from" }` for every number) |
 | Voice | `audio_base64`, `audio_seconds` |
 | Render | `video_url`, `video_seconds`, `render_seconds` (and drops `audio_base64`) |
 | Publish | `published: true` |
@@ -122,4 +129,4 @@ The orchestrator hands 7 Chat the run from Write. 7 Chat posts it to the editor 
 
 The router on the host laptop checks Slack's signature and posts to n8n's `/webhook/slack-events` either `{ "source": "events", "body": Slack's event_callback }` for a message, or `{ "source": "interactivity", "payload": Slack's block_actions }` for a tap on a button whose `action_id` starts with `newsroom_` (`newsroom_approve_script`, `newsroom_approve_video`, `newsroom_reject`).
 
-Revise with Claude returns `{ "reply": "...", "draft": { "headline", "script", "callout_label", "chart_title", "chart_kind", "blurb" } or null }`. The draft passes the same number guard as Write before it is used.
+Revise with Claude returns `{ "reply": "...", "draft": { "headline", "script", "callout_label", "chart_title", "chart_kind", "blurb", "reports_used" } or null }`. The draft passes the same number guard as Write before it is used.

@@ -78,7 +78,7 @@ for (const s of stages) {
 }
 
 // 4. n8n workflow exports.
-const names = ["orchestrator", "collect", "score", "write", "voice", "render", "publish", "chat"];
+const names = ["orchestrator", "collect", "score", "context", "write", "voice", "render", "publish", "chat"];
 for (const f of files.filter((f) => f.startsWith("03_build/output/workflows/"))) {
   const base = path.basename(f);
   if (base === "README.md") continue;

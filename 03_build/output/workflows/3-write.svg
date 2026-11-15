@@ -2,18 +2,19 @@
 <rect x="0" y="0" width="1216" height="832" fill="#f6f7f9"/>
 <text x="40" y="44" font-size="20" font-weight="700" fill="#1c2430">3 Write</text>
 <text x="40" y="812" font-size="12" fill="#667085">Grey line: the run goes on. Red dashed line: the error or "no" path. Drawn from 03_build/output/workflows/, the JSON deployed to n8n.</text>
-<rect x="40" y="74" width="460" height="208" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
+<rect x="40" y="74" width="460" height="224" rx="8" fill="#fff6d6" stroke="#e8d27a"/>
 <text x="54" y="100" font-size="16" font-weight="700" fill="#4a3f12">3 Write</text>
 <text x="54" y="122" font-size="12" font-weight="400" fill="#4a3f12">Claude (Anthropic API, credential &quot;Anthropic&quot;) turns the story</text>
-<text x="54" y="138" font-size="12" font-weight="400" fill="#4a3f12">into a headline, a script of 35 to 45 words, a chart title and a</text>
-<text x="54" y="154" font-size="12" font-weight="400" fill="#4a3f12">newsletter blurb.</text>
-<text x="54" y="170" font-size="12" font-weight="400" fill="#4a3f12"></text>
-<text x="54" y="186" font-size="12" font-weight="400" fill="#4a3f12">Build spec and check numbers builds the chart from the story</text>
-<text x="54" y="202" font-size="12" font-weight="400" fill="#4a3f12">itself and stops the run if any number in the text is not in the</text>
-<text x="54" y="218" font-size="12" font-weight="400" fill="#4a3f12">story (the guard).</text>
-<text x="54" y="234" font-size="12" font-weight="400" fill="#4a3f12"></text>
-<text x="54" y="250" font-size="12" font-weight="400" fill="#4a3f12">Its test webhook takes a story run; an empty body uses Sample</text>
-<text x="54" y="266" font-size="12" font-weight="400" fill="#4a3f12">story.</text>
+<text x="54" y="138" font-size="12" font-weight="400" fill="#4a3f12">into a headline, a short script, a chart title and a newsletter</text>
+<text x="54" y="154" font-size="12" font-weight="400" fill="#4a3f12">blurb, in the client's style. It may add one sentence of context</text>
+<text x="54" y="170" font-size="12" font-weight="400" fill="#4a3f12">from a related report and must say which.</text>
+<text x="54" y="186" font-size="12" font-weight="400" fill="#4a3f12"></text>
+<text x="54" y="202" font-size="12" font-weight="400" fill="#4a3f12">Build spec and check numbers builds the chart from the story</text>
+<text x="54" y="218" font-size="12" font-weight="400" fill="#4a3f12">itself and stops the run if any number is not in the story or a</text>
+<text x="54" y="234" font-size="12" font-weight="400" fill="#4a3f12">report it used (the guard). It records where each number came</text>
+<text x="54" y="250" font-size="12" font-weight="400" fill="#4a3f12">from.</text>
+<text x="54" y="266" font-size="12" font-weight="400" fill="#4a3f12"></text>
+<text x="54" y="282" font-size="12" font-weight="400" fill="#4a3f12">An empty test body uses Sample story.</text>
 <path d="M276,491 C398,491 398,591 520,591" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M496,691 C536,691 480,591 520,591" fill="none" stroke="#7d8796" stroke-width="2" />
 <path d="M716,591 C756,591 700,591 740,591" fill="none" stroke="#7d8796" stroke-width="2" />
