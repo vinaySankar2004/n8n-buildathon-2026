@@ -120,7 +120,7 @@ footer { margin-top: 28px; font-size: 13px; color: var(--muted); display: flex; 
     <div>
       <div class="kicker">LOOP n8n Buildathon 2026</div>
       <h1>NewsReels</h1>
-      <p class="lede">City data in, a 20 second narrated video out, approved by an editor in one tap. This page shows every piece, where it runs, who owns it and its state right now. Proposed architecture; the team decides.</p>
+      <p class="lede">A client's own sources in, a narrated news video of about 30 seconds out, reviewed by an editor in a Slack thread and traced back to every number. This page shows every piece, where it runs, who owns it and its state right now.</p>
     </div>
     <div class="clock" aria-live="polite">
       <div class="small">Submissions close</div>
@@ -136,14 +136,14 @@ footer { margin-top: 28px; font-size: 13px; color: var(--muted); display: flex; 
       <div class="walk">
         <div style="flex:1 1 260px">
           <div class="step" id="walkstep">How one run works</div>
-          <p id="walktext">Press Play to follow one story from city data to a published video, or pick any box.</p>
+          <p id="walktext">Press Play to follow one daily story from city data to a published video, then two Slack requests, or pick any box.</p>
         </div>
         <div style="display:flex;gap:8px">
           <button id="prev" aria-label="Previous step">Back</button>
           <button id="next" class="primary" aria-label="Next step">Play</button>
         </div>
       </div>
-      <svg id="arch" viewBox="0 0 1200 530" role="img" aria-label="Architecture diagram">
+      <svg id="arch" viewBox="0 0 1200 712" role="img" aria-label="Architecture diagram">
         <defs>
           <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#9aa7a2"/></marker>
           <marker id="arrowhot" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#0c7069"/></marker>
@@ -181,80 +181,123 @@ footer { margin-top: 28px; font-size: 13px; color: var(--muted); display: flex; 
   <h2>Open for the team</h2>
   <div class="card"><ul class="open" id="open"></ul></div>
 
-  <footer><span id="updated">Waiting for the first check</span><span>Reads the ICM space and live checks every 5 seconds</span></footer>
+  <footer><span id="updated">Waiting for the first check</span><span>Reads this repo and live checks every 5 seconds</span></footer>
 </div>
 
 <script>
+// Layout: a left column for the client file and sources, n8n in the middle (row 1 drafts a story,
+// row 2 is the review hub and the Slack request, row 3 makes and publishes the video), outside
+// services and Slack on the right, and the render service's pieces along the bottom.
 const NODES = {
-  src_van: { x: 20, y: 140, w: 200, h: 64, t: "Vancouver open data", u: "311, permits, licences", keys: [],
-    does: "Public city data, refreshed once a day: 3-1-1 service requests, issued building permits and business licences. Each dataset is a short config, so more can be added.",
-    takes: "A query from Collect", gives: "Rows of requests with type, neighbourhood and time", where: "City of Vancouver servers, no key needed", beat: "B1, B3" },
-  src_sc: { x: 20, y: 250, w: 200, h: 64, t: "Statistics Canada", u: "context numbers, later", keys: [],
-    does: "Optional context such as population, to turn counts into rates. Not in the first version.",
-    takes: "A series id", gives: "Monthly values", where: "Statistics Canada Web Data Service", beat: "None yet" },
-  orch: { x: 265, y: 58, w: 610, h: 44, t: "Orchestrator", u: "schedule trigger, calls each step with Execute Workflow", keys: ["canvas"], wide: true,
-    does: "One workflow that runs on a schedule and calls the six step workflows in order. Each person owns one step workflow, so nobody edits the same canvas.",
-    takes: "A schedule, or a manual run for the demo", gives: "One finished run", where: "n8n on the host laptop", beat: "B3, B8" },
-  collect: { x: 265, y: 140, w: 130, h: 64, t: "1 Collect", u: "HTTP Request", keys: ["collect"],
-    does: "Pulls the last nine weeks of each dataset from the city API, counted by category, day and neighbourhood.",
-    takes: "Nothing but the schedule", gives: "Weekly counts per request type", where: "n8n on the host laptop", beat: "B3" },
-  score: { x: 425, y: 140, w: 130, h: 64, t: "2 Score", u: "Code node", keys: ["score"],
-    does: "Compares this week with the eight before, ranks the biggest real jumps and picks the top story with its neighbourhood breakdown. For 7 to 13 November the top story was flooding reports at 7.4 times normal.",
-    takes: "Weekly counts", gives: "The story contract", where: "n8n on the host laptop", beat: "B4" },
-  write: { x: 585, y: 140, w: 130, h: 64, t: "3 Write", u: "Claude, then a number check", keys: ["write"],
-    does: "Turns the story into a headline, a script of about 50 words and a chart spec. It may only use numbers that are in the story.",
-    takes: "The story contract", gives: "The spec contract", where: "n8n on the host laptop, with an LLM", beat: "B5" },
-  voice: { x: 745, y: 140, w: 130, h: 64, t: "4 Voice", u: "HTTP to ElevenLabs", keys: ["voice"],
-    does: "Sends the script to ElevenLabs and gets the narration back as audio.",
-    takes: "The script from the spec", gives: "An MP3 voice track", where: "n8n on the host laptop, calling ElevenLabs", beat: "B5, B6" },
-  render: { x: 745, y: 280, w: 130, h: 64, t: "5 Render", u: "HTTP to the render service", keys: ["render"],
-    does: "Sends the spec and the audio to the render service on the same laptop and gets a public video link back.",
-    takes: "Spec and audio", gives: "A link to a vertical MP4", where: "n8n calling the render service on the same laptop", beat: "B5, B6" },
-  publish: { x: 585, y: 280, w: 130, h: 64, t: "6 Publish", u: "Slack, send and wait", keys: ["approve", "publish"],
-    does: "Posts the video to the editor in Slack with approve and reject, then waits. Approval posts the video and a newsletter blurb to the outlet channel.",
-    takes: "The video link and headline", gives: "A published story", where: "n8n on the host laptop", beat: "B7" },
-  eleven: { x: 940, y: 140, w: 240, h: 64, t: "ElevenLabs", u: "text to speech", keys: ["voice"],
-    does: "Reads the script aloud. The key lives only in n8n credentials, never in a doc.",
-    takes: "Text", gives: "Audio", where: "ElevenLabs cloud", beat: "B6" },
-  tunnel: { x: 940, y: 264, w: 240, h: 64, t: "ngrok tunnel", u: "public https address for the laptop", keys: ["render"],
-    does: "Gives the host laptop one public address, so teammates' tools can deploy to n8n, Slack approvals reach n8n, and video links open anywhere. A router sends render paths to the render service and the rest to n8n.",
-    takes: "Requests from teammates, Slack and viewers", gives: "The same requests, on the laptop", where: "ngrok and the router on the host laptop", beat: "B8" },
-  rsvc: { x: 940, y: 342, w: 240, h: 74, t: "Render service", u: "Express and Remotion, port 8787", keys: ["render"],
-    does: "Bundles the video template once, renders each request to MP4 with headless Chrome, and serves the file back.",
-    takes: "Spec and audio", gives: "A 1080 by 1920 MP4 and its link", where: "A team laptop that stays awake and online", beat: "B5, B6" },
-  slack: { x: 585, y: 440, w: 130, h: 64, t: "Editor", u: "approves in Slack", keys: ["approve"],
-    does: "The editor sees the video on a phone and taps approve or reject. n8n waits for the answer.",
-    takes: "A message with the video", gives: "A yes or no", where: "The team's Slack workspace", beat: "B7" },
-  outlet: { x: 425, y: 440, w: 130, h: 64, t: "Outlet channel", u: "Slack post and blurb", keys: ["publish"],
-    does: "Where approved stories appear, for a made-up outlet. A Slack channel stands in for the outlet page.",
-    takes: "An approved video and headline", gives: "A post with the newsletter blurb", where: "Slack", beat: "B7" },
+  client: { x: 22, y: 46, w: 186, h: 62, t: "Client config", u: "rain-city-ledger.json", keys: ["client"],
+    does: "One file per NewsReels client. For Rain City Ledger, a made-up Vancouver outlet, it sets the name and look on the video, the two Slack channels, three city datasets, a Statistics Canada series, three news feeds, web search for requested stories, Reddit (off for now) and a style card that Write follows: audience, tone, script length, words to avoid and sample scripts.",
+    takes: "Edits to the file, then a pipeline build and deploy", gives: "The Client node inside 0 Orchestrator and 8 Request", where: "03_build/output/clients/ in this repo", beat: "B5" },
+  src_van: { x: 22, y: 166, w: 186, h: 64, t: "Vancouver open data", u: "3-1-1, permits, licences", keys: ["collect"], ext: true,
+    does: "City of Vancouver open data, refreshed daily: 3-1-1 service requests (222 request types across 22 neighbourhoods), issued building permits and business licences. Each dataset is a short entry in the client file.",
+    takes: "A query from 1 Collect", gives: "Counts by category, day and neighbourhood", where: "City of Vancouver servers, public, no key", beat: "B1, B3" },
+  src_news: { x: 22, y: 248, w: 186, h: 62, t: "News feeds", u: "BC news, weather, roads", keys: ["context"], ext: true,
+    does: "Recent reports for context: BC Government News (RSS), Environment Canada weather alerts and DriveBC road events, each limited to Vancouver. News adds at most one sentence; the numbers still come from the data.",
+    takes: "A fetch from 2b Context", gives: "The newest items since the story's week began", where: "Each provider's public feed", beat: "B5" },
+  src_sc: { x: 22, y: 328, w: 186, h: 64, t: "Statistics Canada", u: "unemployment series", keys: ["unemployment"], ext: true,
+    does: "Vancouver's monthly unemployment rate from the Labour Force Survey, table 14-10-0459-01, read through Statistics Canada's Web Data Service. Used when someone asks for it in Slack, and drawn as a line.",
+    takes: "A series id from 8 Request", gives: "Monthly values, newest last", where: "Statistics Canada Web Data Service, public, no key", beat: "B7" },
+  orch: { x: 250, y: 46, w: 635, h: 62, t: "0 Orchestrator", u: "every morning or a manual run, then Collect, Score, Context, Write, the trace and the review", keys: ["canvas", "quiet"],
+    does: "The daily entry point. It loads the client file, runs 1 Collect once for each data source, then 2 Score, 2b Context and 3 Write, saves the run trace on the render service, and hands the draft to 7 Chat for review. If any step stops, the editor gets a short \"No story today\" note in Slack with the reason.",
+    takes: "The Every morning schedule (off while building) or a manual run", gives: "A draft in review, or a No story today note", where: "n8n on the host laptop", beat: "B3, B8" },
+  collect: { x: 250, y: 166, w: 140, h: 64, t: "1 Collect", u: "9 weeks, a source", keys: ["collect"],
+    does: "Pulls the last 9 weeks of one open dataset and counts it by category, day and neighbourhood. It works for any dataset with a date, a category and a neighbourhood field. Stale data or a failed call ends with a reason.",
+    takes: "One source from the client file", gives: "Weekly counts per category, with this week's neighbourhood breakdown", where: "n8n on the host laptop", beat: "B3" },
+  score: { x: 415, y: 166, w: 140, h: 64, t: "2 Score", u: "biggest change", keys: ["score"],
+    does: "Compares each category's count this week with its average over the 8 weeks before, across all sources, and keeps changes of at least 20 that are at least twice or half the usual level. For 7 to 13 November the top story was street flooding: 218 reports against an average of 29.3, 7.4 times, with Mount Pleasant highest at 33.",
+    takes: "Every source's weekly counts", gives: "The story, its runners up and the sources checked", where: "n8n on the host laptop", beat: "B4" },
+  context: { x: 580, y: 166, w: 140, h: 64, t: "2b Context", u: "news, web search", keys: ["context", "web", "reactions"],
+    does: "Reads the client's news feeds and adds the newest reports since the story's week began. For 7 to 13 November it found Environment Canada's coastal flooding statement for Vancouver. For a story asked for in Slack, Claude also searches the web and keeps each cited page with the exact words cited. A feed that fails is skipped. 2c Reddit, how people are reacting on Reddit as opinion only, is built and joins here once its n8n credential is connected.",
+    takes: "The story", gives: "Up to 12 reports, and the feeds checked", where: "n8n on the host laptop", beat: "B5" },
+  write: { x: 745, y: 166, w: 140, h: 64, t: "3 Write", u: "Claude + guard", keys: ["write", "guard"],
+    does: "Claude Sonnet 5.5 writes the headline, script, chart title and newsletter blurb in the client's style, with at most one sentence from a report it names. The number check then stops the run if any number is not in the story or in the cited words of a report the script names, and records where each number came from. The flooding story cost about $0.008 of Claude.",
+    takes: "The story and the reports", gives: "The spec: headline, script, callout, chart and blurb", where: "n8n on the host laptop, calling the Anthropic API", beat: "B5" },
+  request: { x: 250, y: 328, w: 140, h: 64, t: "8 Request", u: "@NewsReels asks", keys: ["request", "unemployment"],
+    does: "Anyone in #editor-demo can write \"@NewsReels make a video about graffiti in Mount Pleasant\" or ask \"@NewsReels how many noise complaints this week?\". Claude Haiku 5.5 matches the ask to real categories and a neighbourhood, or to a time series such as the unemployment rate. Code builds the story or a short answer from the numbers. A question gets the answer in the thread; a video request runs 2b Context and 3 Write and opens the usual review in the request's thread.",
+    takes: "A mention of the bot, from 7 Chat", gives: "An answer in the thread, or a draft for review", where: "n8n on the host laptop", beat: "B7" },
+  chat: { x: 745, y: 328, w: 140, h: 64, t: "7 Chat", u: "review thread", keys: ["approve", "chart", "free"],
+    does: "The editor's review, as one Slack thread per story. It posts the headline, script and the data behind it first, with Approve script and Reject. Replies in plain words go to Claude Sonnet 5.5, which can change anything but the numbers: wording, length, chart type, colours, scenes and the closing line. The number check runs on every change. Approve script runs 4 Voice and 5 Render and posts the video in the thread; Approve and publish runs 6 Publish. Mentions of @NewsReels go to 8 Request.",
+    takes: "A draft, and Slack replies and taps through the tunnel", gives: "Revised drafts, the video in the thread, and a publish", where: "n8n on the host laptop; threads are kept in the data table editor_threads", beat: "B7" },
+  voice: { x: 415, y: 472, w: 140, h: 64, t: "4 Voice", u: "ElevenLabs", keys: ["voice"],
+    does: "Sends the script to ElevenLabs and gets the narration back. It stops if the narration runs over 48 seconds. Check credits reads the plan, so the trace and the ledger show the credits used and what they cost.",
+    takes: "The approved script", gives: "MP3 narration and its length", where: "n8n on the host laptop, calling ElevenLabs", beat: "B5, B6" },
+  render: { x: 580, y: 472, w: 140, h: 64, t: "5 Render", u: "Remotion video", keys: ["render"],
+    does: "Sends the spec and narration to the render service on the same laptop and gets a public MP4 link back. The video runs about 30 seconds in three scenes: a title card with the big number, the chart as bars, a line or a pie, and a closing line with the source.",
+    takes: "Spec and audio", gives: "A link to a 1080 by 1920 MP4", where: "n8n calling the render service on the same laptop", beat: "B5, B6" },
+  publish: { x: 745, y: 472, w: 140, h: 64, t: "6 Publish", u: "outlet post", keys: ["publish", "trace"],
+    does: "Saves the final trace with the voice, video, edits and approvals, then posts the video to #outlet with its headline, blurb, sources and the public \"How this story was made\" link, then the newsletter draft.",
+    takes: "An approved run with its video", gives: "A published story", where: "n8n on the host laptop", beat: "B7" },
+  claude: { x: 960, y: 166, w: 220, h: 64, t: "Claude", u: "Anthropic API: Sonnet and Haiku 5.5", keys: ["write", "request"], ext: true,
+    does: "Sonnet 5.5 writes each story (3 Write) and makes the editor's changes (7 Chat). Haiku 5.5 reads Slack requests (8 Request). For a requested story, its web search tool finds recent reporting (2b Context). Every call's tokens and cost go into the trace and the ledger.",
+    takes: "Prompts with the story and only its numbers", gives: "Drafts, revisions and request matches", where: "Anthropic cloud; the key lives only in n8n credentials", beat: "B5" },
+  editor: { x: 960, y: 328, w: 220, h: 64, t: "#editor-demo", u: "Slack: reviews and requests", keys: ["approve", "request"],
+    does: "Where the editor reviews each story in its own thread, replies with changes, and taps Approve script, then Approve and publish. Anyone here can also ask @NewsReels for a video or a number. No story today notes land here too.",
+    takes: "Review cards, drafts, videos and answers", gives: "Replies, taps and requests", where: "The team's Slack workspace; the channel ID is in the client file", beat: "B7" },
+  outlet: { x: 960, y: 472, w: 220, h: 64, t: "#outlet", u: "Slack: published stories", keys: ["publish"],
+    does: "Stands in for the client's own page. Each approved story appears here with its video, headline, blurb, sources and the public \"How this story was made\" link, then the newsletter draft.",
+    takes: "An approved video and blurb", gives: "A post readers could see", where: "The team's Slack workspace; the channel ID is in the client file", beat: "B7" },
+  eleven: { x: 415, y: 620, w: 140, h: 64, t: "ElevenLabs", u: "text to speech", keys: ["voice"], ext: true,
+    does: "Reads the script aloud. The key lives only in n8n credentials. Its subscription API gives the credits used and the price per credit for the ledger.",
+    takes: "Script text", gives: "MP3 audio", where: "ElevenLabs cloud", beat: "B6" },
+  rsvc: { x: 580, y: 620, w: 140, h: 64, t: "Render service", u: "Remotion, port 8787", keys: ["render"],
+    does: "Express and Remotion on the host laptop. It bundles the video template once, renders each request to MP4 with headless Chrome, one at a time, and serves the files. It also writes the trace pages and the run ledger.",
+    takes: "Spec and audio, or a run to trace", gives: "MP4 links, trace pages and ledger rows", where: "The host laptop, next to n8n", beat: "B5, B6" },
+  pages: { x: 745, y: 620, w: 170, h: 64, t: "Trace and ledger", u: "editor, public, ledger", keys: ["trace", "ledger"],
+    does: "Every run gets two pages: an editor trace (every source checked, how the story was ranked, the news offered and used, what Claude was asked and answered, where each number came from, edits, approvals and cost) and a public \"How this story was made\" page without prompts, messages or costs. The run ledger lists every run: who asked, its status, the Claude cost, and the ElevenLabs credits and cost.",
+    takes: "Runs from 0 Orchestrator, 8 Request, 7 Chat and 6 Publish", gives: "Links for the review card, the outlet post and the team", where: "Served by the render service under /files/, public through the tunnel", beat: "B7" },
+  tunnel: { x: 1000, y: 620, w: 180, h: 64, t: "ngrok tunnel", u: "and the router", keys: [],
+    does: "Gives the host laptop one public address. A router sends the render service's paths, including /files/, to it and the rest to n8n, and checks Slack's signature on every reply and tap before passing it to 7 Chat. Video links and trace pages open anywhere through it.",
+    takes: "Slack events, viewers and teammates' deploys", gives: "The same requests, on the laptop", where: "ngrok and the router on the host laptop", beat: "B8" },
 };
 const GROUPS = [
-  { x: 10, y: 24, w: 222, h: 310, label: "Public data" },
-  { x: 250, y: 24, w: 640, h: 345, label: "n8n · host laptop" },
-  { x: 925, y: 236, w: 268, h: 196, label: "Same laptop" },
-  { x: 410, y: 408, w: 320, h: 112, label: "People and publishing" },
+  { x: 10, y: 14, w: 210, h: 108, label: "Client config" },
+  { x: 10, y: 132, w: 210, h: 278, label: "Sources" },
+  { x: 230, y: 14, w: 680, h: 548, label: "n8n on the host laptop" },
+  { x: 948, y: 292, w: 244, h: 270, label: "Slack" },
+  { x: 568, y: 584, w: 624, h: 118, label: "Same laptop" },
 ];
+// [from, to, label, options]. Options: off (shift both ends), as/bs (side of each end: l r t b),
+// ao/bo (shift each end), via (corner points for a routed line), lx/ly (label position).
 const EDGES = [
-  ["src_van", "collect", ""], ["src_sc", "collect", "", { dash: true }],
-  ["collect", "score", ""], ["score", "write", ""], ["write", "voice", ""],
+  ["client", "orch", "config"],
+  ["src_van", "collect", ""],
+  ["src_news", "context", "news reports", { as: "r", bs: "b", via: [[650, 279]], lx: 430, ly: 272 }],
+  ["src_sc", "request", "series"],
+  ["collect", "score", ""], ["score", "context", ""], ["context", "write", ""],
+  ["write", "claude", "story", { off: -9 }], ["claude", "write", "draft", { off: 9 }],
+  ["write", "chat", "draft"],
+  ["chat", "editor", "review", { off: -9 }], ["editor", "chat", "replies", { off: 9 }],
+  ["chat", "request", "@NewsReels", { off: -9 }], ["request", "chat", "video review", { off: 9 }],
+  ["chat", "voice", "approved script", { as: "b", bs: "t", ao: -25, bo: 0, lx: 575, ly: 428 }],
+  ["chat", "publish", "publish", { as: "b", bs: "t", off: 25 }],
+  ["voice", "render", ""],
   ["voice", "eleven", "script", { off: -9 }], ["eleven", "voice", "audio", { off: 9 }],
-  ["voice", "render", ""], ["render", "rsvc", "spec + audio", { off: -9 }], ["rsvc", "render", "video", { off: 9 }],
-  ["tunnel", "rsvc", "public links"],
-  ["render", "publish", ""], ["publish", "slack", "video", { off: -14 }], ["slack", "publish", "approve", { off: 14 }],
-  ["publish", "outlet", ""],
+  ["render", "rsvc", "spec + audio", { off: -9 }], ["rsvc", "render", "video", { off: 9 }],
+  ["publish", "outlet", "post"],
+  ["publish", "pages", "final trace", { as: "b", bs: "t" }],
+  ["rsvc", "pages", ""],
+  ["tunnel", "pages", "public links"],
 ];
 const STEPS = [
-  { n: ["orch"], e: [], t: "The schedule fires. The orchestrator starts the run and calls each step workflow in order." },
-  { n: ["src_van", "collect"], e: ["src_van>collect"], t: "Collect pulls nine weeks of 3-1-1 counts from the City of Vancouver API." },
-  { n: ["score"], e: ["collect>score"], t: "Score compares this week with the eight before. For 7 to 13 November, flooding reports were 7.4 times normal, 218 against 29.3, highest in Mount Pleasant. That is the story." },
-  { n: ["write"], e: ["score>write"], t: "Write hands the story to an AI agent, which returns a headline, a 50 word script and a chart spec, using only numbers from the story." },
-  { n: ["voice", "eleven"], e: ["write>voice", "voice>eleven", "eleven>voice"], t: "Voice sends the script to ElevenLabs and gets the narration back." },
-  { n: ["render", "rsvc"], e: ["voice>render", "render>rsvc", "rsvc>render"], t: "Render sends the spec and audio to the render service on the same laptop, which makes a 20 second vertical video and returns a public link." },
-  { n: ["publish", "slack"], e: ["render>publish", "publish>slack", "slack>publish"], t: "Publish sends the video to the editor in Slack and waits. The editor taps approve on a phone." },
-  { n: ["outlet"], e: ["publish>outlet"], t: "Approval posts the video and a newsletter blurb to the outlet channel in Slack. One run, done." },
+  { n: ["orch", "client"], e: ["client>orch"], sel: "orch", t: "The Every morning schedule fires, or someone starts a manual run. 0 Orchestrator loads the Rain City Ledger client file: name and look, Slack channels, data sources, news feeds and style card." },
+  { n: ["src_van", "collect"], e: ["src_van>collect"], sel: "collect", t: "1 Collect runs once per data source: 9 weeks of 3-1-1 requests, building permits and business licences from City of Vancouver open data, counted by category, day and neighbourhood." },
+  { n: ["score"], e: ["collect>score"], sel: "score", t: "2 Score compares each category's week with the 8 weeks before. For 7 to 13 November: 218 street flooding reports against an average of 29.3, 7.4 times the usual level, with Mount Pleasant highest at 33. That is the story." },
+  { n: ["context", "src_news"], e: ["score>context", "src_news>context"], sel: "context", t: "2b Context reads the client's news feeds and finds an Environment Canada coastal flooding statement in effect for Vancouver." },
+  { n: ["write", "claude"], e: ["context>write", "write>claude", "claude>write"], sel: "write", t: "3 Write sends the story and the reports to Claude Sonnet 5.5, which writes the headline, script, chart title and blurb in Rain City Ledger's style, with one sentence naming the Environment Canada statement. The number check confirms every number came from the story. Claude cost about $0.008." },
+  { n: ["orch", "rsvc", "pages"], e: ["rsvc>pages"], sel: "pages", t: "The orchestrator saves the run trace on the render service: an editor page that follows 218 back to the 3-1-1 data and shows the cost, and the public page, filled in at publish." },
+  { n: ["chat", "editor"], e: ["write>chat", "chat>editor"], sel: "chat", t: "7 Chat posts the review card in #editor-demo: headline, script, the data behind it and the trace link. No voice or video is made yet." },
+  { n: ["editor", "tunnel", "chat", "claude"], e: ["editor>chat", "chat>editor"], sel: "chat", t: "The editor replies in the thread, for example \"make the headline calmer\". The reply reaches n8n through the tunnel, Claude Sonnet 5.5 revises the draft, the number check runs again, and the new draft appears in the thread." },
+  { n: ["voice", "eleven", "render", "rsvc"], e: ["chat>voice", "voice>eleven", "eleven>voice", "voice>render", "render>rsvc", "rsvc>render"], sel: "render", t: "Approve script. 4 Voice has ElevenLabs read the script and records the credits. 5 Render has the render service make a video of about 30 seconds: a title card with 7.4 times, the chart by neighbourhood, and a closing line. The video comes back in the thread." },
+  { n: ["publish", "outlet", "pages"], e: ["chat>publish", "publish>pages", "publish>outlet"], sel: "publish", t: "Approve and publish. 6 Publish saves the final trace and posts the video, the blurb and the public \"How this story was made\" link to #outlet, then the newsletter draft. One run, done." },
+  { n: ["editor", "chat", "request", "claude", "pages"], e: ["editor>chat", "chat>request"], sel: "request", t: "A Slack question: \"@NewsReels how many noise complaints this week?\" 7 Chat hands the mention to 8 Request, Claude Haiku 5.5 matches it to the real 3-1-1 category, code counts it, and the answer comes back in the thread. The ledger records who asked." },
+  { n: ["src_sc", "request", "context", "write", "chat", "editor"], e: ["src_sc>request", "request>chat", "chat>editor"], sel: "request", t: "A video request: \"@NewsReels show unemployment over the last 5 years\". 8 Request reads Vancouver's unemployment rate from Statistics Canada, table 14-10-0459-01, runs 2b Context with a web search and 3 Write, and opens the usual review in the request's thread, with the rate drawn as a line." },
 ];
-const ORDER = ["orch", "src_van", "collect", "score", "write", "voice", "eleven", "render", "tunnel", "rsvc", "publish", "slack", "outlet", "src_sc"];
+const ORDER = ["client", "src_van", "src_news", "src_sc", "orch", "collect", "score", "context", "write", "claude", "chat", "editor", "tunnel", "voice", "eleven", "render", "rsvc", "pages", "publish", "outlet", "request"];
+const DAILY_STEPS = 10; // the first 10 steps are the daily run; the rest are Slack requests
 const STATE_WORD = { live: "Live", built: "Built", todo: "To do", down: "Down", planned: "Later", done: "Done", review: "Waiting for review", active: "In progress" };
 
 let status = null, selected = "score", step = -1;
@@ -263,25 +306,38 @@ const NS = "http://www.w3.org/2000/svg";
 const el = (tag, attrs = {}, parent) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (parent) parent.appendChild(n); return n; };
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
-function anchor(n, side) {
+function anchor(n, side, shift = 0) {
   const cx = n.x + n.w / 2, cy = n.y + n.h / 2;
-  return side === "r" ? [n.x + n.w, cy] : side === "l" ? [n.x, cy] : side === "b" ? [cx, n.y + n.h] : [cx, n.y];
+  return side === "r" ? [n.x + n.w, cy + shift] : side === "l" ? [n.x, cy + shift] : side === "b" ? [cx + shift, n.y + n.h] : [cx + shift, n.y];
 }
-function edgePath(a, b, off = 0) {
+// A curve from A to B, leaving and entering on the facing sides unless o.as and o.bs say otherwise.
+// With o.via, a straight routed line through those corner points instead.
+function edgePath(a, b, o = {}) {
   const A = NODES[a], B = NODES[b];
   const dx = (B.x + B.w / 2) - (A.x + A.w / 2), dy = (B.y + B.h / 2) - (A.y + A.h / 2);
-  let p, q;
-  if (Math.abs(dx) >= Math.abs(dy)) { p = anchor(A, dx > 0 ? "r" : "l"); q = anchor(B, dx > 0 ? "l" : "r"); p[1] += off; q[1] += off; }
-  else { p = anchor(A, dy > 0 ? "b" : "t"); q = anchor(B, dy > 0 ? "t" : "b"); p[0] += off; q[0] += off; }
-  const horiz = Math.abs(dx) >= Math.abs(dy);
+  const auto = Math.abs(dx) >= Math.abs(dy);
+  const as = o.as || (auto ? (dx > 0 ? "r" : "l") : (dy > 0 ? "b" : "t"));
+  const bs = o.bs || (auto ? (dx > 0 ? "l" : "r") : (dy > 0 ? "t" : "b"));
+  const off = o.off || 0;
+  const p = anchor(A, as, o.ao ?? off), q = anchor(B, bs, o.bo ?? off);
+  // Stop 2 px short of the box so the arrowhead sits on its edge.
+  const back = { l: [-2, 0], r: [2, 0], t: [0, -2], b: [0, 2] }[bs];
+  const end = [q[0] + back[0], q[1] + back[1]];
+  const horiz = as === "l" || as === "r";
+  if (o.via) {
+    const pts = [p, ...o.via, end];
+    return { d: "M" + pts.map((pt) => pt.join(" ")).join(" L"), lx: o.lx, ly: o.ly, horiz: true, fixed: true };
+  }
   const mx = (p[0] + q[0]) / 2, my = (p[1] + q[1]) / 2;
-  const d = horiz ? `M${p[0]} ${p[1]} C${mx} ${p[1]}, ${mx} ${q[1]}, ${q[0] - Math.sign(dx) * 2} ${q[1]}` : `M${p[0]} ${p[1]} C${p[0]} ${my}, ${q[0]} ${my}, ${q[0]} ${q[1] - Math.sign(dy) * 2}`;
-  return { d, lx: mx, ly: my, horiz };
+  const d = horiz ? `M${p[0]} ${p[1]} C${mx} ${p[1]}, ${mx} ${q[1]}, ${end[0]} ${end[1]}` : `M${p[0]} ${p[1]} C${p[0]} ${my}, ${q[0]} ${my}, ${end[0]} ${end[1]}`;
+  return { d, lx: o.lx ?? mx, ly: o.ly ?? my, horiz, fixed: o.lx != null };
 }
 function edgeLabel(g, e, label, off) {
-  const a = e.horiz
-    ? { x: e.lx, y: off > 0 ? e.ly + 16 : e.ly - 7, "text-anchor": "middle" }
-    : { x: e.lx + (off < 0 ? -7 : 7), y: e.ly + 4, "text-anchor": off < 0 ? "end" : "start" };
+  const a = e.fixed
+    ? { x: e.lx, y: e.ly, "text-anchor": "middle" }
+    : e.horiz
+      ? { x: e.lx, y: off > 0 ? e.ly + 16 : e.ly - 7, "text-anchor": "middle" }
+      : { x: e.lx + (off < 0 ? -7 : 7), y: e.ly + 4, "text-anchor": off < 0 ? "end" : "start" };
   el("text", { ...a, class: "elabel" }, g).textContent = label;
 }
 
@@ -293,8 +349,7 @@ function drawStatic() {
   }
   const ge = $("edges");
   for (const [a, b, label, o = {}] of EDGES) {
-    if (o.via) continue;
-    const e = edgePath(a, b, o.off || 0);
+    const e = edgePath(a, b, o);
     el("path", { d: e.d, class: "edge" + (o.dash ? " dash" : ""), "data-id": `${a}>${b}`, "marker-end": "url(#arrow)" }, ge);
     if (label) edgeLabel(ge, e, label, o.off || 0);
   }
@@ -304,9 +359,9 @@ function drawStatic() {
     const n = NODES[id];
     const grp = el("g", { class: "node", "data-id": id, tabindex: 0, role: "button", "aria-label": `${n.t}. ${n.u}` }, gn);
     el("rect", { x: n.x, y: n.y, width: n.w, height: n.h, rx: 12, class: "box" }, grp);
-    el("text", { x: n.x + 12, y: n.y + (n.wide ? 19 : 23), class: "t" }, grp).textContent = n.t;
-    el("text", { x: n.x + 12, y: n.y + (n.wide ? 35 : 40), class: "u" }, grp).textContent = n.u;
-    if (!n.wide) el("text", { x: n.x + 12, y: n.y + n.h - 9, class: "o", "data-owner": id }, grp).textContent = "";
+    el("text", { x: n.x + 12, y: n.y + 23, class: "t" }, grp).textContent = n.t;
+    el("text", { x: n.x + 12, y: n.y + 40, class: "u" }, grp).textContent = n.u;
+    el("text", { x: n.x + 12, y: n.y + n.h - 9, class: "o", "data-owner": id }, grp).textContent = "";
     el("circle", { cx: n.x + n.w - 13, cy: n.y + 13, r: 5.5, class: "sdot", fill: "#d9d7ca" }, grp);
     grp.addEventListener("click", () => select(id));
     grp.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(id); } });
@@ -334,7 +389,7 @@ function paint() {
     g.setAttribute("class", `node s-${s}${id === selected ? " sel" : ""}${hotN.includes(id) ? " hot" : ""}`);
     g.querySelector(".sdot").setAttribute("fill", fill[s] || fill.todo);
     const o = g.querySelector(".o");
-    if (o) o.textContent = ownerOf(id) ? `Owner ${ownerOf(id)}` : "Unassigned";
+    if (o) o.textContent = ownerOf(id) ? `Owner ${ownerOf(id)}` : NODES[id].ext ? "" : "Unassigned";
   });
   document.querySelectorAll(".edge").forEach((p) => {
     const hot = hotE.includes(p.dataset.id);
@@ -360,7 +415,7 @@ function renderDetail() {
       <div><dt>Takes in</dt><dd>${esc(n.takes)}</dd></div>
       <div><dt>Gives out</dt><dd>${esc(n.gives)}</dd></div>
       <div><dt>Runs on</dt><dd>${esc(n.where)}</dd></div>
-      <div><dt>Owner</dt><dd>${esc(c.owner || "Unassigned. Add a name in the Owner column of must-work.md.")}</dd></div>
+      <div><dt>Owner</dt><dd>${esc(c.owner || (n.ext ? "An outside service; the team owns only how it is called." : "Unassigned. Add a name in the Owner column of must-work.md."))}</dd></div>
       <div><dt>Video beat</dt><dd>${esc(n.beat)}</dd></div>
       ${tests.length ? `<div><dt>Test</dt><dd>${tests.map((r) => esc(r.test)).join("<br>")}</dd></div>` : ""}
     </dl>`;
@@ -369,12 +424,12 @@ function renderDetail() {
 function select(id) { selected = id; paint(); }
 function go(i) {
   step = Math.max(-1, Math.min(STEPS.length - 1, i));
-  if (step < 0) { $("walkstep").textContent = "How one run works"; $("walktext").textContent = "Press Play to follow one story from city data to a published video, or pick any box."; $("next").textContent = "Play"; }
+  if (step < 0) { $("walkstep").textContent = "How one run works"; $("walktext").textContent = "Press Play to follow one daily story from city data to a published video, then two Slack requests, or pick any box."; $("next").textContent = "Play"; }
   else {
-    $("walkstep").textContent = `Step ${step + 1} of ${STEPS.length}`;
+    $("walkstep").textContent = `Step ${step + 1} of ${STEPS.length}${step >= DAILY_STEPS ? ", a Slack request" : ", the daily run"}`;
     $("walktext").textContent = STEPS[step].t;
     $("next").textContent = step === STEPS.length - 1 ? "Start over" : "Next";
-    selected = STEPS[step].n[STEPS[step].n.length - 1] === "eleven" ? "voice" : STEPS[step].n[0] === "src_van" ? "collect" : STEPS[step].n[0];
+    selected = STEPS[step].sel || STEPS[step].n[0];
   }
   paint();
 }
@@ -412,13 +467,16 @@ function renderStatus() {
   $("infra").innerHTML = [
     row("n8n 2.47.7", "The host laptop, port 5678", "Laptop must stay awake", C.n8n.state, P.n8n.note),
     row("Render service", "The host laptop, port 8787", "One render at a time", C.rsvc.state, C.rsvc.note),
+    row("Trace and ledger pages", "The render service, under /files/", "Links are long and unguessable", C.pages.state, C.pages.note),
     row("Tunnel and router", "ngrok and a router on the host laptop", "Free plan", C.tunnel.state, P.tunnel.note),
     row("City data", "City of Vancouver API", "Public, no key", C.src_van.state, P.vancouver.note),
-    row("ElevenLabs", "ElevenLabs cloud", "Creator month from the event", C.eleven.state, ""),
-    row("Slack", "Team workspace", "Free plan", C.slack.state, ""),
-    row("Outlet channel", "A Slack channel (D12)", "Stands in for an outlet page", C.outlet.state, ""),
+    row("Statistics Canada", "Web Data Service", "Public, no key", C.src_sc.state, C.src_sc.note),
+    row("News feeds", "BC Government News, Environment Canada, DriveBC", "Public feeds", C.src_news.state, C.src_news.note),
+    row("Claude", "Anthropic API", "Paid per token", C.claude.state, C.claude.note),
+    row("ElevenLabs", "ElevenLabs cloud", "Creator month from the event", C.eleven.state, C.eleven.note),
+    row("Slack", "Team workspace: #editor-demo and #outlet", "Free plan", C.editor.state, C.editor.note),
   ].join("");
-  $("contracts").innerHTML = status.contracts.length ? status.contracts.map((c) => `<section class="card contract"><h3>${esc(c.name)}</h3><p>${esc(c.between)}</p><pre>${esc(c.json)}</pre></section>`).join("") : `<div class="card contract"><p>No contracts found in must-work.md yet.</p></div>`;
+  $("contracts").innerHTML = status.contracts.length ? status.contracts.map((c) => `<section class="card contract"><h3>${esc(c.name)}</h3><p>${esc(c.between)}</p><pre>${esc(c.json)}</pre></section>`).join("") : `<div class="card contract"><p>No contracts found in _config/contracts.md yet.</p></div>`;
   $("open").innerHTML = status.open.length ? status.open.map((o) => `<li>${esc(o)}</li>`).join("") : "<li>Nothing open.</li>";
   $("updated").textContent = "Updated " + new Date(status.generated).toLocaleTimeString([], { hour: "numeric", minute: "2-digit", second: "2-digit" });
   tick(); paint();

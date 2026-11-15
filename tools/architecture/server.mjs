@@ -1,5 +1,5 @@
-// Live status server for the LOOP newsroom architecture page.
-// Serves index.html and /status.json, built from the ICM space and live probes.
+// Live status server for the NewsReels architecture page.
+// Serves index.html and /status.json, built from this repo and live probes.
 import http from "node:http";
 import { readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -36,13 +36,13 @@ const STOPS = [
   { at: at(14, 12), label: "Hacking starts" },
   { at: at(14, 13), label: "Idea locked" },
   { at: at(14, 14), label: "Storyboard approved, first render proven" },
-  { at: at(14, 15), label: "Render fallback decision" },
   { at: at(14, 18), label: "Rough end to end run" },
-  { at: at(15, 11), label: "Build frozen" },
-  { at: at(15, 12), label: "Demo recorded" },
-  { at: at(15, 13, 30), label: "Video uploaded" },
-  { at: at(15, 14, 30), label: "Submitted" },
-  { at: at(15, 15), label: "Submissions close", hard: true },
+  { at: at(14, 21), label: "Spec agreed" },
+  { at: at(15, 13), label: "Build frozen" },
+  { at: at(15, 14, 15), label: "Video uploaded" },
+  { at: at(15, 14, 45), label: "Devpost submitted" },
+  { at: at(15, 15), label: "Feature freeze, last push" },
+  { at: at(15, 15, 45), label: "Submissions lock", hard: true },
 ];
 
 const cache = new Map();
@@ -58,10 +58,20 @@ async function probe(key, ttlMs, fn) {
   cache.set(key, { t: Date.now(), v });
   return v;
 }
-async function get(url) {
+async function get(url, init = {}) {
   const t0 = Date.now();
-  const r = await fetch(url, { signal: AbortSignal.timeout(4000), headers: { "ngrok-skip-browser-warning": "1" } });
+  const r = await fetch(url, { signal: AbortSignal.timeout(4000), ...init, headers: { "ngrok-skip-browser-warning": "1", ...init.headers } });
   return { r, ms: Date.now() - t0 };
+}
+
+// The client file: Slack channels, the Statistics Canada series and the news feeds to probe.
+const CLIENT_FILE = "03_build/output/clients/rain-city-ledger.json";
+async function clientConfig() {
+  try {
+    return JSON.parse(await text(CLIENT_FILE));
+  } catch {
+    return null;
+  }
 }
 
 const probes = {
@@ -93,6 +103,25 @@ const probes = {
       const last = j.results?.[0]?.last_modified_timestamp;
       return { ok: r.ok, ms, last, note: last ? "311 data updated " + last : "answering" };
     }),
+  // The two public sources outside the city: checked every 10 minutes.
+  statcan: (series) =>
+    probe("statcan", 600000, async () => {
+      if (!series?.vector) return { ok: false, note: "no series in the client file" };
+      const { r, ms } = await get("https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestNPeriods", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify([{ vectorId: series.vector, latestN: 1 }]),
+      });
+      const j = await r.json();
+      const p = j?.[0]?.object?.vectorDataPoint?.[0];
+      return { ok: r.ok && j?.[0]?.status === "SUCCESS", ms, note: p ? `${series.label}: ${p.value}${series.unit || ""} for ${String(p.refPer).slice(0, 7)}` : "answering" };
+    }),
+  feeds: (feeds = []) =>
+    probe("feeds", 600000, async () => {
+      const results = await Promise.all(feeds.map((fd) => get(fd.url).then(({ r }) => r.ok, () => false)));
+      const up = results.filter(Boolean).length;
+      return { ok: feeds.length > 0 && up === feeds.length, some: up > 0, note: `${up} of ${feeds.length} feeds answering` };
+    }),
 };
 
 function parseMustWork(md) {
@@ -108,9 +137,10 @@ function parseMustWork(md) {
 }
 function parseContracts(md) {
   const out = [];
-  const re = /`(\w+)` \(([^)]*)\):\s*```json\n([\s\S]*?)```/g;
+  // "`source` (Orchestrator to Collect), one per ...:" or "`story`:", then a json block.
+  const re = /`(\w+)`(?: \(([^)]*)\))?[^\n]*:\s*```json\n([\s\S]*?)```/g;
   let m;
-  while ((m = re.exec(md))) out.push({ name: m[1], between: m[2], json: m[3].trim() });
+  while ((m = re.exec(md))) out.push({ name: m[1], between: m[2] || "", json: m[3].trim() });
   return out;
 }
 function parseOpen(md) {
@@ -124,11 +154,15 @@ function parseOpen(md) {
 }
 
 async function status() {
-  const [render, tunnel, n8n, vancouver] = await Promise.all([
+  const client = await clientConfig();
+  const series = client?.series_sources?.[0];
+  const [render, tunnel, n8n, vancouver, statcan, feeds] = await Promise.all([
     probes.render(),
     probes.tunnel(),
     probes.n8n(),
     probes.vancouver(),
+    probes.statcan(series),
+    probes.feeds(client?.news_feeds),
   ]);
   const mustMd = await text("02_storyboard/output/must-work.md");
   const storyMd = await text("02_storyboard/output/storyboard.md");
@@ -143,27 +177,49 @@ async function status() {
   const renderBuilt = has("03_build/output/render-service/server.mjs");
   const passes = (testLog.match(/\bpass\b/gi) || []).length;
 
+  // Trace pages and ledger rows saved by the render service (git-ignored, so only on the host laptop).
+  const files = await list("03_build/output/render-service/files");
+  const traces = files.filter((n) => /^trace-.*\.html$/.test(n)).length;
+  let runs = null;
+  try {
+    const rows = JSON.parse(await text("03_build/output/render-service/files/ledger.json"));
+    runs = Array.isArray(rows) ? rows.length : null;
+  } catch {}
+  const pagesBuilt = has("03_build/output/render-service/trace-page.mjs") && has("03_build/output/render-service/ledger.mjs");
+  const pagesNote = [traces ? `${traces} trace page${traces === 1 ? "" : "s"}` : "", runs != null ? `${runs} run${runs === 1 ? "" : "s"} in the ledger` : ""].filter(Boolean).join(", ");
+  const channel = (k) => Boolean(client?.slack?.[k]);
+  const reddit = client?.reddit?.enabled ? "2c Reddit on" : exported("reddit") ? "2c Reddit built, off until its credential is connected" : "";
+
+  // Workflow files are 0-orchestrator, 1-collect, 2-score, 2b-context, 2c-reddit, 3-write, 4-voice,
+  // 5-render, 6-publish, 7-chat and 8-request: exported means built.
   const wfState = (k) => (exported(k) ? "built" : "todo");
   const components = {
+    client: { state: client ? "built" : "todo", note: client ? client.name : "no client file", owner: owner("client") },
     src_van: { state: vancouver.ok ? "live" : "down", note: vancouver.note },
-    src_sc: { state: "planned", note: "not in the first version" },
-    orch: { state: wfState("orchestrator"), owner: owner("canvas") },
+    src_news: { state: feeds.ok ? "live" : feeds.some ? "built" : "down", note: feeds.note },
+    src_sc: { state: statcan.ok ? "live" : "down", note: statcan.note },
+    orch: { state: wfState("orchestrator"), owner: owner("canvas", "quiet") },
     collect: { state: wfState("collect"), owner: owner("collect") },
     score: { state: wfState("score"), owner: owner("score") },
-    write: { state: wfState("write"), owner: owner("write") },
+    context: { state: wfState("context"), note: reddit, owner: owner("context", "web", "reactions") },
+    write: { state: wfState("write"), owner: owner("write", "guard") },
     voice: { state: wfState("voice"), owner: owner("voice") },
-    render: { state: wfState("render"), owner: owner("render") },
-    publish: { state: wfState("publish"), owner: owner("approve", "publish") },
-    eleven: { state: services.includes("elevenlabs") ? "built" : "todo", owner: owner("voice") },
-    tunnel: { state: tunnel.ok ? "live" : "todo", note: tunnel.note, owner: owner("render") },
+    render: { state: wfState("render"), owner: owner("render", "free") },
+    publish: { state: wfState("publish"), owner: owner("publish") },
+    chat: { state: wfState("chat"), owner: owner("approve", "chart", "free") },
+    request: { state: wfState("request"), owner: owner("request", "unemployment") },
+    claude: { state: services.includes("anthropic api") ? "built" : "todo", note: "Sonnet 5.5 and Haiku 5.5" },
+    eleven: { state: services.includes("elevenlabs") ? "built" : "todo" },
+    editor: { state: channel("editor") ? "built" : "todo", note: channel("editor") ? "channel set in the client file" : "no channel ID yet", owner: owner("approve") },
+    outlet: { state: channel("outlet") ? "built" : "todo", note: channel("outlet") ? "channel set in the client file" : "no channel ID yet", owner: owner("publish") },
     rsvc: { state: render.ok ? "live" : renderBuilt ? "built" : "todo", note: render.ok ? render.note : renderBuilt ? "code exists, server not running" : "not started", owner: owner("render") },
-    slack: { state: services.includes("slack") ? "built" : "todo", owner: owner("approve") },
-    outlet: { state: services.includes("outlet") || services.includes("lovable") ? "built" : "todo", owner: owner("publish") },
+    pages: { state: render.ok && pagesBuilt ? "live" : pagesBuilt ? "built" : "todo", note: pagesNote || (pagesBuilt ? "no runs saved on this machine" : "not started"), owner: owner("trace", "ledger") },
+    tunnel: { state: tunnel.ok ? "live" : "todo", note: tunnel.note },
     n8n: { state: n8n.ok ? "live" : "down", note: n8n.note },
   };
 
   const stages = [
-    { id: "01_idea", label: "Idea", state: has("01_idea/output/pick.md") ? "done" : "active", note: has("01_idea/output/pick.md") ? "Local data newsroom picked" : "Choosing" },
+    { id: "01_idea", label: "Idea", state: has("01_idea/output/pick.md") ? "done" : "active", note: has("01_idea/output/pick.md") ? "NewsReels picked" : "Choosing" },
     { id: "02_storyboard", label: "Storyboard", state: !has("02_storyboard/output/must-work.md") ? "todo" : approved ? "done" : "review", note: approved ? "Approved" : has("02_storyboard/output/must-work.md") ? "Drafted, waiting for the team" : "Not started" },
     { id: "03_build", label: "Build", state: wf.length || renderBuilt ? "active" : "todo", note: `${wf.length} workflow${wf.length === 1 ? "" : "s"} exported, render service ${renderBuilt ? "written" : "not written"}, ${passes} logged pass${passes === 1 ? "" : "es"}` },
     { id: "04_demo", label: "Demo video", state: has("04_demo/output/link.md") ? "done" : has("04_demo/output/demo.mp4") ? "active" : "todo", note: has("04_demo/output/link.md") ? "Uploaded" : has("04_demo/output/demo.mp4") ? "Cut, not uploaded" : "Not started" },
@@ -175,7 +231,7 @@ async function status() {
     stops: STOPS,
     stages,
     components,
-    probes: { render, tunnel, n8n, vancouver },
+    probes: { render, tunnel, n8n, vancouver, statcan, feeds },
     must,
     contracts: parseContracts(await text("_config/contracts.md")),
     open: parseOpen(storyMd),
@@ -205,5 +261,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, "127.0.0.1", () => {
-  console.log(`LOOP newsroom architecture on http://127.0.0.1:${PORT}`);
+  console.log(`NewsReels architecture on http://127.0.0.1:${PORT}`);
 });
