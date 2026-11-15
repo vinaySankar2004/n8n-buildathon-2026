@@ -1,0 +1,97 @@
+<!doctype html>
+<!-- Draws the NewsReels logo (variant 1c: blackletter "News", angular red R, red angular "eels") onto
+     canvases and posts each PNG to tools/brand.mjs, which saves it beside this file. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NewsReels logo render</title>
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Space+Grotesk:wght@500&family=Chakra+Petch:wght@600&display=swap" rel="stylesheet">
+<style>body { margin: 16px; background: #888; font: 14px sans-serif; } canvas { display: block; margin: 0 0 16px; max-width: 100%; }</style>
+</head>
+<body>
+<p id="status">Loading fonts</p>
+<script>
+const INK = "#141414", PAPER = "#F3EEE3", RED = "#D7263D";
+const R = new Path2D("M0 0H62L84 22V46L66 64L88 120H62L43 68H24V120H0Z M24 22V46H54L60 40V28L54 22Z");
+const REPO = "github.com/vinaySankar2004/n8n-buildathon-2026";
+const CREDIT = "Built in n8n by Vinayak and Arman for LOOP, UBC eProjects x n8n Buildathon";
+
+// The masthead at size s (the blackletter's em), centred on (cx, cy). Returns the height used.
+function masthead(ctx, s, cx, cy, fg) {
+  ctx.textBaseline = "alphabetic";
+  ctx.font = `${s}px UnifrakturMaguntia`;
+  const newsW = ctx.measureText("News").width;
+  const gap = 0.24 * s, rH = 0.69 * s, rW = rH * 88 / 120, rGap = 0.05 * s;
+  ctx.font = `600 ${0.965 * s}px "Chakra Petch"`;
+  const eelsW = ctx.measureText("eels").width;
+  const total = newsW + gap + rW + rGap + eelsW;
+  const ruleW = Math.max(6.2 * s, total + 0.5 * s);
+  const top = cy - 0.62 * s, base = cy + 0.28 * s;
+  const x0 = cx - total / 2;
+  // Rules: thick over thin above, thin over thick below, like a newspaper masthead.
+  ctx.fillStyle = fg;
+  ctx.fillRect(cx - ruleW / 2, top - 0.29 * s, ruleW, 0.045 * s);
+  ctx.fillRect(cx - ruleW / 2, top - 0.22 * s, ruleW, 0.012 * s);
+  ctx.fillRect(cx - ruleW / 2, base + 0.21 * s, ruleW, 0.012 * s);
+  ctx.fillRect(cx - ruleW / 2, base + 0.25 * s, ruleW, 0.045 * s);
+  ctx.font = `${s}px UnifrakturMaguntia`;
+  ctx.fillText("News", x0, base);
+  ctx.save();
+  ctx.translate(x0 + newsW + gap, base - rH);
+  ctx.scale(rH / 120, rH / 120);
+  ctx.fillStyle = RED;
+  ctx.fill(R, "evenodd");
+  ctx.restore();
+  ctx.fillStyle = RED;
+  ctx.font = `600 ${0.965 * s}px "Chakra Petch"`;
+  ctx.fillText("eels", x0 + newsW + gap + rW + rGap, base);
+  ctx.fillStyle = fg;
+  ctx.font = `500 ${0.19 * s}px "Space Grotesk"`;
+  ctx.letterSpacing = `${0.24 * 0.19 * s}px`;
+  ctx.textAlign = "center";
+  ctx.fillText("LOCAL DATA · SHORT VIDEO", cx + 0.12 * 0.19 * s, base + 0.62 * s);
+  ctx.textAlign = "left";
+  ctx.letterSpacing = "0px";
+}
+
+function card(name, w, h, bg, draw) {
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  const ctx = c.getContext("2d");
+  if (bg) { ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h); }
+  draw(ctx, w, h);
+  document.body.appendChild(c);
+  return new Promise((ok) => c.toBlob((b) => fetch(`/save?name=${name}`, { method: "POST", body: b }).then(ok), "image/png"));
+}
+
+function markIcon(ctx, w) {
+  ctx.fillStyle = INK;
+  ctx.beginPath(); ctx.roundRect(0, 0, w, w, w * 0.18); ctx.fill();
+  const rH = w * 0.62, rW = rH * 88 / 120;
+  ctx.save(); ctx.translate((w - rW) / 2, (w - rH) / 2); ctx.scale(rH / 120, rH / 120);
+  ctx.fillStyle = RED; ctx.fill(R, "evenodd"); ctx.restore();
+}
+
+(async () => {
+  await Promise.all(["120px UnifrakturMaguntia", "600 120px 'Chakra Petch'", "500 40px 'Space Grotesk'"].map((f) => document.fonts.load(f)));
+  await document.fonts.ready;
+  const jobs = [
+    card("logo-light.png", 1600, 640, PAPER, (ctx, w, h) => masthead(ctx, 160, w / 2, h / 2, INK)),
+    card("logo-dark.png", 1600, 640, INK, (ctx, w, h) => masthead(ctx, 160, w / 2, h / 2, PAPER)),
+    card("logo-transparent.png", 1600, 640, null, (ctx, w, h) => masthead(ctx, 160, w / 2, h / 2, INK)),
+    card("title-card.png", 1920, 1080, PAPER, (ctx, w, h) => masthead(ctx, 190, w / 2, h / 2, INK)),
+    card("end-card.png", 1920, 1080, PAPER, (ctx, w, h) => {
+      masthead(ctx, 150, w / 2, h / 2 - 90, INK);
+      ctx.fillStyle = INK; ctx.textAlign = "center";
+      ctx.font = `500 40px "Space Grotesk"`; ctx.fillText(REPO, w / 2, h / 2 + 200);
+      ctx.fillStyle = "#5B564C"; ctx.font = `500 28px "Space Grotesk"`; ctx.fillText(CREDIT, w / 2, h / 2 + 252);
+    }),
+    card("thumbnail.png", 1200, 800, PAPER, (ctx, w, h) => masthead(ctx, 130, w / 2, h / 2, INK)),
+    card("mark-512.png", 512, 512, null, (ctx, w) => markIcon(ctx, w)),
+  ];
+  await Promise.all(jobs);
+  document.getElementById("status").textContent = "Saved " + jobs.length + " images";
+})();
+</script>
+</body>
+</html>

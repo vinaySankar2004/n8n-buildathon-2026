@@ -81,7 +81,7 @@ Pending: the demo video, 3 minutes or less.
 
 ## Image gallery
 
-Uploaded from `05_submit/output/samples/`, with captions: chart types, the n8n orchestrator, the run trace, a request trace, the public page and the run ledger. Thumbnail: `thumbnail.png`.
+Uploaded from `05_submit/output/samples/`, with captions: chart types, the n8n orchestrator, the run trace, a request trace, the public page and the run ledger. Thumbnail: the logo, `05_submit/output/brand/thumbnail.png` (1200 by 800), replacing the earlier `samples/thumbnail.png` when the video link goes in.
 
 ## Status on Devpost
 
